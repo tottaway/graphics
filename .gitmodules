@@ -1,0 +1,6 @@
+[submodule "ThirdParty/imgui"]
+	path = ThirdParty/imgui
+	url = git@github.com:ocornut/imgui.git
+[submodule "ThirdParty/imgui-sfml"]
+	path = ThirdParty/imgui-sfml
+	url = git@github.com:SFML/imgui-sfml.git

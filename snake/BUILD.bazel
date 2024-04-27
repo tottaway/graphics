@@ -1,0 +1,22 @@
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+cc_binary(
+  name = "snake_main",
+  srcs = ["snake_main.cc"],
+  deps = [
+    ":snake",
+    "//controller:controller"
+  ]
+)
+cc_library(
+  name = "snake",
+  srcs = ["snake.cc"],
+  hdrs = ["snake.hh"],
+  deps = [
+    "//model:game_state",
+    "//model:rectangle",
+    "//view:screen",
+    "//utility:overload",
+    "@eigen",
+  ]
+)

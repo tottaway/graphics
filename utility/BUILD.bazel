@@ -1,0 +1,13 @@
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+cc_library(
+  name = "overload",
+  hdrs = ["overload.hh"],
+  visibility = ["//visibility:public"],
+)
+
+cc_library(
+  name = "try",
+  hdrs = ["try.hh"],
+  visibility = ["//visibility:public"],
+)

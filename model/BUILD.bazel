@@ -1,0 +1,30 @@
+load("@rules_cc//cc:defs.bzl", "cc_library")
+cc_library(
+  name = "rectangle",
+  srcs = ["rectangle.cc"],
+  hdrs = ["rectangle.hh"],
+  deps = [
+    "//model:game_state",
+  ],
+  visibility = ["//visibility:public"],
+)
+
+cc_library(
+  name = "game_state",
+  srcs = ["game_state.cc", "game_state.inl"],
+  hdrs = ["game_state.hh"],
+  deps = [
+    "//utility:overload",
+    "//utility:try",
+    "//view:screen",
+    ":entity_id",
+  ],
+  visibility = ["//visibility:public"],
+)
+
+cc_library(
+  name = "entity_id",
+  hdrs = ["entity_id.hh"],
+  deps = [],
+  visibility = ["//visibility:public"],
+)

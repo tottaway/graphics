@@ -1,0 +1,13 @@
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+cc_library(
+  name = "controller",
+  srcs = ["controller.cc"],
+  hdrs = ["controller.hh"],
+  deps = [
+    "//view:screen",
+    "//model:game_state",
+    "//utility:overload",
+  ],
+  visibility = ["//visibility:public"],
+)

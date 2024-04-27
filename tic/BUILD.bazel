@@ -1,0 +1,22 @@
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+cc_binary(
+  name = "tic_main",
+  srcs = ["tic_main.cc"],
+  deps = [
+    ":tic",
+    "//controller:controller"
+  ]
+)
+cc_library(
+  name = "tic",
+  srcs = ["tic.cc"],
+  hdrs = ["tic.hh"],
+  deps = [
+    "//model:game_state",
+    "//model:rectangle",
+    "//view:screen",
+    "//utility:overload",
+    "@eigen",
+  ]
+)
