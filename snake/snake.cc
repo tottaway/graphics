@@ -52,6 +52,13 @@ view::Position SnakeBoard::get_random_cell_position() {
       distr(gen) * SnakeBoard::grid_cell_size_pixels);
 }
 
+Result<void, std::string> SnakeBoard::ate_apple() {
+  game_state_.remove_entities_by_type<Apple>();
+  auto apple = TRY(add_child_entity<Apple>());
+  apple->init();
+  return Ok();
+}
+
 SnakeHead::SnakeHead(model::GameState &game_state) : Entity(game_state) {}
 
 Result<void, std::string> SnakeHead::init() {
@@ -112,7 +119,17 @@ SnakeHead::on_key_press(const view::KeyPressedEvent &key_press) {
 }
 
 Result<void, std::string> SnakeHead::update(const float timestamp_s) {
-  return move_snake();
+  TRY_VOID(move_snake());
+
+  const auto apple = TRY(game_state_.get_entity_pointer_by_type<Apple>());
+  // TODO real collisions
+  if ((apple->position_.coord.vec - position_.coord.vec).norm() < 1e-5) {
+    extend_on_next_move_ = true;
+    const auto snake_board = TRY(get_parent_entity<SnakeBoard>());
+    TRY_VOID(snake_board->ate_apple());
+  }
+
+  return Ok();
 }
 
 Result<void, std::string> SnakeHead::draw(view::Screen &screen) const {

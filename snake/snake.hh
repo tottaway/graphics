@@ -51,7 +51,7 @@ public:
 
   void game_over();
 
-  void ate_apple();
+  [[nodiscard]] Result<void, std::string> ate_apple();
 
   [[nodiscard]] virtual std::string_view get_entity_type_name() const {
     return entity_type_name;
@@ -139,6 +139,7 @@ public:
   };
 
 private:
+  friend SnakeHead;
   view::Position position_;
 };
 
