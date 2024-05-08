@@ -20,7 +20,8 @@ Result<std::unique_ptr<model::GameState>, std::string> make_tic_game() {
 TicGameModeManager::TicGameModeManager(model::GameState &game_state)
     : Entity(game_state) {}
 
-Result<void, std::string> TicGameModeManager::update(const float timestamp_s) {
+Result<void, std::string>
+TicGameModeManager::update(const int64_t delta_time_ns) {
   switch (game_mode_) {
   case GameMode::init: {
     game_mode_ = GameMode::in_game;

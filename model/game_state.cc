@@ -22,12 +22,13 @@ GameState::add_entity(std::unique_ptr<Entity> entity) {
 
 void GameState::remove_entity(const EntityID id) { entities_[id] = nullptr; }
 
-Result<void, std::string> GameState::advance_state(const float timestamp_s) {
+Result<void, std::string>
+GameState::advance_state(const int64_t delta_time_ns) {
   // note that updates can add new entities, we rely on entities_ being fixed
   // size to make this iteration valid
   for (const auto &entity : entities_) {
     if (entity) {
-      TRY_VOID(entity->update(timestamp_s));
+      TRY_VOID(entity->update(delta_time_ns));
     }
   }
   return Ok();

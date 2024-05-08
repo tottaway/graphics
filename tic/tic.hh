@@ -21,9 +21,9 @@ public:
   TicGameModeManager(model::GameState &game_state);
 
   /// Update the internal state of the Enitity
-  /// @param[in] timestamp_ns the current time in nanoseconds
+  /// @param[in] delta_time_ns the current time in nanoseconds
   [[nodiscard]] virtual Result<void, std::string>
-  update(const float timestamp_s);
+  update(const int64_t delta_time_ns);
 
   [[nodiscard]] virtual std::string_view get_entity_type_name() const {
     return entity_type_name;

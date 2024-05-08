@@ -30,10 +30,9 @@ public:
   }
 
   /// Update the internal state of the Enitity
-  /// TODO: consider make this delta time instead of a timestamp
-  /// @param[in] timestamp_ns the current time in nanoseconds
+  /// @param[in] delta_time_ns the current time in nanoseconds
   [[nodiscard]] virtual Result<void, std::string>
-  update(const float timestamp_s) {
+  update(const int64_t delta_time_ns) {
     return Ok();
   }
 
@@ -142,9 +141,9 @@ public:
   void remove_entity(const EntityID id);
 
   /// Update the all of the entities in the game
-  /// @param[in] timestamp_ns the current time in nanoseconds
+  /// @param[in] delta_time_ns the current time in nanoseconds
   [[nodiscard]] Result<void, std::string>
-  advance_state(const float timestamp_s);
+  advance_state(const int64_t delta_time_ns);
 
   /// Handle mouse down event
   [[nodiscard]] Result<void, std::string>

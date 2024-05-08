@@ -118,7 +118,7 @@ SnakeHead::on_key_press(const view::KeyPressedEvent &key_press) {
   }
 }
 
-Result<void, std::string> SnakeHead::update(const float timestamp_s) {
+Result<void, std::string> SnakeHead::update(const int64_t delta_time_ns) {
   TRY_VOID(move_snake());
 
   const auto apple = TRY(game_state_.get_entity_pointer_by_type<Apple>());
