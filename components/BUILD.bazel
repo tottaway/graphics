@@ -1,0 +1,33 @@
+load("@rules_cc//cc:defs.bzl", "cc_library")
+cc_library(
+  name = "component",
+  srcs = ["component.cc"],
+  hdrs = ["component.hh"],
+  deps = [
+    "//utility:try",
+    "//view:screen",
+  ],
+  visibility = ["//visibility:public"],
+)
+
+cc_library(
+  name = "draw_rectangle",
+  srcs = ["draw_rectangle.cc"],
+  hdrs = ["draw_rectangle.hh"],
+  deps = [
+    "//utility:try",
+    "//view:screen",
+  ],
+  visibility = ["//visibility:public"],
+)
+
+cc_library(
+  name = "draw_text",
+  srcs = ["draw_text.cc"],
+  hdrs = ["draw_text.hh"],
+  deps = [
+    "//utility:try",
+    "//view:screen",
+  ],
+  visibility = ["//visibility:public"],
+)

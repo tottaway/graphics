@@ -98,9 +98,7 @@ EndGame::on_click(const view::MouseUpEvent &mouse_up) {
   return Ok(false);
 }
 
-std::optional<view::Box> EndGame::get_bounding_box() const {
-  return view::make_relative_box(0.0f, 0.0f, 1.0f, 1.0f);
-}
+Eigen::Affine2f EndGame::get_transform() const { return transform_; }
 
 TicBoard::TicBoard(model::GameState &game_state) : Entity(game_state) {}
 
@@ -184,7 +182,9 @@ Result<void, std::string> TicBoard::add_tic_squares() {
 
 TicSquare::TicSquare(model::GameState &game_state) : Entity(game_state) {}
 
-void TicSquare::init(const view::Box &box) { box_ = box; }
+void TicSquare::init(const Eigen::Affine2f &transform) {
+  transform_ = transform;
+}
 
 Result<void, std::string> TicSquare::draw(view::Screen &screen) const {
   std::string_view text;
@@ -204,7 +204,7 @@ Result<void, std::string> TicSquare::draw(view::Screen &screen) const {
   return Ok();
 }
 
-std::optional<view::Box> TicSquare::get_bounding_box() const { return box_; }
+Eigen::Affine2f TicSquare::get_transform() const { return transform_; }
 
 Result<bool, std::string>
 TicSquare::on_click(const view::MouseUpEvent &mouse_up) {

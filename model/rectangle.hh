@@ -18,7 +18,7 @@ public:
   [[nodiscard]] virtual Result<void, std::string>
   draw(view::Screen &screen) const;
 
-  [[nodiscard]] virtual std::string_view get_entity_type_name() const {
+  [[nodiscard]] virtual std::string_view unordered_map() const {
     return entity_type_name;
   };
 

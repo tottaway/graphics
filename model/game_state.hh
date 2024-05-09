@@ -1,8 +1,10 @@
 #pragma once
 
+#include "components/component.hh"
 #include "model/entity_id.hh"
 #include "utility/try.hh"
 #include "view/screen.hh"
+#include <Eigen/Dense>
 #include <array>
 #include <cstdint>
 #include <limits>
@@ -25,9 +27,7 @@ public:
   /// Draw the entity on the screen
   /// @param[in] screen object used to interact with the screen
   [[nodiscard]] virtual Result<void, std::string>
-  draw(view::Screen &screen) const {
-    return Ok();
-  }
+  draw(view::Screen &screen) const;
 
   /// Update the internal state of the Enitity
   /// @param[in] delta_time_ns the current time in nanoseconds
@@ -65,8 +65,8 @@ public:
 
   /// Return the bounding box for this entity
   /// @return optional bounding box if this handler is implemented
-  [[nodiscard]] virtual std::optional<view::Box> get_bounding_box() const {
-    return std::nullopt;
+  [[nodiscard]] virtual Eigen::Affine2f get_transform() const {
+    return Eigen::Affine2f::Identity();
   };
 
   /// Get the name of the entity type
@@ -117,6 +117,8 @@ protected:
   /// underlying reference the game state note, that entities are owned by the
   /// game state so it will always outlive the entity
   GameState &game_state_;
+
+  std::vector<std::unique_ptr<component::Component>> components_;
 
 private:
   /// Attempt to get the parent entity as an untyped entity

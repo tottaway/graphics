@@ -100,6 +100,13 @@ GameState::try_get_entity_pointer_by_id(const EntityID entity_id) const {
 
 Entity::Entity(GameState &game_state) : game_state_(game_state) {}
 
+Result<void, std::string> Entity::draw(view::Screen &screen) const {
+  for (const auto &component : components_) {
+    TRY_VOID(component->draw(screen));
+  }
+  return Ok();
+}
+
 EntityID Entity::get_entity_id() const { return entity_id_; };
 
 void Entity::remove_entity(const EntityID entity_id) {

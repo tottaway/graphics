@@ -23,9 +23,9 @@ public:
   /// Update the internal state of the Enitity
   /// @param[in] delta_time_ns the current time in nanoseconds
   [[nodiscard]] virtual Result<void, std::string>
-  update(const int64_t delta_time_ns);
+  update(const int64_t delta_time_ns) final;
 
-  [[nodiscard]] virtual std::string_view get_entity_type_name() const {
+  [[nodiscard]] virtual std::string_view get_entity_type_name() const final {
     return entity_type_name;
   };
 
@@ -47,14 +47,14 @@ public:
 
   /// Draw the entity on the screen
   [[nodiscard]] virtual Result<void, std::string>
-  draw(view::Screen &screen) const;
+  draw(view::Screen &screen) const final;
 
   [[nodiscard]] virtual Result<bool, std::string>
-  on_click(const view::MouseUpEvent &mouse_up);
+  on_click(const view::MouseUpEvent &mouse_up) final;
 
-  [[nodiscard]] virtual std::optional<view::Box> get_bounding_box() const;
+  [[nodiscard]] virtual Eigen::Affine2f get_transform() const final;
 
-  [[nodiscard]] virtual std::string_view get_entity_type_name() const {
+  [[nodiscard]] virtual std::string_view get_entity_type_name() const final {
     return entity_type_name;
   };
 
@@ -62,18 +62,20 @@ public:
 
 private:
   GameResult game_result_;
+  Eigen::Affine2f transform_ = Eigen::Affine2f::Identity();
 };
 
 class TicBoard : public model::Entity {
 public:
   static constexpr std::string_view entity_type_name = "tic_board";
+
   TicBoard(model::GameState &game_state);
 
   [[nodiscard]] Result<void, std::string> init();
 
   void update_result();
 
-  [[nodiscard]] virtual std::string_view get_entity_type_name() const {
+  [[nodiscard]] virtual std::string_view get_entity_type_name() const final {
     return entity_type_name;
   };
 
@@ -96,13 +98,13 @@ public:
 
   TicSquare(model::GameState &game_state);
 
-  void init(const view::Box &box);
+  void init(const Eigen::Affine2f &box);
 
   /// Draw the entity on the screen
   [[nodiscard]] virtual Result<void, std::string>
   draw(view::Screen &screen) const;
 
-  [[nodiscard]] virtual std::optional<view::Box> get_bounding_box() const;
+  [[nodiscard]] virtual Eigen::Affine2f get_transform() const final;
 
   [[nodiscard]] virtual Result<bool, std::string>
   on_click(const view::MouseUpEvent &mouse_up);
@@ -118,6 +120,6 @@ private:
   static constexpr std::string_view o_text = "O";
   static constexpr std::string_view empty_text = " ";
 
-  view::Box box_;
+  Eigen::Affine2f transform_;
 };
 } // namespace tic
