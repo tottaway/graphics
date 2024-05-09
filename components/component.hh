@@ -4,6 +4,8 @@
 namespace component {
 class Component {
 public:
+  virtual ~Component() = default;
+
   /// Draw the entity on the screen
   /// @param[in] screen object used to interact with the screen
   [[nodiscard]] virtual Result<void, std::string>

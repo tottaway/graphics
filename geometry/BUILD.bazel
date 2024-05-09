@@ -1,0 +1,21 @@
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+cc_library(
+  name = "rectangle_utils",
+  srcs = ["rectangle_utils.cc"],
+  hdrs = ["rectangle_utils.hh"],
+  deps = [
+    "@eigen",
+  ],
+  visibility = ["//visibility:public"],
+)
+
+cc_library(
+  name = "transform_utils",
+  srcs = ["transform_utils.cc"],
+  hdrs = ["transform_utils.hh"],
+  deps = [
+    "@eigen",
+  ],
+  visibility = ["//visibility:public"],
+)

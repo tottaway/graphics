@@ -1,4 +1,5 @@
 #include "model/game_state.hh"
+#include "geometry/rectangle_utils.hh"
 #include "utility/overload.hh"
 #include "utility/try.hh"
 #include "view/screen.hh"
@@ -66,12 +67,8 @@ Result<bool, std::string>
 GameState::handle_mouse_up_for_entity(Entity &entity,
                                       const view::MouseUpEvent &mouse_up,
                                       const view::Screen &screen) {
-  const auto maybe_bounding_box = entity.get_bounding_box();
-  if (!maybe_bounding_box) {
-    return Ok(true);
-  }
-  if (screen.check_if_position_is_in_box(mouse_up.position,
-                                         maybe_bounding_box.value())) {
+  if (geometry::rectangle_contains_point(entity.get_transform(),
+                                         mouse_up.position)) {
     return entity.on_click(mouse_up);
   }
   return Ok(true);

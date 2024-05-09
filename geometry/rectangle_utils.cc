@@ -14,4 +14,21 @@ bool rectangle_contains_point(const Eigen::Affine2f &transform,
   return transformed_point.x() < 1.0f && transformed_point.x() > -1.0f &&
          transformed_point.y() < 1.0f && transformed_point.x() > -1.0f;
 }
+
+Eigen::Affine2f make_square_from_center_and_size(const Eigen::Vector2f &center,
+                                                 const float side_length) {
+  Eigen::Affine2f transform = Eigen::Affine2f::Identity();
+  transform.translate(center);
+  transform.scale(side_length);
+  return transform;
+}
+
+Eigen::Affine2f
+make_rectangle_from_center_and_size(const Eigen::Vector2f &center,
+                                    const Eigen::Vector2f &side_lengths) {
+  Eigen::Affine2f transform = Eigen::Affine2f::Identity();
+  transform.translate(center);
+  transform.scale(side_lengths);
+  return transform;
+}
 } // namespace geometry

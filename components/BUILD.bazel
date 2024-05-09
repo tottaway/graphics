@@ -1,7 +1,6 @@
 load("@rules_cc//cc:defs.bzl", "cc_library")
 cc_library(
   name = "component",
-  srcs = ["component.cc"],
   hdrs = ["component.hh"],
   deps = [
     "//utility:try",
@@ -15,6 +14,9 @@ cc_library(
   srcs = ["draw_rectangle.cc"],
   hdrs = ["draw_rectangle.hh"],
   deps = [
+    ":component",
+    "//model:entity_id",
+    "//model:game_state",
     "//utility:try",
     "//view:screen",
   ],
@@ -26,6 +28,9 @@ cc_library(
   srcs = ["draw_text.cc"],
   hdrs = ["draw_text.hh"],
   deps = [
+    ":component",
+    "//model:entity_id",
+    "//model:game_state",
     "//utility:try",
     "//view:screen",
   ],

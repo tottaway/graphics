@@ -152,8 +152,12 @@ Eigen::Vector2f Screen::get_absolute_window_size() const {
 Eigen::Vector2f
 Screen::translate_to_absolute(const Eigen::Vector2f &coordinate) const {
   const auto window_size = get_absolute_window_size();
+  const Eigen::Vector2f flip_and_scale{0.5, 0.5};
+  const Eigen::Vector2f translate{1.0f, 1.0f};
+  const Eigen::Vector2f relative_screen_coord =
+      flip_and_scale.cwiseProduct(coordinate + translate);
   Eigen::Vector2f scaled =
-      std::min(window_size.x(), window_size.y()) * coordinate;
+      std::min(window_size.x(), window_size.y()) * relative_screen_coord;
   if (window_size.x() <= window_size.y()) {
     scaled.y() += ((window_size.y() - window_size.x()) / 2);
   } else {

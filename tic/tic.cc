@@ -1,4 +1,6 @@
 #include "tic/tic.hh"
+#include "components/draw_text.hh"
+#include "geometry/transform_utils.hh"
 #include "model/rectangle.hh"
 #include "utility/overload.hh"
 #include "view/screen.hh"
@@ -71,21 +73,21 @@ EndGame::EndGame(model::GameState &game_state) : Entity(game_state) {}
 void EndGame::init(const GameResult &result) { game_result_ = result; }
 
 Result<void, std::string> EndGame::draw(view::Screen &screen) const {
-  view::Position position = {view::make_relative_coordinate(0.2, 0.5)};
+  Eigen::Vector2f position{0.2f, 0.5f};
 
   switch (game_result_) {
   case GameResult::x: {
-    screen.draw_text(position, 32.,
+    screen.draw_text(position, 32.f,
                      "Player X wins!! Click anywhere to play again");
     break;
   }
   case GameResult::o: {
-    screen.draw_text(position, 32.,
+    screen.draw_text(position, 32.f,
                      "Player O wins!! Click anywhere to play again");
     break;
   }
   case GameResult::tie: {
-    screen.draw_text(position, 32., "Tie Game!! Click anywhere to play again");
+    screen.draw_text(position, 32.f, "Tie Game!! Click anywhere to play again");
     break;
   }
   }
@@ -144,64 +146,50 @@ void TicBoard::update_result() {
 
 Result<void, std::string> TicBoard::add_border_lines() {
   const auto add_line =
-      [this](const view::Box &box) -> Result<void, std::string> {
-    auto rectangle = TRY(add_child_entity<model::Rectangle>());
-    rectangle->init(box, view::Color{255, 255, 255});
+      [this](const Eigen::Affine2f &transform) -> Result<void, std::string> {
+    auto rectangle = TRY(add_child_entity<model::StaticDrawnRectangle>());
+    rectangle->init(transform, view::Color{255, 255, 255});
     return Ok();
   };
 
-  TRY_VOID(add_line(view::make_relative_box(0.2, 0.4, 0.6, 0.01)));
-  TRY_VOID(add_line(view::make_relative_box(0.2, 0.6, 0.6, 0.01)));
-  TRY_VOID(add_line(view::make_relative_box(0.4, 0.2, 0.01, 0.6)));
-  return add_line(view::make_relative_box(0.6, 0.2, 0.01, 0.6));
+  TRY_VOID(add_line(
+      geometry::transform_from_translation_and_scale({0.0, 0.2}, {0.6, 0.01})));
+  TRY_VOID(add_line(geometry::transform_from_translation_and_scale(
+      {0.0, -0.2}, {0.6, 0.01})));
+  TRY_VOID(add_line(
+      geometry::transform_from_translation_and_scale({0.2, 0.0}, {0.01, 0.6})));
+  return add_line(
+      geometry::transform_from_translation_and_scale({-0.2, 0.0}, {0.01, 0.6}));
 }
 
 Result<void, std::string> TicBoard::add_tic_squares() {
   const auto add_square =
       [this](const float relative_x,
              const float relative_y) -> Result<void, std::string> {
-    constexpr float size_x{0.2f};
-    constexpr float size_y{0.2f};
     auto tic_square = TRY(add_child_entity<TicSquare>());
-    tic_square->init(
-        view::make_relative_box(relative_x, relative_y, size_x, size_y));
+    tic_square->init(geometry::transform_from_translation_and_scale(
+        {relative_x, relative_y}, 0.2));
     return Ok();
   };
-  TRY_VOID(add_square(0.2, 0.2));
-  TRY_VOID(add_square(0.2, 0.4));
-  TRY_VOID(add_square(0.2, 0.6));
+  TRY_VOID(add_square(-0.2, -0.2));
+  TRY_VOID(add_square(-0.2, -0.0));
+  TRY_VOID(add_square(-0.2, 0.2));
 
-  TRY_VOID(add_square(0.4, 0.2));
-  TRY_VOID(add_square(0.4, 0.4));
-  TRY_VOID(add_square(0.4, 0.6));
+  TRY_VOID(add_square(0.0, -0.2));
+  TRY_VOID(add_square(0.0, -0.0));
+  TRY_VOID(add_square(0.0, 0.2));
 
-  TRY_VOID(add_square(0.6, 0.2));
-  TRY_VOID(add_square(0.6, 0.4));
-  return add_square(0.6, 0.6);
+  TRY_VOID(add_square(0.2, -0.2));
+  TRY_VOID(add_square(0.2, -0.0));
+  return add_square(0.2, 0.2);
 }
 
 TicSquare::TicSquare(model::GameState &game_state) : Entity(game_state) {}
 
 void TicSquare::init(const Eigen::Affine2f &transform) {
   transform_ = transform;
-}
-
-Result<void, std::string> TicSquare::draw(view::Screen &screen) const {
-  std::string_view text;
-  switch (state_) {
-  case State::x:
-    text = x_text;
-    break;
-  case State::o:
-    text = o_text;
-    break;
-  case State::empty:
-    text = empty_text;
-    break;
-  }
-
-  screen.draw_text(box_.bottom_left, 128.f, text);
-  return Ok();
+  components_.emplace_back(std::make_unique<component::DrawText>(
+      game_state_, get_entity_id(), 128., "X"));
 }
 
 Eigen::Affine2f TicSquare::get_transform() const { return transform_; }

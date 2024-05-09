@@ -5,6 +5,7 @@ cc_library(
   hdrs = ["rectangle.hh"],
   deps = [
     "//model:game_state",
+    "//components:draw_rectangle",
   ],
   visibility = ["//visibility:public"],
 )
@@ -14,6 +15,8 @@ cc_library(
   srcs = ["game_state.cc", "game_state.inl"],
   hdrs = ["game_state.hh"],
   deps = [
+    "//geometry:rectangle_utils",
+    "//components:component",
     "//utility:overload",
     "//utility:try",
     "//view:screen",

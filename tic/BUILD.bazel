@@ -17,6 +17,9 @@ cc_library(
     "//model:rectangle",
     "//view:screen",
     "//utility:overload",
+    "//geometry:rectangle_utils",
+    "//geometry:transform_utils",
+    "//components:draw_text",
     "@eigen",
   ]
 )

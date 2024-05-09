@@ -1,16 +1,16 @@
 #include "model/rectangle.hh"
+#include "components/draw_rectangle.hh"
 #include "view/screen.hh"
 
 namespace model {
-Rectangle::Rectangle(model::GameState &game_state) : Entity(game_state) {}
+StaticDrawnRectangle::StaticDrawnRectangle(model::GameState &game_state)
+    : Entity(game_state) {}
 
-void Rectangle::init(const view::Box &box, const view::Color &color) {
-  box_ = box;
-  color_ = color;
+void StaticDrawnRectangle::init(const Eigen::Affine2f &static_transform,
+                                const view::Color &color) {
+  static_transform_ = static_transform;
+  components_.emplace_back(std::make_unique<component::DrawRectangle>(
+      game_state_, get_entity_id(), color));
 }
 
-Result<void, std::string> Rectangle::draw(view::Screen &screen) const {
-  screen.draw_rectangle(box_, color_);
-  return Ok();
-}
 } // namespace model

@@ -100,10 +100,6 @@ public:
 
   void init(const Eigen::Affine2f &box);
 
-  /// Draw the entity on the screen
-  [[nodiscard]] virtual Result<void, std::string>
-  draw(view::Screen &screen) const;
-
   [[nodiscard]] virtual Eigen::Affine2f get_transform() const final;
 
   [[nodiscard]] virtual Result<bool, std::string>
