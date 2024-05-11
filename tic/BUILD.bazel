@@ -19,7 +19,7 @@ cc_library(
     "//utility:overload",
     "//geometry:rectangle_utils",
     "//geometry:transform_utils",
-    "//components:draw_text",
+    "//components:label",
     "@eigen",
   ]
 )

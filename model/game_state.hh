@@ -9,6 +9,7 @@
 #include <cstdint>
 #include <limits>
 #include <memory>
+#include <type_traits>
 #include <unordered_set>
 
 namespace model {
@@ -100,8 +101,11 @@ protected:
   /// GameState reference
   /// @note the pointer is not guarenteed to remain valid and should only be
   /// held for the duration of a function, EntityIDs should be used for storage
+  /// @tparam EntityType type of entity to add
   /// @return non-null pointer to new child entity if successful
-  template <typename EntityType>
+  template <
+      typename EntityType,
+      typename std::enable_if_t<std::is_base_of_v<Entity, EntityType>, int> = 0>
   [[nodiscard]] Result<EntityType *, std::string> add_child_entity();
 
   /// Remove entity from game state
@@ -113,6 +117,17 @@ protected:
   /// Remove all child entities
   /// @note this is called on destruction
   void remove_child_entities();
+
+  /// Constructs and adds a new component of the speicified type to the entity
+  /// @note components are owned by the entity
+  /// @tparam ComponentType
+  /// @return non-null pointer to new child entity if successful
+
+  template <
+      typename ComponentType, typename... Args,
+      typename std::enable_if_t<
+          std::is_base_of_v<component::Component, ComponentType>, int> = 0>
+  component::Component *add_component(Args &&...args);
 
   /// underlying reference the game state note, that entities are owned by the
   /// game state so it will always outlive the entity
@@ -154,19 +169,28 @@ public:
   [[nodiscard]] std::optional<Entity *>
   try_get_entity_pointer_by_id(const EntityID entity_id) const;
 
-  template <typename EntityType>
+  template <
+      typename EntityType,
+      typename std::enable_if_t<std::is_base_of_v<Entity, EntityType>, int> = 0>
   [[nodiscard]] Result<EntityType *, std::string>
   get_entity_pointer_by_id_as(const EntityID entity_id) const;
 
   /// TODO: add SFINAE or somthing
-  template <typename EntityType>
+  template <
+      typename EntityType,
+      typename std::enable_if_t<std::is_base_of_v<Entity, EntityType>, int> = 0>
   [[nodiscard]] Result<EntityType *, std::string>
   get_entity_pointer_by_type() const;
 
-  template <typename EntityType>
+  template <
+      typename EntityType,
+      typename std::enable_if_t<std::is_base_of_v<Entity, EntityType>, int> = 0>
   [[nodiscard]] std::vector<EntityType *> get_entity_pointers_by_type() const;
 
-  template <typename EntityType> void remove_entities_by_type();
+  template <
+      typename EntityType,
+      typename std::enable_if_t<std::is_base_of_v<Entity, EntityType>, int> = 0>
+  void remove_entities_by_type();
 
   [[nodiscard]] Result<void, std::string> draw(view::Screen &screen) const;
 

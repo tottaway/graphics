@@ -23,5 +23,9 @@ public:
   /// TODO idk what this is for
   /// @param[in] timestamp_ns the current time in nanoseconds
   [[nodiscard]] virtual Result<void, std::string> late_update() { return Ok(); }
+
+  /// get a string identitying what type of component this is
+  /// @return string identitying what type of component this is
+  [[nodiscard]] virtual std::string_view get_component_type_name() const = 0;
 };
 } // namespace component

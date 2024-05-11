@@ -20,8 +20,11 @@ Result<void, std::string> Controller::run() { return run(std::nullopt); }
 
 Result<void, std::string> Controller::run(
     std::optional<std::chrono::milliseconds> maybe_min_update_interval) {
-  while (TRY(screen_->poll_events_and_check_for_close())) {
+  while (true) {
     screen_->start_update();
+    if (!TRY(screen_->poll_events_and_check_for_close())) {
+      return Ok();
+    }
 
     for (const auto &event : screen_->get_events()) {
       TRY_VOID(game_state_->handle_event(event, *screen_));

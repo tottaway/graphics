@@ -5,15 +5,17 @@
 #include "view/screen.hh"
 
 namespace component {
-class DrawRectangle : public Component {
+class Label : public Component {
 public:
-  struct RectangleInfo {
-    Eigen::Affine2f transform;
+  struct TextInfo {
+    std::string_view text;
     view::Color color;
+    float font;
+    Eigen::Affine2f transform;
   };
 
-  using GetRectangleInfoFunc = std::function<RectangleInfo()>;
-  DrawRectangle(GetRectangleInfoFunc get_info);
+  using GetTextInfoFunc = std::function<TextInfo()>;
+  Label(GetTextInfoFunc get_text_info);
 
   [[nodiscard]] virtual Result<void, std::string>
   draw(view::Screen &screen) const final;
@@ -23,6 +25,6 @@ public:
   }
 
 private:
-  GetRectangleInfoFunc get_info_;
+  GetTextInfoFunc get_text_info_;
 };
 } // namespace component

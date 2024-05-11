@@ -24,9 +24,9 @@ cc_library(
 )
 
 cc_library(
-  name = "draw_text",
-  srcs = ["draw_text.cc"],
-  hdrs = ["draw_text.hh"],
+  name = "label",
+  srcs = ["label.cc"],
+  hdrs = ["label.hh"],
   deps = [
     ":component",
     "//model:entity_id",

@@ -4,24 +4,15 @@
 
 namespace component {
 
-DrawRectangle::DrawRectangle(const model::GameState &game_state,
-                             const model::EntityID entity_id,
-                             const view::Color &color)
-    : game_state_(game_state), entity_id_(entity_id), color_(color) {}
+DrawRectangle::DrawRectangle(GetRectangleInfoFunc get_info)
+    : get_info_(get_info) {}
 
 [[nodiscard]] Result<void, std::string>
 DrawRectangle::draw(view::Screen &screen) const {
-  const auto maybe_entity =
-      game_state_.try_get_entity_pointer_by_id(entity_id_);
-
-  if (!maybe_entity) {
-    return Err(
-        std::string("DrawRectangle's entity component no longer exists"));
-  }
-  const auto transform = maybe_entity.value()->get_transform();
+  const auto info = get_info_();
   const auto [bottom_left, top_right] =
-      geometry::get_bottom_left_and_top_right_from_transform(transform);
-  screen.draw_rectangle(bottom_left, top_right, color_);
+      geometry::get_bottom_left_and_top_right_from_transform(info.transform);
+  screen.draw_rectangle(bottom_left, top_right, info.color);
   return Ok();
 }
 } // namespace component

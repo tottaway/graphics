@@ -1,5 +1,6 @@
 #include "tic/tic.hh"
-#include "components/draw_text.hh"
+#include "components/draw_rectangle.hh"
+#include "components/label.hh"
 #include "geometry/transform_utils.hh"
 #include "model/rectangle.hh"
 #include "utility/overload.hh"
@@ -70,28 +71,25 @@ Result<void, std::string> TicGameModeManager::start_new_game() {
 
 EndGame::EndGame(model::GameState &game_state) : Entity(game_state) {}
 
-void EndGame::init(const GameResult &result) { game_result_ = result; }
-
-Result<void, std::string> EndGame::draw(view::Screen &screen) const {
-  Eigen::Vector2f position{0.2f, 0.5f};
-
-  switch (game_result_) {
+void EndGame::init(const GameResult &result) {
+  switch (result) {
   case GameResult::x: {
-    screen.draw_text(position, 32.f,
-                     "Player X wins!! Click anywhere to play again");
+    display_text_ = x_win;
     break;
   }
   case GameResult::o: {
-    screen.draw_text(position, 32.f,
-                     "Player O wins!! Click anywhere to play again");
+    display_text_ = o_win;
     break;
   }
   case GameResult::tie: {
-    screen.draw_text(position, 32.f, "Tie Game!! Click anywhere to play again");
+    display_text_ = tie_game;
     break;
   }
   }
-  return Ok();
+  add_component<component::Label>([this]() {
+    return component::Label::TextInfo{display_text_, text_color, font_size,
+                                      transform_};
+  });
 }
 
 Result<bool, std::string>
@@ -171,25 +169,43 @@ Result<void, std::string> TicBoard::add_tic_squares() {
         {relative_x, relative_y}, 0.2));
     return Ok();
   };
-  TRY_VOID(add_square(-0.2, -0.2));
-  TRY_VOID(add_square(-0.2, -0.0));
-  TRY_VOID(add_square(-0.2, 0.2));
+  TRY_VOID(add_square(-0.4, -0.4));
+  TRY_VOID(add_square(-0.4, -0.0));
+  TRY_VOID(add_square(-0.4, 0.4));
 
-  TRY_VOID(add_square(0.0, -0.2));
+  TRY_VOID(add_square(0.0, -0.4));
   TRY_VOID(add_square(0.0, -0.0));
-  TRY_VOID(add_square(0.0, 0.2));
+  TRY_VOID(add_square(0.0, 0.4));
 
-  TRY_VOID(add_square(0.2, -0.2));
-  TRY_VOID(add_square(0.2, -0.0));
-  return add_square(0.2, 0.2);
+  TRY_VOID(add_square(0.4, -0.4));
+  TRY_VOID(add_square(0.4, -0.0));
+  return add_square(0.4, 0.4);
 }
 
 TicSquare::TicSquare(model::GameState &game_state) : Entity(game_state) {}
 
 void TicSquare::init(const Eigen::Affine2f &transform) {
   transform_ = transform;
-  components_.emplace_back(std::make_unique<component::DrawText>(
-      game_state_, get_entity_id(), 128., "X"));
+  add_component<component::Label>([this]() { return get_label_info(); });
+}
+
+component::Label::TextInfo TicSquare::get_label_info() {
+  std::string_view text;
+  switch (state_) {
+  case State::x:
+    text = x_text;
+    break;
+  case State::o:
+    text = o_text;
+    break;
+  case State::empty:
+    text = empty_text;
+    break;
+  }
+
+  return component::Label::TextInfo{
+      text, text_color, font_size,
+      get_transform().pretranslate(Eigen::Vector2f{-0.1, 0.1})};
 }
 
 Eigen::Affine2f TicSquare::get_transform() const { return transform_; }

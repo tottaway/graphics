@@ -10,7 +10,7 @@ get_bottom_left_and_top_right_from_transform(const Eigen::Affine2f &transform) {
 
 bool rectangle_contains_point(const Eigen::Affine2f &transform,
                               const Eigen::Vector2f &point) {
-  const auto transformed_point = transform * point;
+  const auto transformed_point = transform.inverse() * point;
   return transformed_point.x() < 1.0f && transformed_point.x() > -1.0f &&
          transformed_point.y() < 1.0f && transformed_point.x() > -1.0f;
 }

@@ -66,12 +66,12 @@ void Screen::draw_rectangle(const Eigen::Vector2f bottom_left,
 }
 
 void Screen::draw_text(const Eigen::Vector2f location, const float font_size,
-                       const std::string_view text) {
+                       const std::string_view text, const Color color) {
   const auto absolute_location = translate_to_absolute(location);
   ImDrawList *draw_list = ImGui::GetWindowDrawList();
   ImVec2 marker_min = ImVec2(absolute_location.x(), absolute_location.y());
   draw_list->AddText(ImGui::GetFont(), font_size, marker_min,
-                     IM_COL32(255, 255, 255, 255), text.data(),
+                     IM_COL32(color.r, color.b, color.g, 255), text.data(),
                      text.data() + text.size());
 }
 
@@ -90,20 +90,20 @@ Result<bool, std::string> Screen::poll_events_and_check_for_close() {
       return Ok(false);
     }
     case sf::Event::EventType::MouseMoved: {
-      events_.emplace_back(
-          MouseMovedEvent{{event.mouseMove.x, event.mouseMove.y}});
+      events_.emplace_back(MouseMovedEvent{
+          translate_to_relative({event.mouseMove.x, event.mouseMove.y})});
       break;
     }
     case sf::Event::EventType::MouseButtonPressed: {
       events_.emplace_back(MouseDownEvent{
           TRY(convert_mouse_button_enum(event.mouseButton.button)),
-          {event.mouseButton.x, event.mouseButton.y}});
+          translate_to_relative({event.mouseButton.x, event.mouseButton.y})});
       break;
     }
     case sf::Event::EventType::MouseButtonReleased: {
-      events_.emplace_back(
-          MouseUpEvent{TRY(convert_mouse_button_enum(event.mouseButton.button)),
-                       {event.mouseButton.x, event.mouseButton.y}});
+      events_.emplace_back(MouseUpEvent{
+          TRY(convert_mouse_button_enum(event.mouseButton.button)),
+          translate_to_relative({event.mouseButton.x, event.mouseButton.y})});
       break;
     }
     case sf::Event::EventType::KeyPressed: {
@@ -152,10 +152,10 @@ Eigen::Vector2f Screen::get_absolute_window_size() const {
 Eigen::Vector2f
 Screen::translate_to_absolute(const Eigen::Vector2f &coordinate) const {
   const auto window_size = get_absolute_window_size();
-  const Eigen::Vector2f flip_and_scale{0.5, 0.5};
-  const Eigen::Vector2f translate{1.0f, 1.0f};
+  const Eigen::Vector2f flip_and_scale{0.5, -0.5};
+  const Eigen::Vector2f translate{0.5f, 0.5f};
   const Eigen::Vector2f relative_screen_coord =
-      flip_and_scale.cwiseProduct(coordinate + translate);
+      flip_and_scale.cwiseProduct(coordinate) + translate;
   Eigen::Vector2f scaled =
       std::min(window_size.x(), window_size.y()) * relative_screen_coord;
   if (window_size.x() <= window_size.y()) {
@@ -164,5 +164,24 @@ Screen::translate_to_absolute(const Eigen::Vector2f &coordinate) const {
     scaled.x() += ((window_size.x() - window_size.y()) / 2);
   }
   return scaled;
+}
+
+Eigen::Vector2f
+Screen::translate_to_relative(Eigen::Vector2f coordinate) const {
+  const auto window_size = get_absolute_window_size();
+  if (window_size.x() <= window_size.y()) {
+    coordinate.y() -= ((window_size.y() - window_size.x()) / 2);
+  } else {
+    coordinate.x() -= ((window_size.x() - window_size.y()) / 2);
+  }
+
+  Eigen::Vector2f scaled =
+      coordinate / std::min(window_size.x(), window_size.y());
+
+  const Eigen::Vector2f flip_and_scale{2, -2};
+  const Eigen::Vector2f translate{0.5f, 0.5f};
+  const Eigen::Vector2f relative_screen_coord =
+      flip_and_scale.cwiseProduct(scaled - translate);
+  return relative_screen_coord;
 }
 } // namespace view

@@ -1,4 +1,5 @@
 #pragma once
+#include "components/label.hh"
 #include "model/game_state.hh"
 #include "view/screen.hh"
 #include <Eigen/Dense>
@@ -45,10 +46,6 @@ public:
 
   void init(const GameResult &result);
 
-  /// Draw the entity on the screen
-  [[nodiscard]] virtual Result<void, std::string>
-  draw(view::Screen &screen) const final;
-
   [[nodiscard]] virtual Result<bool, std::string>
   on_click(const view::MouseUpEvent &mouse_up) final;
 
@@ -61,8 +58,17 @@ public:
   bool has_been_clicked_{false};
 
 private:
-  GameResult game_result_;
-  Eigen::Affine2f transform_ = Eigen::Affine2f::Identity();
+  static constexpr std::string_view x_win =
+      "Player X wins!! Click anywhere to play again";
+  static constexpr std::string_view o_win =
+      "Player O wins!! Click anywhere to play again";
+  static constexpr std::string_view tie_game =
+      "Tie Game!! Click anywhere to play again";
+  static constexpr float font_size = 32.f;
+  static constexpr view::Color text_color{255, 255, 255};
+
+  std::string_view display_text_;
+  Eigen::Affine2f transform_{Eigen::Translation2f{-0.4f, 0.0f}};
 };
 
 class TicBoard : public model::Entity {
@@ -115,6 +121,10 @@ private:
   static constexpr std::string_view x_text = "X";
   static constexpr std::string_view o_text = "O";
   static constexpr std::string_view empty_text = " ";
+  static constexpr view::Color text_color{255, 255, 255};
+  static constexpr float font_size{128.f};
+
+  [[nodiscard]] virtual component::Label::TextInfo get_label_info();
 
   Eigen::Affine2f transform_;
 };

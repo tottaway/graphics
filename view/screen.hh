@@ -54,7 +54,7 @@ public:
                       const Eigen::Vector2f top_right, const Color color);
 
   void draw_text(const Eigen::Vector2f location, const float font_size,
-                 const std::string_view text);
+                 const std::string_view text, const Color color);
 
   /// returns boolean indicating if the system is still running or an error
   [[nodiscard]] Result<bool, std::string> poll_events_and_check_for_close();
@@ -66,6 +66,9 @@ private:
 
   [[nodiscard]] Eigen::Vector2f
   translate_to_absolute(const Eigen::Vector2f &coordinate) const;
+
+  [[nodiscard]] Eigen::Vector2f
+  translate_to_relative(Eigen::Vector2f coordinate) const;
   sf::RenderWindow window_;
   sf::Clock delta_clock_;
   std::vector<EventType> events_;
