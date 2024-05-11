@@ -6,6 +6,7 @@
 #include "systems/grid_collisions.hh"
 #include "view/screen.hh"
 #include <SFML/Window/Keyboard.hpp>
+#include <format>
 
 namespace snake {
 namespace {
@@ -21,7 +22,7 @@ Eigen::Affine2f transform_from_grid_cell(const Eigen::Vector2i grid_cell) {
 Result<std::unique_ptr<model::GameState>, std::string> make_snake_game() {
   auto game_state = std::make_unique<model::GameState>();
   // TODO pull dims from source
-  game_state->add_system<systems::GridCollisions<42, 42>>();
+  game_state->add_system<systems::GridCollisions<20, 20>>();
   TRY(game_state->add_entity(std::make_unique<SnakeModeManager>(*game_state)));
   return Ok(std::move(game_state));
 }
@@ -41,7 +42,8 @@ Result<void, std::string> SnakeModeManager::update(const int64_t) {
         TRY(game_state_.get_entity_pointer_by_type<SnakeBoard>());
     if (snake_board->maybe_result) {
       remove_child_entities();
-      TRY(add_child_entity_and_init<EndScreen>());
+      TRY(add_child_entity_and_init<EndScreen>(
+          snake_board->maybe_result.value()));
       game_mode_ = GameMode::end_screen;
     }
     break;
@@ -62,10 +64,19 @@ Result<void, std::string> SnakeModeManager::update(const int64_t) {
 
 EndScreen::EndScreen(model::GameState &game_state) : Entity(game_state) {}
 
-void EndScreen::init() {
+void EndScreen::init(const GameResult &game_result) {
+  display_text_ =
+      std::format("Game Over! Final score: {}", game_result.final_score);
   add_component<component::Label>([this]() {
-    return component::Label::TextInfo{text, text_color, font_size, transform_};
+    return component::Label::TextInfo{display_text_, text_color, font_size,
+                                      transform_};
   });
+}
+
+Result<bool, std::string>
+EndScreen::on_key_press(const view::KeyPressedEvent &) {
+  has_been_clicked_ = true;
+  return Ok(false);
 }
 
 Result<bool, std::string>
@@ -104,10 +115,11 @@ Eigen::Vector2i SnakeBoard::get_random_cell_position() {
 Result<void, std::string> SnakeBoard::ate_apple() {
   game_state_.remove_entities_by_type<Apple>();
   TRY(add_child_entity_and_init<Apple>());
+  score_++;
   return Ok();
 }
 
-void SnakeBoard::game_over() { maybe_result = GameResult{10}; }
+void SnakeBoard::game_over() { maybe_result = GameResult{score_}; }
 
 SnakeHead::SnakeHead(model::GameState &game_state) : Entity(game_state) {}
 
@@ -141,6 +153,16 @@ Result<void, std::string> SnakeHead::init() {
 }
 
 Result<void, std::string> SnakeHead::move_snake() {
+  const auto new_cell = current_cell_ + direction_;
+  if (new_cell.x() > SnakeBoard::get_grid_size().x() ||
+      new_cell.y() > SnakeBoard::get_grid_size().y() ||
+      new_cell.x() < -SnakeBoard::get_grid_size().x() ||
+      new_cell.y() < -SnakeBoard::get_grid_size().y()) {
+    const auto snake_board = TRY(get_parent_entity<SnakeBoard>());
+    snake_board->game_over();
+    return Ok();
+  }
+
   // draw body where the head is now
   auto new_snake_body =
       TRY(add_child_entity_and_init<SnakeBodyElement>(current_cell_));
@@ -152,16 +174,9 @@ Result<void, std::string> SnakeHead::move_snake() {
     body_.pop_back();
   }
   extend_on_next_move_ = false;
+  current_cell_ = new_cell;
 
   // move head
-  current_cell_ += direction_;
-  if (current_cell_.x() > SnakeBoard::get_grid_size().x() ||
-      current_cell_.y() > SnakeBoard::get_grid_size().y() ||
-      current_cell_.x() < -SnakeBoard::get_grid_size().x() ||
-      current_cell_.y() < -SnakeBoard::get_grid_size().y()) {
-    const auto snake_board = TRY(get_parent_entity<SnakeBoard>());
-    snake_board->game_over();
-  }
   return Ok();
 }
 

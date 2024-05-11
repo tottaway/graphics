@@ -47,7 +47,7 @@ public:
   virtual ~EndScreen() = default;
   EndScreen(model::GameState &game_state);
 
-  void init();
+  void init(const GameResult &game_result);
 
   [[nodiscard]] virtual Result<bool, std::string>
   on_click(const view::MouseUpEvent &mouse_up) final;
@@ -56,6 +56,9 @@ public:
     return transform_;
   }
 
+  [[nodiscard]] virtual Result<bool, std::string>
+  on_key_press(const view::KeyPressedEvent &key_press);
+
   [[nodiscard]] virtual std::string_view get_entity_type_name() const final {
     return entity_type_name;
   };
@@ -63,11 +66,11 @@ public:
   bool has_been_clicked_{false};
 
 private:
-  static constexpr std::string_view text = "You Lost!";
   static constexpr float font_size = 32.f;
   static constexpr view::Color text_color{255, 255, 255};
 
   Eigen::Affine2f transform_{Eigen::Translation2f{-0.4f, 0.0f}};
+  std::string display_text_;
 };
 
 class SnakeBoard : public model::Entity {
@@ -96,6 +99,8 @@ private:
   Result<void, std::string> add_snake();
   Result<void, std::string> add_apple();
   Result<void, std::string> remove_apple();
+
+  uint16_t score_{0U};
 };
 
 class SnakeBodyElement;
