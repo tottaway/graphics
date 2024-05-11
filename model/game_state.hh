@@ -1,7 +1,7 @@
 #pragma once
-
 #include "components/component.hh"
 #include "model/entity_id.hh"
+#include "systems/system.hh"
 #include "utility/try.hh"
 #include "view/screen.hh"
 #include <Eigen/Dense>
@@ -37,6 +37,10 @@ public:
     return Ok();
   }
 
+  /// Update the internal state of the Enitity again after systems run
+  /// @param[in] delta_time_ns the current time in nanoseconds
+  [[nodiscard]] virtual Result<void, std::string> late_update() { return Ok(); }
+
   /// Generic handle event function
   /// In general this should be avoided in favor of specific handlers like
   /// `on_click`
@@ -70,12 +74,40 @@ public:
     return Eigen::Affine2f::Identity();
   };
 
+  template <
+      typename ComponentType,
+      typename std::enable_if_t<
+          std::is_base_of_v<component::Component, ComponentType>, int> = 0>
+  [[nodiscard]] std::optional<ComponentType *> get_component() const;
+
+  template <
+      typename ComponentType,
+      typename std::enable_if_t<
+          std::is_base_of_v<component::Component, ComponentType>, int> = 0>
+  [[nodiscard]] std::vector<ComponentType *> get_components() const;
+
+  template <
+      typename ComponentType,
+      typename std::enable_if_t<
+          std::is_base_of_v<component::Component, ComponentType>, int> = 0>
+  void remove_components() const;
+
   /// Get the name of the entity type
   /// @note all Entities should have a static member called `entity_type_name`
   /// which this returns
   /// TODO: enfornce this through some type of CRTP or something
   /// @return name of this entity type
   [[nodiscard]] virtual std::string_view get_entity_type_name() const = 0;
+
+  template <
+      typename EntityType,
+      typename std::enable_if_t<std::is_base_of_v<Entity, EntityType>, int> = 0>
+  [[nodiscard]] bool is() const;
+
+  template <
+      typename EntityType,
+      typename std::enable_if_t<std::is_base_of_v<Entity, EntityType>, int> = 0>
+  [[nodiscard]] std::optional<EntityType *> as() const;
 
   /// Get the id of this entity which can be safely stored in other entities
   /// @return id for this entity
@@ -89,7 +121,9 @@ protected:
   /// held for the duration of a function, EntityIDs should be used for storage
   /// @return non-null pointer to parent entity if successful, error if parent
   /// entity is of a different type or if the parent entity no longer exists
-  template <typename EntityType>
+  template <
+      typename EntityType,
+      typename std::enable_if_t<std::is_base_of_v<Entity, EntityType>, int> = 0>
   [[nodiscard]] Result<EntityType *, std::string> get_parent_entity() const;
 
   /// Set the parent entity
@@ -109,7 +143,7 @@ protected:
       typename EntityType, typename... Args,
       typename std::enable_if_t<std::is_base_of_v<Entity, EntityType>, int> = 0>
   [[nodiscard]] Result<EntityType *, std::string>
-  add_child_entity(Args &&...args);
+  add_child_entity_and_init(Args &&...args);
 
   /// Add a new entity as a child of this one and call's it's init function
   /// @note this assumes that the child entity can be constructed from a
@@ -121,7 +155,7 @@ protected:
   template <
       typename EntityType,
       typename std::enable_if_t<std::is_base_of_v<Entity, EntityType>, int> = 0>
-  [[nodiscard]] Result<EntityType *, std::string> add_child_entity_no_init();
+  [[nodiscard]] Result<EntityType *, std::string> add_child_entity();
 
   /// Remove entity from game state
   /// @note if entity_id is a child it will be removed from our child list
@@ -172,6 +206,11 @@ public:
   [[nodiscard]] Result<EntityID, std::string>
   add_entity(std::unique_ptr<Entity> entity);
 
+  template <typename SystemType,
+            typename std::enable_if_t<
+                std::is_base_of_v<systems::System, SystemType>, int> = 0>
+  void add_system();
+
   void remove_entity(const EntityID id);
 
   /// Update the all of the entities in the game
@@ -209,6 +248,11 @@ public:
       typename std::enable_if_t<std::is_base_of_v<Entity, EntityType>, int> = 0>
   void remove_entities_by_type();
 
+  template <typename ComponentType,
+            typename std::enable_if_t<
+                std::is_base_of_v<component::Component, ComponentType>, int>>
+  [[nodiscard]] std::vector<Entity *> get_entities_with_component() const;
+
   [[nodiscard]] Result<void, std::string> draw(view::Screen &screen) const;
 
 private:
@@ -221,6 +265,8 @@ private:
                              const view::Screen &screen);
   /// Current entities in the game
   std::vector<std::unique_ptr<Entity>> entities_;
+
+  std::vector<std::unique_ptr<systems::System>> systems_;
 };
 } // namespace model
 

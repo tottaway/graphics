@@ -32,6 +32,16 @@ GameState::advance_state(const int64_t delta_time_ns) {
       TRY_VOID(entity->update(delta_time_ns));
     }
   }
+
+  for (const auto &system : systems_) {
+    TRY_VOID(system->update(delta_time_ns));
+  }
+
+  for (const auto &entity : entities_) {
+    if (entity) {
+      TRY_VOID(entity->late_update());
+    }
+  }
   return Ok();
 }
 

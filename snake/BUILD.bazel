@@ -13,10 +13,13 @@ cc_library(
   srcs = ["snake.cc"],
   hdrs = ["snake.hh"],
   deps = [
+    "//systems:grid_collisions",
     "//model:game_state",
     "//model:rectangle",
     "//view:screen",
     "//utility:overload",
+    "//components:draw_grid_cell",
+    "//components:label",
     "@eigen",
   ]
 )

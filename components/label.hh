@@ -7,6 +7,9 @@
 namespace component {
 class Label : public Component {
 public:
+  static constexpr std::string_view component_type_name =
+      "draw_rectangle_component";
+
   struct TextInfo {
     std::string_view text;
     view::Color color;
@@ -21,7 +24,7 @@ public:
   draw(view::Screen &screen) const final;
 
   [[nodiscard]] virtual std::string_view get_component_type_name() const {
-    return "draw_rectangle_component";
+    return component_type_name;
   }
 
 private:

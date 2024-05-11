@@ -1,0 +1,23 @@
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+cc_library(
+  name = "system",
+  hdrs = ["system.hh"],
+  deps = [
+    "//utility:try",
+  ],
+  visibility = ["//visibility:public"],
+)
+
+cc_library(
+  name = "grid_collisions",
+  srcs = ["grid_collisions.inl"],
+  hdrs = ["grid_collisions.hh"],
+  deps = [
+    ":system",
+    "//components:grid_collider",
+    "//model:game_state",
+    "//utility:try",
+  ],
+  visibility = ["//visibility:public"],
+)

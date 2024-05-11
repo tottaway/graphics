@@ -41,10 +41,41 @@ private:
   GameMode game_mode_{GameMode::init};
 };
 
+class EndScreen : public model::Entity {
+public:
+  static constexpr std::string_view entity_type_name = "snake_end_screen";
+  virtual ~EndScreen() = default;
+  EndScreen(model::GameState &game_state);
+
+  void init();
+
+  [[nodiscard]] virtual Result<bool, std::string>
+  on_click(const view::MouseUpEvent &mouse_up) final;
+
+  [[nodiscard]] virtual Eigen::Affine2f get_transform() const final {
+    return transform_;
+  }
+
+  [[nodiscard]] virtual std::string_view get_entity_type_name() const final {
+    return entity_type_name;
+  };
+
+  bool has_been_clicked_{false};
+
+private:
+  static constexpr std::string_view text = "You Lost!";
+  static constexpr float font_size = 32.f;
+  static constexpr view::Color text_color{255, 255, 255};
+
+  Eigen::Affine2f transform_{Eigen::Translation2f{-0.4f, 0.0f}};
+};
+
 class SnakeBoard : public model::Entity {
 public:
   static constexpr std::string_view entity_type_name = "snake_board";
-  static constexpr float grid_cell_size_pixels = 0.05f;
+  static Eigen::Vector2i get_grid_size() { return {20, 20}; }
+  static float get_grid_cell_size_pixels() { return 0.05f; }
+
   SnakeBoard(model::GameState &game_state);
 
   [[nodiscard]] Result<void, std::string> init();
@@ -57,7 +88,7 @@ public:
     return entity_type_name;
   };
 
-  [[nodiscard]] static view::Position get_random_cell_position();
+  [[nodiscard]] static Eigen::Vector2i get_random_cell_position();
 
   std::optional<GameResult> maybe_result;
 
@@ -76,9 +107,6 @@ public:
 
   Result<void, std::string> init();
 
-  [[nodiscard]] virtual Result<void, std::string>
-  draw(view::Screen &screen) const;
-
   [[nodiscard]] virtual std::string_view get_entity_type_name() const {
     return entity_type_name;
   };
@@ -86,14 +114,22 @@ public:
   [[nodiscard]] virtual Result<void, std::string>
   update(const int64_t delta_time_ns);
 
+  [[nodiscard]] virtual Result<void, std::string> late_update();
+
   [[nodiscard]] virtual Result<bool, std::string>
   on_key_press(const view::KeyPressedEvent &key_press);
 
+  [[nodiscard]] virtual Eigen::Affine2f get_transform() const;
+
+  std::vector<model::EntityID> collided_entities_;
+
 private:
+  static constexpr view::Color head_color{0, 255, 0};
   [[nodiscard]] Result<void, std::string> move_snake();
   bool extend_on_next_move_{false};
-  view::Position position_;
-  Eigen::Vector2f direction_{1., 0.};
+  bool key_pressed_this_update_{false};
+  Eigen::Vector2i current_cell_;
+  Eigen::Vector2i direction_{1, 0};
   std::deque<model::EntityID> body_;
 };
 
@@ -102,22 +138,17 @@ public:
   static constexpr std::string_view entity_type_name = "snake_body_element";
   SnakeBodyElement(model::GameState &game_state);
 
-  void init(const view::Position &position);
-
-  [[nodiscard]] virtual Result<void, std::string>
-  draw(view::Screen &screen) const;
-
-  [[nodiscard]] virtual std::optional<view::Box> get_bounding_box() const {
-    // TODO
-    return std::nullopt;
-  }
+  void init(const Eigen::Vector2i &current_cell);
 
   [[nodiscard]] virtual std::string_view get_entity_type_name() const {
     return entity_type_name;
   };
 
+  [[nodiscard]] virtual Eigen::Affine2f get_transform() const;
+
 private:
-  view::Position position_;
+  static constexpr view::Color body_color{0, 185, 0};
+  Eigen::Vector2i current_cell_;
 };
 
 class Apple : public model::Entity {
@@ -127,20 +158,16 @@ public:
 
   void init();
 
-  [[nodiscard]] virtual Result<void, std::string>
-  draw(view::Screen &screen) const;
-
-  [[nodiscard]] virtual std::optional<view::Box> get_bounding_box() const {
-    return std::nullopt;
-  };
-
   [[nodiscard]] virtual std::string_view get_entity_type_name() const {
     return entity_type_name;
   };
 
+  [[nodiscard]] virtual Eigen::Affine2f get_transform() const;
+
 private:
   friend SnakeHead;
-  view::Position position_;
+  static constexpr view::Color apple_color{255, 0, 0};
+  Eigen::Vector2i current_cell_;
 };
 
 } // namespace snake

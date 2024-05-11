@@ -10,6 +10,31 @@ cc_library(
 )
 
 cc_library(
+  name = "grid_collider",
+  srcs = ["grid_collider.cc"],
+  hdrs = ["grid_collider.hh"],
+  deps = [
+    ":component",
+    "//model:entity_id",
+    "//utility:try",
+    "@eigen",
+  ],
+  visibility = ["//visibility:public"],
+)
+
+cc_library(
+  name = "draw_grid_cell",
+  srcs = ["draw_grid_cell.cc"],
+  hdrs = ["draw_grid_cell.hh"],
+  deps = [
+    ":draw_rectangle",
+    "//utility:try",
+    "@eigen",
+  ],
+  visibility = ["//visibility:public"],
+)
+
+cc_library(
   name = "draw_rectangle",
   srcs = ["draw_rectangle.cc"],
   hdrs = ["draw_rectangle.hh"],

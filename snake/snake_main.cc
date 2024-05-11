@@ -13,7 +13,7 @@ int main() {
   }
   controller::Controller controller(std::make_unique<view::Screen>(),
                                     std::move(game_result).unwrap());
-  const auto result = controller.run(std::chrono::milliseconds(1));
+  const auto result = controller.run(std::chrono::milliseconds(100));
   if (result.isErr()) {
     std::cerr << "Application ended with error: " << result.unwrapErr()
               << std::endl;
