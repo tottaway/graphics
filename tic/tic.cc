@@ -64,8 +64,8 @@ TicGameModeManager::add_end_screen(const GameResult &result) {
 }
 
 Result<void, std::string> TicGameModeManager::start_new_game() {
-  auto tic_board = TRY(add_child_entity<TicBoard>());
-  return tic_board->init();
+  TRY(add_child_entity<TicBoard>());
+  return Ok();
 }
 
 EndGame::EndGame(model::GameState &game_state) : Entity(game_state) {}
@@ -89,7 +89,6 @@ void EndGame::init(const GameResult &result) {
     return component::Label::TextInfo{display_text_, text_color, font_size,
                                       transform_};
   });
-  return Ok();
 }
 
 Result<bool, std::string>

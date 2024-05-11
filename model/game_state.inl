@@ -73,7 +73,7 @@ template <typename EntityType, typename... Args,
           typename std::enable_if_t<std::is_base_of_v<Entity, EntityType>, int>>
 [[nodiscard]] Result<EntityType *, std::string>
 Entity::add_child_entity(Args &&...args) {
-  auto entity_result = add_child_entity<EntityType>();
+  auto entity_result = add_child_entity_no_init<EntityType>();
   if (entity_result.isErr()) {
     return entity_result;
   }
@@ -93,7 +93,7 @@ Entity::add_child_entity(Args &&...args) {
 
 template <typename EntityType,
           typename std::enable_if_t<std::is_base_of_v<Entity, EntityType>, int>>
-Result<EntityType *, std::string> Entity::add_child_entity() {
+Result<EntityType *, std::string> Entity::add_child_entity_no_init() {
   auto new_entity = std::make_unique<EntityType>(game_state_);
   new_entity->set_parent_entity(get_entity_id());
   auto new_entity_raw = new_entity.get();

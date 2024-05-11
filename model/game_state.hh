@@ -121,7 +121,7 @@ protected:
   template <
       typename EntityType,
       typename std::enable_if_t<std::is_base_of_v<Entity, EntityType>, int> = 0>
-  [[nodiscard]] Result<EntityType *, std::string> add_child_entity();
+  [[nodiscard]] Result<EntityType *, std::string> add_child_entity_no_init();
 
   /// Remove entity from game state
   /// @note if entity_id is a child it will be removed from our child list
