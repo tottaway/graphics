@@ -1,6 +1,7 @@
 #pragma once
 
 #include "model/entity_id.hh"
+#include "utility/try.hh"
 #include <format>
 #include <ranges>
 #include <vector>
@@ -56,58 +57,76 @@ GameState::get_entity_pointer_by_type() const {
   return Ok(entity_pointers[0]);
 }
 
-
-template <
-      typename EntityType,
-      typename std::enable_if_t<std::is_base_of_v<Entity, EntityType>, int>>
-  void GameState::remove_entities_by_type() {
-    for (const auto &[id, entity] : std::ranges::views::enumerate(entities_)) {
-      if (entity) {
-        if (entity->get_entity_type_name() == EntityType::entity_type_name) {
-          remove_entity(id);
-        }
+template <typename EntityType,
+          typename std::enable_if_t<std::is_base_of_v<Entity, EntityType>, int>>
+void GameState::remove_entities_by_type() {
+  for (const auto &[id, entity] : std::ranges::views::enumerate(entities_)) {
+    if (entity) {
+      if (entity->get_entity_type_name() == EntityType::entity_type_name) {
+        remove_entity(id);
       }
     }
   }
+}
 
-  template <
-      typename EntityType,
-      typename std::enable_if_t<std::is_base_of_v<Entity, EntityType>, int>>
-  Result<EntityType *, std::string> Entity::add_child_entity() {
-    auto new_entity = std::make_unique<EntityType>(game_state_);
-    new_entity->set_parent_entity(get_entity_id());
-    auto new_entity_raw = new_entity.get();
-    const Result<EntityID, std::string> new_id =
-        game_state_.add_entity(std::move(new_entity));
-    child_entities_.emplace_back(TRY(new_id));
-    return Ok(new_entity_raw);
+template <typename EntityType, typename... Args,
+          typename std::enable_if_t<std::is_base_of_v<Entity, EntityType>, int>>
+[[nodiscard]] Result<EntityType *, std::string>
+Entity::add_child_entity(Args &&...args) {
+  auto entity_result = add_child_entity<EntityType>();
+  if (entity_result.isErr()) {
+    return entity_result;
   }
 
-  template <typename ComponentType, typename... Args,
-            typename std::enable_if_t<
-                std::is_base_of_v<component::Component, ComponentType>, int>>
-  component::Component *Entity::add_component(Args && ...args) {
-    return components_
-        .emplace_back(
-            std::make_unique<ComponentType>(std::forward<Args>(args)...))
-        .get();
-  }
-
-  template <typename EntityType>
-  Result<EntityType *, std::string> Entity::get_parent_entity() const {
-    auto maybe_parent_entity = try_get_parent_entity();
-    if (!maybe_parent_entity) {
-      return Err(std::string("Entity tried to get parent which didn't exist"));
+  if constexpr (std::is_void_v<decltype(entity_result.unwrap()->init(
+                    std::forward<Args>(args)...))>) {
+    entity_result.unwrap()->init(std::forward<Args>(args)...);
+  } else {
+    const auto init_result =
+        entity_result.unwrap()->init(std::forward<Args>(args)...);
+    if (init_result.isErr()) {
+      return Err(init_result.unwrapErr());
     }
-    auto *parent_entity = maybe_parent_entity.value();
-
-    if (parent_entity->get_entity_type_name() != EntityType::entity_type_name) {
-      return Err(
-          std::string(std::format("Parent entity was of type {}, expected {}",
-                                  parent_entity->get_entity_type_name(),
-                                  EntityType::entity_type_name)));
-    }
-    return Ok(dynamic_cast<EntityType *>(parent_entity));
   }
+  return entity_result;
+}
+
+template <typename EntityType,
+          typename std::enable_if_t<std::is_base_of_v<Entity, EntityType>, int>>
+Result<EntityType *, std::string> Entity::add_child_entity() {
+  auto new_entity = std::make_unique<EntityType>(game_state_);
+  new_entity->set_parent_entity(get_entity_id());
+  auto new_entity_raw = new_entity.get();
+  const Result<EntityID, std::string> new_id =
+      game_state_.add_entity(std::move(new_entity));
+  child_entities_.emplace_back(TRY(new_id));
+  return Ok(new_entity_raw);
+}
+
+template <typename ComponentType, typename... Args,
+          typename std::enable_if_t<
+              std::is_base_of_v<component::Component, ComponentType>, int>>
+component::Component *Entity::add_component(Args &&...args) {
+  return components_
+      .emplace_back(
+          std::make_unique<ComponentType>(std::forward<Args>(args)...))
+      .get();
+}
+
+template <typename EntityType>
+Result<EntityType *, std::string> Entity::get_parent_entity() const {
+  auto maybe_parent_entity = try_get_parent_entity();
+  if (!maybe_parent_entity) {
+    return Err(std::string("Entity tried to get parent which didn't exist"));
+  }
+  auto *parent_entity = maybe_parent_entity.value();
+
+  if (parent_entity->get_entity_type_name() != EntityType::entity_type_name) {
+    return Err(std::string(std::format(
+        "Parent entity was of type {}, expected {}",
+        parent_entity->get_entity_type_name(), EntityType::entity_type_name)));
+  }
+  return Ok(dynamic_cast<EntityType *>(parent_entity));
+}
 
 } // namespace model

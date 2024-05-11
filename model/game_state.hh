@@ -96,7 +96,22 @@ protected:
   /// @param[in] parent_entity_id id of the parent entity
   void set_parent_entity(const EntityID parent_entity_id);
 
-  /// Add a new entity as a child of this one
+  /// Add a new entity as a child of this one and call's it's init function
+  /// @note this assumes that the child entity can be constructed from a
+  /// GameState reference
+  /// @note the pointer is not guarenteed to remain valid and should only be
+  /// held for the duration of a function, EntityIDs should be used for storage
+  /// @tparam EntityType type of entity to add
+  /// @tparam Args signature of entity's init function
+  /// @param args arguements which are forwarded to the constructor the entity
+  /// @return non-null pointer to new child entity if successful
+  template <
+      typename EntityType, typename... Args,
+      typename std::enable_if_t<std::is_base_of_v<Entity, EntityType>, int> = 0>
+  [[nodiscard]] Result<EntityType *, std::string>
+  add_child_entity(Args &&...args);
+
+  /// Add a new entity as a child of this one and call's it's init function
   /// @note this assumes that the child entity can be constructed from a
   /// GameState reference
   /// @note the pointer is not guarenteed to remain valid and should only be
@@ -121,8 +136,10 @@ protected:
   /// Constructs and adds a new component of the speicified type to the entity
   /// @note components are owned by the entity
   /// @tparam ComponentType
+  /// @tparam Args signature of components constructor
+  /// @param args arguements which are forwarded to the constructor the
+  /// ComponentType
   /// @return non-null pointer to new child entity if successful
-
   template <
       typename ComponentType, typename... Args,
       typename std::enable_if_t<

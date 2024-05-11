@@ -59,8 +59,7 @@ TicGameModeManager::update(const int64_t delta_time_ns) {
 
 Result<void, std::string>
 TicGameModeManager::add_end_screen(const GameResult &result) {
-  auto end_game = TRY(add_child_entity<EndGame>());
-  end_game->init(result);
+  TRY(add_child_entity<EndGame>(result));
   return Ok();
 }
 
@@ -90,6 +89,7 @@ void EndGame::init(const GameResult &result) {
     return component::Label::TextInfo{display_text_, text_color, font_size,
                                       transform_};
   });
+  return Ok();
 }
 
 Result<bool, std::string>
@@ -145,8 +145,8 @@ void TicBoard::update_result() {
 Result<void, std::string> TicBoard::add_border_lines() {
   const auto add_line =
       [this](const Eigen::Affine2f &transform) -> Result<void, std::string> {
-    auto rectangle = TRY(add_child_entity<model::StaticDrawnRectangle>());
-    rectangle->init(transform, view::Color{255, 255, 255});
+    TRY(add_child_entity<model::StaticDrawnRectangle>(
+        transform, view::Color{255, 255, 255}));
     return Ok();
   };
 
@@ -164,9 +164,9 @@ Result<void, std::string> TicBoard::add_tic_squares() {
   const auto add_square =
       [this](const float relative_x,
              const float relative_y) -> Result<void, std::string> {
-    auto tic_square = TRY(add_child_entity<TicSquare>());
-    tic_square->init(geometry::transform_from_translation_and_scale(
-        {relative_x, relative_y}, 0.2));
+    TRY(add_child_entity<TicSquare>(
+        geometry::transform_from_translation_and_scale({relative_x, relative_y},
+                                                       0.2)));
     return Ok();
   };
   TRY_VOID(add_square(-0.4, -0.4));
