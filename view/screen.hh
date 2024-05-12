@@ -48,7 +48,8 @@ using EventType = std::variant<MouseUpEvent, MouseMovedEvent, MouseDownEvent,
 
 class Screen {
 public:
-  Screen();
+  Screen(const Eigen::Vector2f viewport_size_m = {2.0f, 2.0f},
+         const Eigen::Vector2f viewport_center = {.0f, .0f});
   [[nodiscard]] Eigen::Vector2f get_mouse_pos() const;
   void start_update();
   void finish_update();
@@ -61,22 +62,43 @@ public:
   void draw_text(const Eigen::Vector2f location, const float font_size,
                  const std::string_view text, const Color color);
 
+  void set_viewport_center(const Eigen::Vector2f new_center);
+
   /// returns boolean indicating if the system is still running or an error
   [[nodiscard]] Result<bool, std::string> poll_events_and_check_for_close();
   [[nodiscard]] const std::vector<EventType> &get_events() const;
   void clear_events();
 
 private:
-  Eigen::Vector2f get_absolute_window_size() const;
+  void handle_resize(const Eigen::Vector2i new_size);
 
-  [[nodiscard]] Eigen::Vector2f
-  translate_to_absolute(const Eigen::Vector2f &coordinate) const;
+  Eigen::Vector2f get_window_size_pixels() const;
 
-  [[nodiscard]] Eigen::Vector2f
-  translate_to_relative(Eigen::Vector2f coordinate) const;
   sf::RenderWindow window_;
   sf::Clock delta_clock_;
   std::vector<EventType> events_;
   std::vector<ImFont *> fonts_;
+
+  /// Size of the full window in pixels
+  Eigen::Vector2f window_size_pixels_;
+
+  // Size of the viewport in pixels
+  Eigen::Vector2f viewport_size_pixels_;
+
+  /// transform from the viewport (measured in pixels with 0,0 at the center of
+  /// the viewport)
+  Eigen::Affine2f window_pixels_from_viewport_pixels_;
+
+  Eigen::Affine2f viewport_pixels_from_viewport_m_;
+
+  Eigen::Affine2f viewport_m_from_game_m_;
+
+  Eigen::Vector2f viewport_size_m_;
+
+  Eigen::Vector2f game_m_viewport_center_{0.f, 0.f};
+
+  Eigen::Affine2f window_pixels_from_game_m_;
+
+  Eigen::Affine2f game_m_from_window_pixels_;
 };
 } // namespace view

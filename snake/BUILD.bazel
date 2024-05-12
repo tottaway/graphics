@@ -22,6 +22,7 @@ cc_library(
     "//model:rectangle",
     "//view:screen",
     "//utility:overload",
+    "//components:center",
     "//components:draw_grid_cell",
     "//components:label",
     "//components:sprite",

@@ -30,9 +30,13 @@ convert_mouse_button_enum(const sf::Mouse::Button mouse_button) {
 }
 } // namespace
 
-Screen::Screen()
-    : window_(sf::VideoMode(640, 480), "OpenGL", sf::Style::Fullscreen,
-              sf::ContextSettings(32)) {
+Screen::Screen(const Eigen::Vector2f viewport_size_m,
+               const Eigen::Vector2f viewport_center)
+    : window_(sf::VideoMode(640, 480), "OpenGL", sf::Style::Default,
+              sf::ContextSettings(32)),
+      viewport_size_m_(viewport_size_m),
+      game_m_viewport_center_(viewport_center) {
+
   window_.setVerticalSyncEnabled(true);
   ImGui::SFML::Init(window_);
   // call it if you only draw ImGui. Otherwise not needed.
@@ -56,7 +60,10 @@ void Screen::start_update() {
   ImGui::SetNextWindowPos(ImVec2(0.f, 0.f));
   ImGui::SetNextWindowBgAlpha(0.f);
   ImGui::Begin("Sample window"); // begin window
+
   window_.clear();
+  const auto window_size = ImGui::GetWindowSize();
+  handle_resize({window_size.x, window_size.y});
 }
 
 void Screen::finish_update() {
@@ -68,8 +75,8 @@ void Screen::finish_update() {
 void Screen::draw_rectangle(const Eigen::Vector2f bottom_left,
                             const Eigen::Vector2f top_right,
                             const Color color) {
-  const auto absolute_bottom_left = translate_to_absolute(bottom_left);
-  const auto absolute_top_right = translate_to_absolute(top_right);
+  const auto absolute_bottom_left = window_pixels_from_game_m_ * bottom_left;
+  const auto absolute_top_right = window_pixels_from_game_m_ * top_right;
 
   glBegin(GL_QUADS);
   glColor4f(color.r / 255.f, color.g / 255.f, color.b / 255.f, 1.);
@@ -83,8 +90,8 @@ void Screen::draw_rectangle(const Eigen::Vector2f bottom_left,
 void Screen::draw_rectangle(const Eigen::Vector2f bottom_left,
                             const Eigen::Vector2f top_right,
                             const Texture &texture) {
-  const auto absolute_bottom_left = translate_to_absolute(bottom_left);
-  const auto absolute_top_right = translate_to_absolute(top_right);
+  const auto absolute_bottom_left = window_pixels_from_game_m_ * bottom_left;
+  const auto absolute_top_right = window_pixels_from_game_m_ * top_right;
 
   sf::Texture::bind(&texture.texture_);
   glColor4f(1.0, 1.0, 1.0, 1.0);
@@ -103,7 +110,7 @@ void Screen::draw_rectangle(const Eigen::Vector2f bottom_left,
 
 void Screen::draw_text(const Eigen::Vector2f location, const float font_size,
                        const std::string_view text, const Color color) {
-  const auto absolute_location = translate_to_absolute(location);
+  const auto absolute_location = window_pixels_from_game_m_ * location;
   ImDrawList *draw_list = ImGui::GetWindowDrawList();
   ImVec2 marker_min = ImVec2(absolute_location.x(), absolute_location.y());
   window_.pushGLStates();
@@ -113,6 +120,17 @@ void Screen::draw_text(const Eigen::Vector2f location, const float font_size,
                      text.data() + text.size());
   ImGui::PopFont();
   window_.popGLStates();
+}
+
+void Screen::set_viewport_center(const Eigen::Vector2f new_center) {
+
+  viewport_m_from_game_m_ = Eigen::Translation2f{-new_center};
+
+  window_pixels_from_game_m_ = window_pixels_from_viewport_pixels_ *
+                               viewport_pixels_from_viewport_m_ *
+                               viewport_m_from_game_m_;
+
+  game_m_from_window_pixels_ = window_pixels_from_game_m_.inverse();
 }
 
 Result<bool, std::string> Screen::poll_events_and_check_for_close() {
@@ -131,26 +149,32 @@ Result<bool, std::string> Screen::poll_events_and_check_for_close() {
     }
     case sf::Event::EventType::MouseMoved: {
       events_.emplace_back(MouseMovedEvent{
-          translate_to_relative({event.mouseMove.x, event.mouseMove.y})});
+          game_m_from_window_pixels_ *
+          Eigen::Vector2f{event.mouseMove.x, event.mouseMove.y}});
       break;
     }
     case sf::Event::EventType::MouseButtonPressed: {
       events_.emplace_back(MouseDownEvent{
           TRY(convert_mouse_button_enum(event.mouseButton.button)),
-          translate_to_relative({event.mouseButton.x, event.mouseButton.y})});
+          game_m_from_window_pixels_ *
+              Eigen::Vector2f{event.mouseButton.x, event.mouseButton.y}});
       break;
     }
     case sf::Event::EventType::MouseButtonReleased: {
       events_.emplace_back(MouseUpEvent{
           TRY(convert_mouse_button_enum(event.mouseButton.button)),
-          translate_to_relative({event.mouseButton.x, event.mouseButton.y})});
+          game_m_from_window_pixels_ *
+              Eigen::Vector2f{event.mouseButton.x, event.mouseButton.y}});
       break;
     }
     case sf::Event::EventType::KeyPressed: {
       events_.emplace_back(KeyPressedEvent{event.key});
       break;
     }
-    case sf::Event::EventType::Resized:
+    case sf::Event::EventType::Resized: {
+      handle_resize({event.size.width, event.size.height});
+      break;
+    }
     case sf::Event::EventType::LostFocus:
     case sf::Event::EventType::GainedFocus:
     case sf::Event::EventType::TextEntered:
@@ -184,44 +208,42 @@ const std::vector<EventType> &Screen::get_events() const { return events_; }
 
 void Screen::clear_events() { events_.clear(); }
 
-Eigen::Vector2f Screen::get_absolute_window_size() const {
-  const auto window_size = ImGui::GetWindowSize();
-  return Eigen::Vector2f{window_size.x, window_size.y};
-}
-
-Eigen::Vector2f
-Screen::translate_to_absolute(const Eigen::Vector2f &coordinate) const {
-  const auto window_size = get_absolute_window_size();
-  const Eigen::Vector2f flip_and_scale{0.5, -0.5};
-  const Eigen::Vector2f translate{0.5f, 0.5f};
-  const Eigen::Vector2f relative_screen_coord =
-      flip_and_scale.cwiseProduct(coordinate) + translate;
-  Eigen::Vector2f scaled =
-      std::min(window_size.x(), window_size.y()) * relative_screen_coord;
-  if (window_size.x() <= window_size.y()) {
-    scaled.y() += ((window_size.y() - window_size.x()) / 2);
-  } else {
-    scaled.x() += ((window_size.x() - window_size.y()) / 2);
-  }
-  return scaled;
-}
-
-Eigen::Vector2f
-Screen::translate_to_relative(Eigen::Vector2f coordinate) const {
-  const auto window_size = get_absolute_window_size();
-  if (window_size.x() <= window_size.y()) {
-    coordinate.y() -= ((window_size.y() - window_size.x()) / 2);
-  } else {
-    coordinate.x() -= ((window_size.x() - window_size.y()) / 2);
+void Screen::handle_resize(const Eigen::Vector2i new_size_pixels) {
+  if (window_size_pixels_.cast<int>() == new_size_pixels) {
+    return;
   }
 
-  Eigen::Vector2f scaled =
-      coordinate / std::min(window_size.x(), window_size.y());
+  // save window size
+  window_size_pixels_ = new_size_pixels.cast<float>();
 
-  const Eigen::Vector2f flip_and_scale{2, -2};
-  const Eigen::Vector2f translate{0.5f, 0.5f};
-  const Eigen::Vector2f relative_screen_coord =
-      flip_and_scale.cwiseProduct(scaled - translate);
-  return relative_screen_coord;
+  // determine view port size in pixels
+  const float viewport_aspect_ratio =
+      viewport_size_m_.x() / viewport_size_m_.y();
+  const float window_aspect_ratio =
+      window_size_pixels_.x() / window_size_pixels_.y();
+  if (viewport_aspect_ratio > window_aspect_ratio) {
+    viewport_pixels_from_viewport_m_ = Eigen::Scaling(
+        window_size_pixels_.x() / viewport_size_m_.x(),
+        window_size_pixels_.x() / viewport_aspect_ratio / viewport_size_m_.y());
+  } else {
+    viewport_pixels_from_viewport_m_ = Eigen::Scaling(
+        window_size_pixels_.y() * viewport_aspect_ratio / viewport_size_m_.x(),
+        window_size_pixels_.y() / viewport_size_m_.y());
+  }
+
+  // calculate viewport pixel to window pixels
+  const Eigen::Matrix2f reflection_over_x_axis{{{1.0f, 0.0f}, {0.0f, -1.0f}}};
+  window_pixels_from_viewport_pixels_ =
+      reflection_over_x_axis *
+      Eigen::Affine2f{Eigen::Translation2f{window_size_pixels_.x() / 2,
+                                           -window_size_pixels_.y() / 2}};
+
+  // calculate viewport_m_from_game_m_ TODO allow scaling and rotation
+  viewport_m_from_game_m_ = Eigen::Translation2f{-game_m_viewport_center_};
+
+  window_pixels_from_game_m_ = window_pixels_from_viewport_pixels_ *
+                               viewport_pixels_from_viewport_m_ *
+                               viewport_m_from_game_m_;
+  game_m_from_window_pixels_ = window_pixels_from_game_m_.inverse();
 }
 } // namespace view

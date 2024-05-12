@@ -1,5 +1,18 @@
 load("@rules_cc//cc:defs.bzl", "cc_library")
 cc_library(
+  name = "center",
+  srcs = ["center.cc"],
+  hdrs = ["center.hh"],
+  deps = [
+    ":component",
+    "//utility:try",
+    "//view:screen",
+    "@eigen",
+  ],
+  visibility = ["//visibility:public"],
+)
+
+cc_library(
   name = "component",
   hdrs = ["component.hh"],
   deps = [
