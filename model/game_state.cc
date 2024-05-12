@@ -59,6 +59,10 @@ Result<void, std::string> GameState::handle_event(const view::EventType &event,
                   -> Result<bool, std::string> {
                 return entity->on_key_press(key_press);
               },
+              [&entity](const view::KeyReleasedEvent &key_release)
+                  -> Result<bool, std::string> {
+                return entity->on_key_release(key_release);
+              },
               [](const auto &) -> Result<bool, std::string> {
                 return Ok(true);
               },

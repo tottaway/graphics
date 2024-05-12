@@ -1,0 +1,11 @@
+filegroup(
+    name = "player",
+    srcs = [
+      "attack.png",
+      "death.png",
+      "idle.png",
+      "move.png",
+      "take_hit.png",
+    ],
+    visibility = ["//visibility:public"],
+)

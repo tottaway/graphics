@@ -1,5 +1,4 @@
 #include "snake/snake.hh"
-#include "components/center.hh"
 #include "components/draw_grid_cell.hh"
 #include "components/grid_collider.hh"
 #include "components/label.hh"

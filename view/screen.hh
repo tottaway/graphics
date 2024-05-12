@@ -43,8 +43,12 @@ struct KeyPressedEvent {
   sf::Event::KeyEvent key_event;
 };
 
+struct KeyReleasedEvent {
+  sf::Event::KeyEvent key_event;
+};
+
 using EventType = std::variant<MouseUpEvent, MouseMovedEvent, MouseDownEvent,
-                               KeyPressedEvent>;
+                               KeyPressedEvent, KeyReleasedEvent>;
 
 class Screen {
 public:

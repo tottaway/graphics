@@ -1,0 +1,48 @@
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+cc_library(
+  name = "map",
+  srcs = ["map.cc"],
+  hdrs = ["map.hh"],
+  deps = [
+    ":tree_tile",
+    "//model:game_state",
+    "@eigen",
+  ],
+  visibility = ["//wiz:__subpackages__"],
+)
+
+cc_library(
+  name = "grass_tile",
+  srcs = ["grass_tile.cc"],
+  hdrs = ["grass_tile.hh"],
+  data = [
+    "//sprites/wiz/map_textures:ground"
+  ],
+  deps = [
+    "//view:texture",
+    "//model:game_state",
+    "//view:screen",
+    "//components:sprite",
+    "@eigen",
+  ],
+  visibility = ["//wiz:__subpackages__"],
+)
+
+cc_library(
+  name = "tree_tile",
+  srcs = ["tree_tile.cc"],
+  hdrs = ["tree_tile.hh"],
+  data = [
+    "//sprites/wiz/map_textures:trees",
+    "//sprites/wiz/map_textures:ground",
+  ],
+  deps = [
+    "//view:texture",
+    "//model:game_state",
+    "//view:screen",
+    "//components:sprite",
+    "@eigen",
+  ],
+  visibility = ["//wiz:__subpackages__"],
+)

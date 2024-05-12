@@ -171,6 +171,10 @@ Result<bool, std::string> Screen::poll_events_and_check_for_close() {
       events_.emplace_back(KeyPressedEvent{event.key});
       break;
     }
+    case sf::Event::EventType::KeyReleased: {
+      events_.emplace_back(KeyReleasedEvent{event.key});
+      break;
+    }
     case sf::Event::EventType::Resized: {
       handle_resize({event.size.width, event.size.height});
       break;
@@ -178,7 +182,6 @@ Result<bool, std::string> Screen::poll_events_and_check_for_close() {
     case sf::Event::EventType::LostFocus:
     case sf::Event::EventType::GainedFocus:
     case sf::Event::EventType::TextEntered:
-    case sf::Event::EventType::KeyReleased:
     case sf::Event::EventType::MouseWheelMoved:
     case sf::Event::EventType::MouseWheelScrolled:
     case sf::Event::EventType::MouseEntered:

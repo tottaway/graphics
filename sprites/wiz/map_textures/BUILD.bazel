@@ -1,0 +1,15 @@
+filegroup(
+    name = "trees",
+    srcs = [
+      "trees.png",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "ground",
+    srcs = [
+      "ground.png",
+    ],
+    visibility = ["//visibility:public"],
+)

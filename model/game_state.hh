@@ -68,6 +68,15 @@ public:
     return Ok(true);
   }
 
+  /// Handler for key release TODO: move this into components
+  /// @param[in] key_release underlying event from the screen
+  /// @return true if we should keep passing this event to other entities, false
+  /// otherwise, propagates any error which occur while handling the event
+  [[nodiscard]] virtual Result<bool, std::string>
+  on_key_release(const view::KeyReleasedEvent &key_release) {
+    return Ok(true);
+  }
+
   /// Return the bounding box for this entity
   /// @return optional bounding box if this handler is implemented
   [[nodiscard]] virtual Eigen::Affine2f get_transform() const {

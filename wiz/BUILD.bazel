@@ -1,0 +1,54 @@
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+cc_binary(
+  name = "wiz_main",
+  srcs = ["wiz_main.cc"],
+  deps = [
+    ":wiz",
+    "//controller:controller"
+  ],
+)
+
+cc_library(
+  name = "player",
+  srcs = ["player.cc"],
+  hdrs = ["player.hh"],
+  data = ["//sprites/wiz/player:player"],
+  deps = [
+    "//view:texture",
+    "//model:game_state",
+    "//view:screen",
+    "//components:center",
+    "//components:sprite",
+    "@eigen",
+  ],
+  visibility = [":__subpackages__"],
+)
+
+cc_library(
+  name = "mode_manager",
+  srcs = ["mode_manager.cc"],
+  hdrs = ["mode_manager.hh"],
+  data = [],
+  deps = [
+    ":player",
+    "//wiz/map:map",
+    "//model:game_state",
+    "//view:screen",
+    "@eigen",
+  ],
+  visibility = [":__subpackages__"],
+)
+
+cc_library(
+  name = "wiz",
+  srcs = ["wiz.cc"],
+  hdrs = ["wiz.hh"],
+  data = [],
+  deps = [
+    ":mode_manager",
+    "//model:game_state",
+    "//view:screen",
+  ],
+  visibility = [":__subpackages__"],
+)
