@@ -2,23 +2,16 @@
 #include "components/draw_grid_cell.hh"
 #include "components/grid_collider.hh"
 #include "components/label.hh"
+#include "components/sprite.hh"
+#include "geometry/transform_utils.hh"
 #include "model/rectangle.hh"
 #include "systems/grid_collisions.hh"
 #include "view/screen.hh"
+#include "view/texture.hh"
 #include <SFML/Window/Keyboard.hpp>
 #include <format>
 
-namespace snake {
-namespace {
-/// TODO this should share code with the draw grid cell component
-Eigen::Affine2f transform_from_grid_cell(const Eigen::Vector2i grid_cell) {
-  // divide by two because rectangle have a max side length of 2
-  return Eigen::Affine2f(
-             Eigen::Translation2f{grid_cell.cast<float>() *
-                                  SnakeBoard::get_grid_cell_size_pixels()})
-      .scale(SnakeBoard::get_grid_cell_size_pixels() / 2);
-}
-} // namespace
+namespace snake { // namespace
 Result<std::unique_ptr<model::GameState>, std::string> make_snake_game() {
   auto game_state = std::make_unique<model::GameState>();
   // TODO pull dims from source
@@ -65,6 +58,11 @@ Result<void, std::string> SnakeModeManager::update(const int64_t) {
 EndScreen::EndScreen(model::GameState &game_state) : Entity(game_state) {}
 
 void EndScreen::init(const GameResult &game_result) {
+  add_component<component::DrawRectangle>([]() {
+    return component::DrawRectangle::RectangleInfo{Eigen::Affine2f::Identity(),
+                                                   view::Color{253, 220, 151}};
+  });
+
   display_text_ =
       std::format("Game Over! Final score: {}", game_result.final_score);
   add_component<component::Label>([this]() {
@@ -94,7 +92,7 @@ SnakeBoard::SnakeBoard(model::GameState &game_state) : Entity(game_state) {}
 
 Result<void, std::string> SnakeBoard::init() {
   TRY(add_child_entity_and_init<model::StaticDrawnRectangle>(
-      get_transform(), view::Color{120, 120, 120}));
+      get_transform(), view::Color{253, 220, 151}));
   TRY(add_child_entity_and_init<SnakeHead>());
   TRY(add_child_entity_and_init<Apple>());
   return Ok();
@@ -136,8 +134,7 @@ Result<void, std::string> SnakeHead::init() {
   body_.emplace_back(snake_body2->get_entity_id());
 
   add_component<component::DrawGridCell>(
-      SnakeBoard::get_grid_size(), SnakeBoard::get_grid_cell_size_pixels(),
-      [this]() {
+      SnakeBoard::get_grid_cell_size(), [this]() {
         return component::DrawGridCell::CellInfo{current_cell_, head_color};
       });
 
@@ -236,7 +233,8 @@ Result<void, std::string> SnakeHead::late_update() {
 }
 
 Eigen::Affine2f SnakeHead::get_transform() const {
-  return transform_from_grid_cell(current_cell_);
+  return geometry::transform_from_grid_cell(current_cell_,
+                                            SnakeBoard::get_grid_cell_size());
 }
 
 SnakeBodyElement::SnakeBodyElement(model::GameState &game_state)
@@ -245,8 +243,7 @@ SnakeBodyElement::SnakeBodyElement(model::GameState &game_state)
 void SnakeBodyElement::init(const Eigen::Vector2i &current_cell) {
   current_cell_ = current_cell;
   add_component<component::DrawGridCell>(
-      SnakeBoard::get_grid_size(), SnakeBoard::get_grid_cell_size_pixels(),
-      [this]() {
+      SnakeBoard::get_grid_cell_size(), [this]() {
         return component::DrawGridCell::CellInfo{current_cell_, body_color};
       });
 
@@ -266,18 +263,18 @@ void SnakeBodyElement::init(const Eigen::Vector2i &current_cell) {
 }
 
 Eigen::Affine2f SnakeBodyElement::get_transform() const {
-  return transform_from_grid_cell(current_cell_);
+  return geometry::transform_from_grid_cell(current_cell_,
+                                            SnakeBoard::get_grid_cell_size());
 }
 
 Apple::Apple(model::GameState &game_state) : Entity(game_state) {}
 
 void Apple::init() {
   current_cell_ = SnakeBoard::get_random_cell_position();
-  add_component<component::DrawGridCell>(
-      SnakeBoard::get_grid_size(), SnakeBoard::get_grid_cell_size_pixels(),
-      [this]() {
-        return component::DrawGridCell::CellInfo{current_cell_, apple_color};
-      });
+  view::Texture apple_texture{std::filesystem::path(apple_texture_path)};
+  add_component<component::Sprite>([this, apple_texture]() {
+    return component::Sprite::SpriteInfo{get_transform(), apple_texture};
+  });
 
   add_component<component::GridCollider>(
       [this]() {
@@ -295,6 +292,7 @@ void Apple::init() {
 }
 
 Eigen::Affine2f Apple::get_transform() const {
-  return transform_from_grid_cell(current_cell_);
+  return geometry::transform_from_grid_cell(current_cell_,
+                                            SnakeBoard::get_grid_cell_size());
 }
 } // namespace snake

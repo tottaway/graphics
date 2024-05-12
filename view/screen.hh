@@ -1,5 +1,7 @@
 #pragma once
+#include "ThirdParty/imgui/imgui.h"
 #include "utility/try.hh"
+#include "view/texture.hh"
 #include <Eigen/Dense>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/System/Clock.hpp>
@@ -53,6 +55,9 @@ public:
   void draw_rectangle(const Eigen::Vector2f bottom_left,
                       const Eigen::Vector2f top_right, const Color color);
 
+  void draw_rectangle(const Eigen::Vector2f bottom_left,
+                      const Eigen::Vector2f top_right, const Texture &texture);
+
   void draw_text(const Eigen::Vector2f location, const float font_size,
                  const std::string_view text, const Color color);
 
@@ -72,5 +77,6 @@ private:
   sf::RenderWindow window_;
   sf::Clock delta_clock_;
   std::vector<EventType> events_;
+  std::vector<ImFont *> fonts_;
 };
 } // namespace view

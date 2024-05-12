@@ -66,8 +66,8 @@ public:
   bool has_been_clicked_{false};
 
 private:
-  static constexpr float font_size = 32.f;
-  static constexpr view::Color text_color{255, 255, 255};
+  static constexpr float font_size = 64.f;
+  static constexpr view::Color text_color{94, 108, 87};
 
   Eigen::Affine2f transform_{Eigen::Translation2f{-0.4f, 0.0f}};
   std::string display_text_;
@@ -77,7 +77,7 @@ class SnakeBoard : public model::Entity {
 public:
   static constexpr std::string_view entity_type_name = "snake_board";
   static Eigen::Vector2i get_grid_size() { return {20, 20}; }
-  static float get_grid_cell_size_pixels() { return 0.05f; }
+  static Eigen::Vector2f get_grid_cell_size() { return {0.05f, 0.05f}; }
 
   SnakeBoard(model::GameState &game_state);
 
@@ -129,7 +129,7 @@ public:
   std::vector<model::EntityID> collided_entities_;
 
 private:
-  static constexpr view::Color head_color{0, 255, 0};
+  static constexpr view::Color head_color{158, 175, 121};
   [[nodiscard]] Result<void, std::string> move_snake();
   bool extend_on_next_move_{false};
   bool key_pressed_this_update_{false};
@@ -152,7 +152,7 @@ public:
   [[nodiscard]] virtual Eigen::Affine2f get_transform() const;
 
 private:
-  static constexpr view::Color body_color{0, 185, 0};
+  static constexpr view::Color body_color{94, 108, 87};
   Eigen::Vector2i current_cell_;
 };
 
@@ -171,7 +171,9 @@ public:
 
 private:
   friend SnakeHead;
-  static constexpr view::Color apple_color{255, 0, 0};
+  static constexpr view::Color apple_color{150, 46, 75};
+  static constexpr std::string_view apple_texture_path{
+      "sprites/snake/apple.png"};
   Eigen::Vector2i current_cell_;
 };
 

@@ -16,8 +16,7 @@ public:
   };
 
   using GetCellInfoFunc = std::function<CellInfo()>;
-  DrawGridCell(const Eigen::Vector2i grid_size, const float cell_size,
-               GetCellInfoFunc get_info);
+  DrawGridCell(const Eigen::Vector2f &cell_size, GetCellInfoFunc get_info);
 
   [[nodiscard]] virtual std::string_view get_component_type_name() const {
     return component_type_name;

@@ -1,19 +1,20 @@
 #pragma once
 #include "components/component.hh"
 #include "view/screen.hh"
+#include "view/texture.hh"
 
 namespace component {
-class DrawRectangle : public Component {
+class Sprite : public Component {
 public:
   static constexpr std::string_view component_type_name =
-      "draw_rectangle_component";
-  struct RectangleInfo {
+      "draw_sprite_component";
+  struct SpriteInfo {
     Eigen::Affine2f transform;
-    view::Color color;
+    view::Texture texture;
   };
 
-  using GetRectangleInfoFunc = std::function<RectangleInfo()>;
-  DrawRectangle(GetRectangleInfoFunc get_info);
+  using GetSpriteInfoFunc = std::function<SpriteInfo()>;
+  Sprite(GetSpriteInfoFunc get_info);
 
   [[nodiscard]] virtual Result<void, std::string>
   draw(view::Screen &screen) const final;
@@ -23,6 +24,6 @@ public:
   }
 
 private:
-  GetRectangleInfoFunc get_info_;
+  GetSpriteInfoFunc get_info_;
 };
 } // namespace component

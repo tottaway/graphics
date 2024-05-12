@@ -1,7 +1,13 @@
 #include "view/screen.hh"
+#include "ThirdParty/imgui/imconfig.h"
 #include "ThirdParty/imgui/imgui-SFML.h"
 #include "ThirdParty/imgui/imgui.h"
+#include <GL/gl.h>
+#include <SFML/Graphics/Sprite.hpp>
+#include <SFML/Graphics/Texture.hpp>
+#include <SFML/OpenGL.hpp>
 #include <SFML/Window/Event.hpp>
+#include <SFML/Window/WindowStyle.hpp>
 
 namespace view {
 namespace {
@@ -24,11 +30,18 @@ convert_mouse_button_enum(const sf::Mouse::Button mouse_button) {
 }
 } // namespace
 
-Screen::Screen() : window_(sf::VideoMode(640, 480), "") {
+Screen::Screen()
+    : window_(sf::VideoMode(640, 480), "OpenGL", sf::Style::Fullscreen,
+              sf::ContextSettings(32)) {
   window_.setVerticalSyncEnabled(true);
   ImGui::SFML::Init(window_);
   // call it if you only draw ImGui. Otherwise not needed.
   window_.resetGLStates();
+
+  ImGuiIO &io = ImGui::GetIO();
+  fonts_.emplace_back(
+      io.Fonts->AddFontFromFileTTF("fonts/Roboto-Medium.ttf", 128));
+  ImGui::SFML::UpdateFontTexture();
 }
 
 Eigen::Vector2f Screen::get_mouse_pos() const {
@@ -41,7 +54,9 @@ void Screen::start_update() {
   const auto io = ImGui::GetIO();
   ImGui::SetNextWindowSize(io.DisplaySize);
   ImGui::SetNextWindowPos(ImVec2(0.f, 0.f));
+  ImGui::SetNextWindowBgAlpha(0.f);
   ImGui::Begin("Sample window"); // begin window
+  window_.clear();
 }
 
 void Screen::finish_update() {
@@ -53,16 +68,37 @@ void Screen::finish_update() {
 void Screen::draw_rectangle(const Eigen::Vector2f bottom_left,
                             const Eigen::Vector2f top_right,
                             const Color color) {
-
   const auto absolute_bottom_left = translate_to_absolute(bottom_left);
   const auto absolute_top_right = translate_to_absolute(top_right);
 
-  ImDrawList *draw_list = ImGui::GetWindowDrawList();
-  ImVec2 marker_min =
-      ImVec2(absolute_bottom_left.x(), absolute_bottom_left.y());
-  ImVec2 marker_max = ImVec2(absolute_top_right.x(), absolute_top_right.y());
-  draw_list->AddRectFilled(marker_min, marker_max,
-                           IM_COL32(color.r, color.b, color.g, 255));
+  glBegin(GL_QUADS);
+  glColor4f(color.r / 255.f, color.g / 255.f, color.b / 255.f, 1.);
+  glVertex2f(absolute_bottom_left.x(), absolute_bottom_left.y());
+  glVertex2f(absolute_bottom_left.x(), absolute_top_right.y());
+  glVertex2f(absolute_top_right.x(), absolute_top_right.y());
+  glVertex2f(absolute_top_right.x(), absolute_bottom_left.y());
+  glEnd();
+}
+
+void Screen::draw_rectangle(const Eigen::Vector2f bottom_left,
+                            const Eigen::Vector2f top_right,
+                            const Texture &texture) {
+  const auto absolute_bottom_left = translate_to_absolute(bottom_left);
+  const auto absolute_top_right = translate_to_absolute(top_right);
+
+  sf::Texture::bind(&texture.texture_);
+  glColor4f(1.0, 1.0, 1.0, 1.0);
+  glBegin(GL_QUADS);
+  glTexCoord2f(1, 1);
+  glVertex2f(absolute_bottom_left.x(), absolute_bottom_left.y());
+  glTexCoord2f(1, 0);
+  glVertex2f(absolute_bottom_left.x(), absolute_top_right.y());
+  glTexCoord2f(0, 0);
+  glVertex2f(absolute_top_right.x(), absolute_top_right.y());
+  glTexCoord2f(0, 1);
+  glVertex2f(absolute_top_right.x(), absolute_bottom_left.y());
+  glEnd();
+  sf::Texture::bind(NULL);
 }
 
 void Screen::draw_text(const Eigen::Vector2f location, const float font_size,
@@ -70,9 +106,13 @@ void Screen::draw_text(const Eigen::Vector2f location, const float font_size,
   const auto absolute_location = translate_to_absolute(location);
   ImDrawList *draw_list = ImGui::GetWindowDrawList();
   ImVec2 marker_min = ImVec2(absolute_location.x(), absolute_location.y());
+  window_.pushGLStates();
+  ImGui::PushFont(fonts_.front());
   draw_list->AddText(ImGui::GetFont(), font_size, marker_min,
-                     IM_COL32(color.r, color.b, color.g, 255), text.data(),
+                     IM_COL32(color.r, color.g, color.b, 255), text.data(),
                      text.data() + text.size());
+  ImGui::PopFont();
+  window_.popGLStates();
 }
 
 Result<bool, std::string> Screen::poll_events_and_check_for_close() {

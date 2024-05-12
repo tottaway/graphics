@@ -28,6 +28,7 @@ cc_library(
   hdrs = ["draw_grid_cell.hh"],
   deps = [
     ":draw_rectangle",
+    "//geometry:transform_utils",
     "//utility:try",
     "@eigen",
   ],
@@ -40,8 +41,20 @@ cc_library(
   hdrs = ["draw_rectangle.hh"],
   deps = [
     ":component",
-    "//model:entity_id",
-    "//model:game_state",
+    "//geometry:rectangle_utils",
+    "//utility:try",
+    "//view:screen",
+  ],
+  visibility = ["//visibility:public"],
+)
+
+cc_library(
+  name = "sprite",
+  srcs = ["sprite.cc"],
+  hdrs = ["sprite.hh"],
+  deps = [
+    ":component",
+    "//geometry:rectangle_utils",
     "//utility:try",
     "//view:screen",
   ],

@@ -1,0 +1,5 @@
+filegroup(
+    name = "apple",
+    srcs = ["apple.png"],
+    visibility = ["//visibility:public"],
+)

@@ -6,8 +6,21 @@ cc_library(
     hdrs = ["screen.hh"],
     visibility = ["//visibility:public"],
     deps = [
+      "//view:texture",
       "//utility:try",
       "@imguilib//:imgui",
-        "@eigen"
+      "@eigen"
     ],
+    data = ["//fonts:fonts"]
+)
+
+cc_library(
+    name = "texture",
+    srcs = ["texture.cc"],
+    hdrs = ["texture.hh"],
+    visibility = ["//visibility:public"],
+    deps = [
+      "@imguilib//:imgui",
+    ],
+    data = ["//fonts:fonts"]
 )

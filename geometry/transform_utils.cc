@@ -19,4 +19,14 @@ transform_from_translation_and_scale(const Eigen::Vector2f &translation,
   transform.scale(scale);
   return transform;
 }
+
+Eigen::Affine2f
+transform_from_grid_cell(const Eigen::Vector2i grid_cell,
+                         const Eigen::Vector2f grid_cell_size_length) {
+  // divide by two because unit rectangle has a max side length of 2
+  return Eigen::Affine2f(
+             Eigen::Translation2f{
+                 grid_cell.cast<float>().cwiseProduct(grid_cell_size_length)})
+      .scale(grid_cell_size_length / 2);
+}
 } // namespace geometry

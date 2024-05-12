@@ -6,13 +6,17 @@ cc_binary(
   deps = [
     ":snake",
     "//controller:controller"
-  ]
+  ],
 )
+
 cc_library(
   name = "snake",
   srcs = ["snake.cc"],
   hdrs = ["snake.hh"],
+  data = ["//sprites/snake:apple"],
   deps = [
+    "//view:texture",
+    "//geometry:transform_utils",
     "//systems:grid_collisions",
     "//model:game_state",
     "//model:rectangle",
@@ -20,6 +24,7 @@ cc_library(
     "//utility:overload",
     "//components:draw_grid_cell",
     "//components:label",
+    "//components:sprite",
     "@eigen",
   ]
 )

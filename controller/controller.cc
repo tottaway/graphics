@@ -20,26 +20,26 @@ Result<void, std::string> Controller::run() { return run(std::nullopt); }
 
 Result<void, std::string> Controller::run(
     std::optional<std::chrono::milliseconds> maybe_min_update_interval) {
+  auto last_update = std::chrono::high_resolution_clock::now();
   while (true) {
-    const auto start = std::chrono::high_resolution_clock::now();
     screen_->start_update();
-    if (!TRY(screen_->poll_events_and_check_for_close())) {
-      return Ok();
-    }
+    const auto now = std::chrono::high_resolution_clock::now();
+    if (!maybe_min_update_interval.has_value() ||
+        (now - last_update) > maybe_min_update_interval.value()) {
+      if (!TRY(screen_->poll_events_and_check_for_close())) {
+        return Ok();
+      }
 
-    for (const auto &event : screen_->get_events()) {
-      TRY_VOID(game_state_->handle_event(event, *screen_));
-    }
+      for (const auto &event : screen_->get_events()) {
+        TRY_VOID(game_state_->handle_event(event, *screen_));
+      }
 
-    TRY_VOID(game_state_->advance_state(100.f));
+      TRY_VOID(game_state_->advance_state(100.f));
+      screen_->clear_events();
+      last_update = std::chrono::high_resolution_clock::now();
+    }
     TRY_VOID(game_state_->draw(*screen_));
     screen_->finish_update();
-    screen_->clear_events();
-    const auto end = std::chrono::high_resolution_clock::now();
-    if (maybe_min_update_interval) {
-      std::this_thread::sleep_for(maybe_min_update_interval.value() -
-                                  (end - start));
-    }
   }
   return Ok();
 }
