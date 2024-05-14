@@ -1,0 +1,15 @@
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+cc_library(
+    name = "texture_set",
+    srcs = ["texture_set.cc"],
+    hdrs = ["texture_set.hh"],
+    visibility = ["//visibility:public"],
+    deps = [
+      "//view:texture",
+      "//utility:try",
+      "@imguilib//:imgui",
+      "@eigen"
+    ],
+    data = ["//fonts:fonts"]
+)
