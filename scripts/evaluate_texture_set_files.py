@@ -8,8 +8,8 @@ import numpy as np
 def visualize_subsection(subsection_node, full_image):
     start = np.array(subsection_node["start"])
     tile_size = np.array(subsection_node["tile_size"])
-    for i in range(1, subsection_node["horizontal_tile_count"]):
-        for j in range(1, subsection_node["vertical_tile_count"]):
+    for i in range(0, subsection_node["horizontal_tile_count"]):
+        for j in range(0, subsection_node["vertical_tile_count"]):
             # __import__('pdb').set_trace()
             tile_start = start + tile_size * np.array([i, j])
             tile_end = tile_start + tile_size

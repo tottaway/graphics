@@ -9,7 +9,8 @@ cc_library(
       "//view:texture",
       "//utility:try",
       "@imguilib//:imgui",
-      "@eigen"
+      "@eigen",
+      "@yaml-cpp"
     ],
     data = ["//fonts:fonts"]
 )

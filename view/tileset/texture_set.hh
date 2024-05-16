@@ -13,19 +13,22 @@ public:
   ///
   /// @param[in] path yaml file describing a texture set
   /// @return errors if yaml file doesn't exists or contains errors
-  static Result<TextureSet, std::string>
+  static Result<TextureSet *, std::string>
   parse_texture_set(const std::filesystem::path path);
 
-  /// Look up textures in the set by the name specified in a yaml file
-  Texture get_static_texture_by_name(const std::string_view texture_name);
+  /// TODO: error
+  std::vector<Texture>
+  get_texture_sequence_by_name(const std::string_view sequence_name) const;
 
   std::vector<Texture>
-  get_texture_sequence_by_name(const std::string_view sequence_name);
+  get_texture_set_by_name(const std::string_view sequence_name) const;
 
 private:
-  std::unordered_map<std::string, Texture> textures_;
-
   std::unordered_map<std::string, std::vector<Texture>> texture_sequences_;
+
+  std::unordered_map<std::string, std::vector<Texture>> texture_sets_;
+
+  static std::unordered_map<std::string, TextureSet> s_texture_set_cache;
 };
 
 } // namespace view

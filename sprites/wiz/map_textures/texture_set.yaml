@@ -1,0 +1,37 @@
+- file_name: "sprites/wiz/map_textures/grass.png"
+  subsections:
+    grass:
+      start: [0, 0]
+      tile_size: [64, 64]
+      vertical_tile_count: 2
+      horizontal_tile_count: 2
+      is_sequence: false
+    flower:
+      start: [128, 0]
+      tile_size: [64, 64]
+      vertical_tile_count: 2
+      horizontal_tile_count: 2
+      is_sequence: false
+    stone:
+      start: [0, 128]
+      tile_size: [64, 64]
+      vertical_tile_count: 2
+      horizontal_tile_count: 4
+      is_sequence: false
+
+- file_name: "sprites/wiz/map_textures/plant.png"
+  subsections:
+    tree:
+      start: [15, 10]
+      tile_size: [125, 150]
+      vertical_tile_count: 1
+      horizontal_tile_count: 3
+      is_sequence: false
+
+    bush:
+      start: [15, 180]
+      tile_size: [64, 64]
+      vertical_tile_count: 1
+      horizontal_tile_count: 6
+      is_sequence: false
+

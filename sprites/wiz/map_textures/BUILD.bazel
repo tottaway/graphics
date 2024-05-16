@@ -1,15 +1,9 @@
 filegroup(
-    name = "trees",
+    name = "texture_set",
     srcs = [
-      "trees.png",
-    ],
-    visibility = ["//visibility:public"],
-)
-
-filegroup(
-    name = "ground",
-    srcs = [
-      "ground.png",
+      "texture_set.yaml",
+      "grass.png",
+      "plant.png",
     ],
     visibility = ["//visibility:public"],
 )

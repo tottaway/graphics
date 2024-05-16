@@ -3,11 +3,13 @@
 #include "ThirdParty/imgui/imgui-SFML.h"
 #include "ThirdParty/imgui/imgui.h"
 #include <GL/gl.h>
+#include <GLFW/glfw3.h>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/OpenGL.hpp>
 #include <SFML/Window/Event.hpp>
 #include <SFML/Window/WindowStyle.hpp>
+#include <chrono>
 
 namespace view {
 namespace {
@@ -90,22 +92,30 @@ void Screen::draw_rectangle(const Eigen::Vector2f bottom_left,
 void Screen::draw_rectangle(const Eigen::Vector2f bottom_left,
                             const Eigen::Vector2f top_right,
                             const Texture &texture) {
+  const auto t1 = std::chrono::high_resolution_clock::now();
   const auto absolute_bottom_left = window_pixels_from_game_m_ * bottom_left;
   const auto absolute_top_right = window_pixels_from_game_m_ * top_right;
 
-  sf::Texture::bind(&texture.texture_);
+  sf::Texture::bind(texture.texture_.get());
   glColor4f(1.0, 1.0, 1.0, 1.0);
   glBegin(GL_QUADS);
-  glTexCoord2f(1, 1);
+  glTexCoord2f(texture.top_right_uv_.x(), texture.top_right_uv_.y());
   glVertex2f(absolute_bottom_left.x(), absolute_bottom_left.y());
-  glTexCoord2f(1, 0);
+  glTexCoord2f(texture.top_right_uv_.x(), texture.bottom_left_uv_.y());
   glVertex2f(absolute_bottom_left.x(), absolute_top_right.y());
-  glTexCoord2f(0, 0);
+  glTexCoord2f(texture.bottom_left_uv_.x(), texture.bottom_left_uv_.y());
   glVertex2f(absolute_top_right.x(), absolute_top_right.y());
-  glTexCoord2f(0, 1);
+  glTexCoord2f(texture.bottom_left_uv_.x(), texture.top_right_uv_.y());
   glVertex2f(absolute_top_right.x(), absolute_bottom_left.y());
+
   glEnd();
   sf::Texture::bind(NULL);
+  const auto t2 = std::chrono::high_resolution_clock::now();
+  // std::cout
+  //     << "texture "
+  //     << std::chrono::duration_cast<std::chrono::microseconds>(t2 -
+  //     t1).count()
+  //     << std::endl;
 }
 
 void Screen::draw_text(const Eigen::Vector2f location, const float font_size,

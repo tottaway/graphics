@@ -13,3 +13,4 @@ git_override(
     # Even better, set up Renovate and let it do the work for you (see "Suggestion: Updates" in the README).
 )
 bazel_dep(name = "eigen", version = "3.4.0")
+bazel_dep(name = "yaml-cpp", version = "0.8.0")

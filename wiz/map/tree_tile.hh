@@ -16,10 +16,8 @@ public:
   [[nodiscard]] virtual Eigen::Affine2f get_transform() const;
 
 private:
-  static constexpr std::string_view tree_texture_path{
-      "sprites/wiz/map_textures/trees.png"};
-  static constexpr std::string_view ground_texture_path{
-      "sprites/wiz/map_textures/ground.png"};
+  static constexpr std::string_view texture_set_path{
+      "sprites/wiz/map_textures/texture_set.yaml"};
   Eigen::Vector2f position_;
 };
 } // namespace wiz

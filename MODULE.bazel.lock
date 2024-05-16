@@ -1,6 +1,6 @@
 {
   "lockFileVersion": 6,
-  "moduleFileHash": "8b6ce9e6c6d122cc79b568ef7cce8d43185503fbd85cd1178e0f91102de0cf12",
+  "moduleFileHash": "9e53c29456b3aad0ab8d7f9f2d7b6fd7a4e8272a992675e39eac159ca039657d",
   "flags": {
     "cmdRegistries": [
       "https://bcr.bazel.build/"
@@ -27,6 +27,7 @@
       "deps": {
         "hedron_compile_commands": "hedron_compile_commands@_",
         "eigen": "eigen@3.4.0",
+        "yaml-cpp": "yaml-cpp@0.8.0",
         "bazel_tools": "bazel_tools@_",
         "local_config_platform": "local_config_platform@_"
       }
@@ -131,6 +132,36 @@
             "https://bcr.bazel.build/modules/eigen/3.4.0/patches/module_dot_bazel.patch": "sha256-xDle81SJcU6payWsaWbrWyrFbalx9tSW4bKuTBUVBV4="
           },
           "remote_patch_strip": 0
+        }
+      }
+    },
+    "yaml-cpp@0.8.0": {
+      "name": "yaml-cpp",
+      "version": "0.8.0",
+      "key": "yaml-cpp@0.8.0",
+      "repoName": "yaml-cpp",
+      "executionPlatformsToRegister": [],
+      "toolchainsToRegister": [],
+      "extensionUsages": [],
+      "deps": {
+        "platforms": "platforms@0.0.7",
+        "rules_cc": "rules_cc@0.0.9",
+        "bazel_tools": "bazel_tools@_",
+        "local_config_platform": "local_config_platform@_"
+      },
+      "repoSpec": {
+        "bzlFile": "@@bazel_tools//tools/build_defs/repo:http.bzl",
+        "ruleClassName": "http_archive",
+        "attributes": {
+          "urls": [
+            "https://github.com/stonier/yaml-cpp/releases/download/0.8.0/yaml-cpp-0.8.0.tar.gz"
+          ],
+          "integrity": "sha256-++dLvc7iHWVnFWiHBto8i+z9lG2SzURwXMYJi7I7OhY=",
+          "strip_prefix": "yaml-cpp-0.8.0",
+          "remote_patches": {
+            "https://bcr.bazel.build/modules/yaml-cpp/0.8.0/patches/module_dot_bazel.patch": "sha256-YM6xq0Mtu51Okntj5lRQ3V04DyZNm4hZdrSDMio1KeU="
+          },
+          "remote_patch_strip": 1
         }
       }
     },
@@ -297,6 +328,33 @@
       "deps": {
         "platforms": "platforms@0.0.7",
         "bazel_tools": "bazel_tools@_"
+      }
+    },
+    "platforms@0.0.7": {
+      "name": "platforms",
+      "version": "0.0.7",
+      "key": "platforms@0.0.7",
+      "repoName": "platforms",
+      "executionPlatformsToRegister": [],
+      "toolchainsToRegister": [],
+      "extensionUsages": [],
+      "deps": {
+        "rules_license": "rules_license@0.0.7",
+        "bazel_tools": "bazel_tools@_",
+        "local_config_platform": "local_config_platform@_"
+      },
+      "repoSpec": {
+        "bzlFile": "@@bazel_tools//tools/build_defs/repo:http.bzl",
+        "ruleClassName": "http_archive",
+        "attributes": {
+          "urls": [
+            "https://github.com/bazelbuild/platforms/releases/download/0.0.7/platforms-0.0.7.tar.gz"
+          ],
+          "integrity": "sha256-OlYcmee9vpFzqmU/1Xn+hJ8djWc5V4CrR3Cx84FDHVE=",
+          "strip_prefix": "",
+          "remote_patches": {},
+          "remote_patch_strip": 0
+        }
       }
     },
     "rules_cc@0.0.9": {
@@ -674,33 +732,6 @@
             "https://bcr.bazel.build/modules/buildozer/6.4.0.2/patches/module_dot_bazel_version.patch": "sha256-gKANF2HMilj7bWmuXs4lbBIAAansuWC4IhWGB/CerjU="
           },
           "remote_patch_strip": 1
-        }
-      }
-    },
-    "platforms@0.0.7": {
-      "name": "platforms",
-      "version": "0.0.7",
-      "key": "platforms@0.0.7",
-      "repoName": "platforms",
-      "executionPlatformsToRegister": [],
-      "toolchainsToRegister": [],
-      "extensionUsages": [],
-      "deps": {
-        "rules_license": "rules_license@0.0.7",
-        "bazel_tools": "bazel_tools@_",
-        "local_config_platform": "local_config_platform@_"
-      },
-      "repoSpec": {
-        "bzlFile": "@@bazel_tools//tools/build_defs/repo:http.bzl",
-        "ruleClassName": "http_archive",
-        "attributes": {
-          "urls": [
-            "https://github.com/bazelbuild/platforms/releases/download/0.0.7/platforms-0.0.7.tar.gz"
-          ],
-          "integrity": "sha256-OlYcmee9vpFzqmU/1Xn+hJ8djWc5V4CrR3Cx84FDHVE=",
-          "strip_prefix": "",
-          "remote_patches": {},
-          "remote_patch_strip": 0
         }
       }
     },

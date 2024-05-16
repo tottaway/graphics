@@ -1,3 +1,2 @@
-build --repo_env=CC=clang
 build --action_env=BAZEL_CXXOPTS="-std=c++23"
 build --cxxopt="-Wno-deprecated-declarations"
