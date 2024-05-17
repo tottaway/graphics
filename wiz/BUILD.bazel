@@ -20,6 +20,8 @@ cc_library(
     "//view:screen",
     "//components:center",
     "//components:sprite",
+    "//components:collider",
+    "//wiz/map:grass_tile",
     "@eigen",
   ],
   visibility = [":__subpackages__"],
@@ -47,6 +49,7 @@ cc_library(
   data = [],
   deps = [
     ":mode_manager",
+    "//systems:collisions",
     "//model:game_state",
     "//view:screen",
   ],

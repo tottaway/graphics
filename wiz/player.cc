@@ -1,8 +1,11 @@
 #include "wiz/player.hh"
 #include "components/center.hh"
+#include "components/collider.hh"
 #include "components/sprite.hh"
 #include "geometry/rectangle_utils.hh"
+#include "model/entity_id.hh"
 #include "model/game_state.hh"
+#include "wiz/map/grass_tile.hh"
 
 namespace wiz {
 Player::Player(model::GameState &game_state) : model::Entity(game_state) {}
@@ -14,6 +17,16 @@ Result<void, std::string> Player::init() {
 
   add_component<component::Center>([this]() { return get_transform(); });
 
+  add_component<component::Collider>([this](const model::EntityID &id) {
+    const auto result = game_state_.get_entity_pointer_by_id_as<GrassTile>(id);
+    if (result.isOk()) {
+      result.unwrap()
+          ->get_component<component::Collider>()
+          .value()
+          ->handle_collision(get_entity_id());
+    }
+  });
+
   add_component<component::Sprite>([this, player_texture]() {
     return component::Sprite::SpriteInfo{get_transform(), player_texture};
   });
@@ -22,7 +35,7 @@ Result<void, std::string> Player::init() {
 }
 
 Result<void, std::string> Player::update(const int64_t delta_time_ns) {
-  position_ += (y_direction_ + x_direction_).cast<float>().normalized() / 2 *
+  position_ += (y_direction_ + x_direction_).cast<float>().normalized() *
                (static_cast<double>(delta_time_ns) / 1e9);
   return Ok();
 }

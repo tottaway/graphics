@@ -20,5 +20,6 @@ private:
       "sprites/wiz/map_textures/texture_set.yaml"};
   Eigen::Vector2f position_;
   Eigen::Affine2f transform_;
+  bool flag_{false};
 };
 } // namespace wiz

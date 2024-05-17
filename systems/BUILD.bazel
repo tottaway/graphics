@@ -21,3 +21,16 @@ cc_library(
   ],
   visibility = ["//visibility:public"],
 )
+
+cc_library(
+  name = "collisions",
+  srcs = ["collisions.cc"],
+  hdrs = ["collisions.hh"],
+  deps = [
+    ":system",
+    "//components:collider",
+    "//model:game_state",
+    "//utility:try",
+  ],
+  visibility = ["//visibility:public"],
+)
