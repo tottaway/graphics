@@ -39,6 +39,7 @@ cc_library(
     "//sprites/wiz/map_textures:texture_set",
   ],
   deps = [
+    ":grass_tile",
     "//view/tileset:texture_set",
     "//view:texture",
     "//model:game_state",

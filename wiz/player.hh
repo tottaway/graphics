@@ -26,6 +26,8 @@ public:
 
   [[nodiscard]] virtual Eigen::Affine2f get_transform() const;
 
+  [[nodiscard]] virtual uint8_t get_z_level() const { return 1; }
+
 private:
   static constexpr std::string_view player_texture_path{
       "sprites/wiz/player/idle.png"};

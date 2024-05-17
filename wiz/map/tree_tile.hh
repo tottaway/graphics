@@ -15,6 +15,8 @@ public:
 
   [[nodiscard]] virtual Eigen::Affine2f get_transform() const;
 
+  [[nodiscard]] virtual uint8_t get_z_level() const { return 2; }
+
 private:
   static constexpr std::string_view texture_set_path{
       "sprites/wiz/map_textures/texture_set.yaml"};

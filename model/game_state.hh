@@ -30,6 +30,9 @@ public:
   [[nodiscard]] virtual Result<void, std::string>
   draw(view::Screen &screen) const;
 
+  /// Z level to draw object on (entities are drawn from low to high)
+  [[nodiscard]] virtual uint8_t get_z_level() const { return 0; }
+
   /// Update the internal state of the Enitity
   /// @param[in] delta_time_ns the current time in nanoseconds
   [[nodiscard]] virtual Result<void, std::string>
@@ -52,8 +55,9 @@ public:
 
   /// Handler for click (defined as mouse up)
   /// @param[in] mouse_up underlying event from the screen
-  /// @return true if we should keep passing this event to other entities, false
-  /// otherwise, propagates any error which occur while handling the event
+  /// @return true if we should keep passing this event to other entities,
+  /// false otherwise, propagates any error which occur while handling the
+  /// event
   [[nodiscard]] virtual Result<bool, std::string>
   on_click(const view::MouseUpEvent &mouse_up) {
     return Ok(true);
@@ -61,8 +65,9 @@ public:
 
   /// Handler for key press
   /// @param[in] key_press underlying event from the screen
-  /// @return true if we should keep passing this event to other entities, false
-  /// otherwise, propagates any error which occur while handling the event
+  /// @return true if we should keep passing this event to other entities,
+  /// false otherwise, propagates any error which occur while handling the
+  /// event
   [[nodiscard]] virtual Result<bool, std::string>
   on_key_press(const view::KeyPressedEvent &key_press) {
     return Ok(true);
@@ -70,8 +75,9 @@ public:
 
   /// Handler for key release TODO: move this into components
   /// @param[in] key_release underlying event from the screen
-  /// @return true if we should keep passing this event to other entities, false
-  /// otherwise, propagates any error which occur while handling the event
+  /// @return true if we should keep passing this event to other entities,
+  /// false otherwise, propagates any error which occur while handling the
+  /// event
   [[nodiscard]] virtual Result<bool, std::string>
   on_key_release(const view::KeyReleasedEvent &key_release) {
     return Ok(true);
@@ -127,7 +133,8 @@ protected:
 
   /// Get pointer to the parent entity
   /// @note the pointer is not guarenteed to remain valid and should only be
-  /// held for the duration of a function, EntityIDs should be used for storage
+  /// held for the duration of a function, EntityIDs should be used for
+  /// storage
   /// @return non-null pointer to parent entity if successful, error if parent
   /// entity is of a different type or if the parent entity no longer exists
   template <
@@ -143,7 +150,8 @@ protected:
   /// @note this assumes that the child entity can be constructed from a
   /// GameState reference
   /// @note the pointer is not guarenteed to remain valid and should only be
-  /// held for the duration of a function, EntityIDs should be used for storage
+  /// held for the duration of a function, EntityIDs should be used for
+  /// storage
   /// @tparam EntityType type of entity to add
   /// @tparam Args signature of entity's init function
   /// @param args arguements which are forwarded to the constructor the entity
@@ -158,7 +166,8 @@ protected:
   /// @note this assumes that the child entity can be constructed from a
   /// GameState reference
   /// @note the pointer is not guarenteed to remain valid and should only be
-  /// held for the duration of a function, EntityIDs should be used for storage
+  /// held for the duration of a function, EntityIDs should be used for
+  /// storage
   /// @tparam EntityType type of entity to add
   /// @return non-null pointer to new child entity if successful
   template <
@@ -205,7 +214,8 @@ private:
   std::vector<EntityID> child_entities_;
 };
 
-/// Class which holds all of the information about the current state of the game
+/// Class which holds all of the information about the current state of the
+/// game
 class GameState {
 public:
   GameState();
@@ -268,6 +278,7 @@ private:
   static constexpr std::size_t max_entity_count{4096UL};
   static constexpr EntityID invalid_entity_id{
       std::numeric_limits<EntityID>::max()};
+  static constexpr std::size_t max_z_level{5UL};
 
   [[nodiscard]] Result<bool, std::string>
   handle_mouse_up_for_entity(Entity &entity, const view::MouseUpEvent &event,

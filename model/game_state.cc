@@ -89,9 +89,21 @@ GameState::handle_mouse_up_for_entity(Entity &entity,
 }
 
 Result<void, std::string> GameState::draw(view::Screen &screen) const {
+  std::array<std::vector<EntityID>, 5UL> draw_lists;
   for (const auto &entity : entities_) {
     if (entity) {
-      TRY_VOID(entity->draw(screen));
+      const auto z_ordering = entity->get_z_level();
+      if (z_ordering == 0U) {
+        TRY_VOID(entity->draw(screen));
+      } else {
+        draw_lists[z_ordering - 1].emplace_back(entity->get_entity_id());
+      }
+    }
+  }
+
+  for (const auto &draw_list : draw_lists) {
+    for (const auto &index : draw_list) {
+      TRY_VOID(entities_[index]->draw(screen));
     }
   }
   return Ok();

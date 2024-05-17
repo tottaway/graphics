@@ -2,6 +2,7 @@
 #include "components/sprite.hh"
 #include "geometry/rectangle_utils.hh"
 #include "view/tileset/texture_set.hh"
+#include "wiz/map/grass_tile.hh"
 #include <random>
 
 namespace wiz {
@@ -20,17 +21,11 @@ Result<void, std::string> TreeTile::init(const Eigen::Vector2f position) {
       0, tree_textures.size() - 1);
   const auto tree_texture = tree_textures[texture_index_dist(rng)];
 
-  const auto flower_texture = texture_set->get_texture_set_by_name("flower")[1];
+  TRY(add_child_entity_and_init<GrassTile>(position_));
 
-  add_component<component::Sprite>([this, flower_texture]() {
-    return component::Sprite::SpriteInfo{get_transform(), flower_texture};
-  });
   add_component<component::Sprite>([this, tree_texture]() {
     return component::Sprite::SpriteInfo{
-        get_transform()
-            .translate(Eigen::Vector2f{-1.8, -1.8})
-            .scale(Eigen::Vector2f{1.5, 2.}),
-        tree_texture};
+        get_transform().scale(Eigen::Vector2f{1.5, 2.}), tree_texture};
   });
   return Ok();
 }
