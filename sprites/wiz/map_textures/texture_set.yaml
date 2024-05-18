@@ -6,18 +6,21 @@
       vertical_tile_count: 2
       horizontal_tile_count: 2
       is_sequence: false
+      padding: [0,0]
     flower:
       start: [128, 0]
       tile_size: [64, 64]
       vertical_tile_count: 2
       horizontal_tile_count: 2
       is_sequence: false
+      padding: [0,0]
     stone:
       start: [0, 128]
       tile_size: [64, 64]
       vertical_tile_count: 2
       horizontal_tile_count: 4
       is_sequence: false
+      padding: [0,0]
 
 - file_name: "sprites/wiz/map_textures/plant.png"
   subsections:
@@ -27,11 +30,13 @@
       vertical_tile_count: 1
       horizontal_tile_count: 3
       is_sequence: false
+      padding: [3,3]
 
     bush:
-      start: [15, 180]
+      start: [15, 175]
       tile_size: [64, 64]
       vertical_tile_count: 1
       horizontal_tile_count: 6
       is_sequence: false
+      padding: [8,8]
 

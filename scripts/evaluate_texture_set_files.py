@@ -8,12 +8,14 @@ import numpy as np
 def visualize_subsection(subsection_node, full_image):
     start = np.array(subsection_node["start"])
     tile_size = np.array(subsection_node["tile_size"])
+    padding = np.array(subsection_node["padding"])
     for i in range(0, subsection_node["horizontal_tile_count"]):
         for j in range(0, subsection_node["vertical_tile_count"]):
             # __import__('pdb').set_trace()
             tile_start = start + tile_size * np.array([i, j])
             tile_end = tile_start + tile_size
-            img_view = full_image[tile_start[1]:tile_end[1], tile_start[0]:tile_end[0]] 
+            img_view = full_image[tile_start[1] + padding[1]:tile_end[1] - padding[1],
+                                  tile_start[0] + padding[0]:tile_end[0] - padding[0]] 
             plt.imshow(img_view)
             plt.show()
 

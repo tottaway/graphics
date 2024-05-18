@@ -29,8 +29,8 @@ public:
   [[nodiscard]] virtual uint8_t get_z_level() const { return 1; }
 
 private:
-  static constexpr std::string_view player_texture_path{
-      "sprites/wiz/player/idle.png"};
+  static constexpr std::string_view player_texture_set_path{
+      "sprites/wiz/player/player_sprites.yaml"};
   Eigen::Vector2f position_{0.f, 0.f};
   Eigen::Vector2i x_direction_{0, 0};
   Eigen::Vector2i y_direction_{0, 0};

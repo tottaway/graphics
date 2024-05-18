@@ -1,4 +1,18 @@
 load("@rules_cc//cc:defs.bzl", "cc_library")
+
+cc_library(
+  name = "animation",
+  srcs = ["animation.cc"],
+  hdrs = ["animation.hh"],
+  deps = [
+    ":sprite",
+    "//geometry:rectangle_utils",
+    "//utility:try",
+    "//view:screen",
+  ],
+  visibility = ["//visibility:public"],
+)
+
 cc_library(
   name = "center",
   srcs = ["center.cc"],

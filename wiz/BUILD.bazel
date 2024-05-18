@@ -21,6 +21,7 @@ cc_library(
     "//components:center",
     "//components:sprite",
     "//components:collider",
+    "//components:animation",
     "//wiz/map:grass_tile",
     "@eigen",
   ],

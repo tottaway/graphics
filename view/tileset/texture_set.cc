@@ -30,6 +30,10 @@ TextureSet::parse_texture_set(const std::filesystem::path path) {
             subsection_node["tile_size"][0].as<int>(),
             subsection_node["tile_size"][1].as<int>(),
         };
+        const Eigen::Vector2i padding{
+            subsection_node["padding"][0].as<int>(),
+            subsection_node["padding"][1].as<int>(),
+        };
         for (const auto i : std::ranges::views::iota(
                  0, subsection_node["horizontal_tile_count"].as<int>())) {
           for (const auto j : std::ranges::views::iota(
@@ -39,8 +43,10 @@ TextureSet::parse_texture_set(const std::filesystem::path path) {
             const Eigen::Vector2i tile_end = tile_start + tile_size;
             texture_set.texture_sets_[subsection_name].emplace_back(
                 image_file_name,
-                Eigen::Vector2i{tile_start.x(), tile_start.y()},
-                Eigen::Vector2i{tile_end.x(), tile_end.y()});
+                Eigen::Vector2i{tile_end.x() - padding.x(),
+                                tile_start.y() + padding.y()},
+                Eigen::Vector2i{tile_start.x() + padding.x(),
+                                tile_end.y() - padding.y()});
           }
         }
       }

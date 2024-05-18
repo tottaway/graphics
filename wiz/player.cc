@@ -1,19 +1,21 @@
 #include "wiz/player.hh"
+#include "components/animation.hh"
 #include "components/center.hh"
 #include "components/collider.hh"
 #include "components/sprite.hh"
 #include "geometry/rectangle_utils.hh"
 #include "model/entity_id.hh"
 #include "model/game_state.hh"
+#include "view/tileset/texture_set.hh"
 #include "wiz/map/grass_tile.hh"
 
 namespace wiz {
 Player::Player(model::GameState &game_state) : model::Entity(game_state) {}
 
 Result<void, std::string> Player::init() {
-  view::Texture player_texture{std::filesystem::path(player_texture_path),
-                               Eigen::Vector2i{0, 0},
-                               Eigen::Vector2i{100, 100}};
+  // view::Texture player_texture{std::filesystem::path(player_texture_path),
+  //                              Eigen::Vector2i{0, 0},
+  //                              Eigen::Vector2i{100, 100}};
 
   add_component<component::Center>([this]() { return get_transform(); });
 
@@ -27,9 +29,12 @@ Result<void, std::string> Player::init() {
     }
   });
 
-  add_component<component::Sprite>([this, player_texture]() {
-    return component::Sprite::SpriteInfo{get_transform(), player_texture};
-  });
+  const auto *texture_set = TRY(view::TextureSet::parse_texture_set(
+      std::filesystem::path(player_texture_set_path)));
+  auto idle_textures = texture_set->get_texture_set_by_name("death");
+
+  add_component<component::Animation>([this]() { return get_transform(); },
+                                      std::move(idle_textures), 10.f);
 
   return Ok();
 }
@@ -37,6 +42,9 @@ Result<void, std::string> Player::init() {
 Result<void, std::string> Player::update(const int64_t delta_time_ns) {
   position_ += (y_direction_ + x_direction_).cast<float>().normalized() *
                (static_cast<double>(delta_time_ns) / 1e9);
+  for (const auto &component : components_) {
+    TRY_VOID(component->update(delta_time_ns));
+  }
   return Ok();
 }
 
@@ -81,6 +89,6 @@ Player::on_key_release(const view::KeyReleasedEvent &key_release) {
 
 Eigen::Affine2f Player::get_transform() const {
   return geometry::make_rectangle_from_center_and_size(
-      position_, Eigen::Vector2f{0.1f, 0.1f});
+      position_, Eigen::Vector2f{0.1f, 0.12f});
 }
 } // namespace wiz

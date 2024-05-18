@@ -1,6 +1,7 @@
 filegroup(
     name = "player",
     srcs = [
+      "player_sprites.yaml",
       "attack.png",
       "death.png",
       "idle.png",
