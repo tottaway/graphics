@@ -25,7 +25,10 @@ Result<void, std::string> TreeTile::init(const Eigen::Vector2f position) {
 
   add_component<component::Sprite>([this, tree_texture]() {
     return component::Sprite::SpriteInfo{
-        get_transform().scale(Eigen::Vector2f{1.5, 2.}), tree_texture};
+        get_transform()
+            .translate(Eigen::Vector2f{0.0, 1.5})
+            .scale(Eigen::Vector2f{1.5, 2.}),
+        tree_texture};
   });
   return Ok();
 }
