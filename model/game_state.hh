@@ -284,9 +284,13 @@ private:
   handle_mouse_up_for_entity(Entity &entity, const view::MouseUpEvent &event,
                              const view::Screen &screen);
   /// Current entities in the game
-  std::vector<std::unique_ptr<Entity>> entities_;
+  std::array<std::unique_ptr<Entity>, max_entity_count> entities_{nullptr};
 
   std::vector<std::unique_ptr<systems::System>> systems_;
+
+  uint64_t epoch_{0UL};
+  uint64_t next_index_{0UL};
+  uint64_t current_entity_count_{0UL};
 };
 } // namespace model
 

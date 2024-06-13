@@ -128,6 +128,8 @@ public:
 
   std::vector<model::EntityID> collided_entities_;
 
+  [[nodiscard]] virtual uint8_t get_z_level() const { return 1; }
+
 private:
   static constexpr view::Color head_color{158, 175, 121};
   [[nodiscard]] Result<void, std::string> move_snake();
@@ -151,6 +153,8 @@ public:
 
   [[nodiscard]] virtual Eigen::Affine2f get_transform() const;
 
+  [[nodiscard]] virtual uint8_t get_z_level() const { return 1; }
+
 private:
   static constexpr view::Color body_color{94, 108, 87};
   Eigen::Vector2i current_cell_;
@@ -168,6 +172,8 @@ public:
   };
 
   [[nodiscard]] virtual Eigen::Affine2f get_transform() const;
+
+  [[nodiscard]] virtual uint8_t get_z_level() const { return 1; }
 
 private:
   friend SnakeHead;

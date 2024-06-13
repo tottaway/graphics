@@ -131,14 +131,16 @@ Result<EntityType *, std::string>
 GameState::get_entity_pointer_by_id_as(const EntityID entity_id) const {
   auto maybe_raw_pointer = try_get_entity_pointer_by_id(entity_id);
   if (!maybe_raw_pointer) {
-    return Err(std::string(std::format("Entity {} does not exist", entity_id)));
+    return Err(std::string(std::format("Entity ({}, {}) does not exist",
+                                       entity_id.index, entity_id.epoch)));
   }
   auto raw_pointer = maybe_raw_pointer.value();
 
   if (raw_pointer->get_entity_type_name() != EntityType::entity_type_name) {
-    return Err(std::string(std::format(
-        "Entity {} had type {}, expected {}", entity_id,
-        raw_pointer->get_entity_type_name(), EntityType::entity_type_name)));
+    return Err(std::string(
+        std::format("Entity ({}, {}) had type {}, expected {}", entity_id.index,
+                    entity_id.epoch, raw_pointer->get_entity_type_name(),
+                    EntityType::entity_type_name)));
   }
   return Ok(dynamic_cast<EntityType *>(raw_pointer));
 }
@@ -178,10 +180,10 @@ GameState::get_entity_pointer_by_type() const {
 template <typename EntityType,
           typename std::enable_if_t<std::is_base_of_v<Entity, EntityType>, int>>
 void GameState::remove_entities_by_type() {
-  for (const auto &[id, entity] : std::ranges::views::enumerate(entities_)) {
+  for (const auto &entity : entities_) {
     if (entity) {
       if (entity->get_entity_type_name() == EntityType::entity_type_name) {
-        remove_entity(id);
+        remove_entity(entity->get_entity_id());
       }
     }
   }

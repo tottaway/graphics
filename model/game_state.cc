@@ -1,5 +1,6 @@
 #include "model/game_state.hh"
 #include "geometry/rectangle_utils.hh"
+#include "model/entity_id.hh"
 #include "utility/overload.hh"
 #include "utility/try.hh"
 #include "view/screen.hh"
@@ -7,21 +8,42 @@
 
 namespace model {
 
-GameState::GameState() { entities_.reserve(max_entity_count); }
+GameState::GameState() {}
 
 Result<EntityID, std::string>
 GameState::add_entity(std::unique_ptr<Entity> entity) {
-  if (entities_.size() > max_entity_count) {
+
+  if (current_entity_count_ + 1 >= max_entity_count) {
     return Err(std::string("Tried to add an entity but the maximum entity "
                            "count has already been reached"));
   }
-  const auto entity_id = static_cast<EntityID>(entities_.size());
+
+  current_entity_count_++;
+
+  const EntityID entity_id = EntityID{next_index_, epoch_};
   entity->entity_id_ = entity_id;
-  entities_.emplace_back(std::move(entity));
+  entities_[next_index_] = (std::move(entity));
+
+  // this must terminate because we already checked that tthe
+  // current entity count wasn't too high
+  while (entities_[next_index_] != nullptr) {
+    next_index_++;
+    if (next_index_ > max_entity_count) {
+      epoch_++;
+      std::cout << "new epoch " << epoch_ << std::endl;
+      next_index_ = 0UL;
+    }
+  }
   return Ok(entity_id);
 }
 
-void GameState::remove_entity(const EntityID id) { entities_[id] = nullptr; }
+void GameState::remove_entity(const EntityID id) {
+  if (entities_[id.index] &&
+      entities_[id.index]->get_entity_id().epoch == id.epoch) {
+    current_entity_count_--;
+    entities_[id.index] = nullptr;
+  }
+}
 
 Result<void, std::string>
 GameState::advance_state(const int64_t delta_time_ns) {
@@ -89,14 +111,14 @@ GameState::handle_mouse_up_for_entity(Entity &entity,
 }
 
 Result<void, std::string> GameState::draw(view::Screen &screen) const {
-  std::array<std::vector<EntityID>, 5UL> draw_lists;
+  std::array<std::vector<std::size_t>, 5UL> draw_lists;
   for (const auto &entity : entities_) {
     if (entity) {
       const auto z_ordering = entity->get_z_level();
       if (z_ordering == 0U) {
         TRY_VOID(entity->draw(screen));
       } else {
-        draw_lists[z_ordering - 1].emplace_back(entity->get_entity_id());
+        draw_lists[z_ordering - 1].emplace_back(entity->get_entity_id().index);
       }
     }
   }
@@ -111,12 +133,15 @@ Result<void, std::string> GameState::draw(view::Screen &screen) const {
 
 std::optional<Entity *>
 GameState::try_get_entity_pointer_by_id(const EntityID entity_id) const {
-  if (entity_id >= entities_.size()) {
+  if (entity_id.index >= entities_.size()) {
     return std::nullopt;
   }
 
-  if (entities_[entity_id]) {
-    return entities_[entity_id].get();
+  if (entities_[entity_id.index]) {
+    if (entities_[entity_id.index]->get_entity_id().epoch != entity_id.epoch) {
+      return std::nullopt;
+    }
+    return entities_[entity_id.index].get();
   }
   return std::nullopt;
 }
