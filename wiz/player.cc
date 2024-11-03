@@ -18,7 +18,7 @@ Result<void, std::string> Player::init() {
   add_component<component::SolidAABBCollider>(
       [this]() { return get_transform(); },
       [this](const Eigen::Vector2f &translation) {
-        this->position_ += translation;
+        this->position += translation;
       });
 
   const auto *texture_set = TRY(view::TextureSet::parse_texture_set(
@@ -33,8 +33,8 @@ Result<void, std::string> Player::init() {
 }
 
 Result<void, std::string> Player::update(const int64_t delta_time_ns) {
-  position_ += (y_direction_ + x_direction_).cast<float>().normalized() *
-               (static_cast<double>(delta_time_ns) / 1e9);
+  position += (y_direction_ + x_direction_).cast<float>().normalized() *
+              (static_cast<double>(delta_time_ns) / 1e9);
   for (const auto &component : components_) {
     TRY_VOID(component->update(delta_time_ns));
   }
@@ -145,6 +145,6 @@ Eigen::Affine2f Player::get_transform() const {
   }
 
   return geometry::make_rectangle_from_center_and_size(
-      position_, Eigen::Vector2f{x_scale_factor, 0.1f});
+      position, Eigen::Vector2f{x_scale_factor, 0.1f});
 }
 } // namespace wiz

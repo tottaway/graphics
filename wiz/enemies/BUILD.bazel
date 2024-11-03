@@ -4,6 +4,7 @@ cc_library(
   hdrs = ["skeleton.hh"],
   data = ["//sprites/wiz/skeleton:skeleton"],
   deps = [
+    "//wiz:player",
     "//view/tileset:texture_set",
     "//model:game_state",
     "//view:screen",

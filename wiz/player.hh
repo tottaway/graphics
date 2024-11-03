@@ -29,6 +29,8 @@ public:
 
   [[nodiscard]] virtual uint8_t get_z_level() const { return 1; }
 
+  Eigen::Vector2f position{0.f, 0.f};
+
 private:
   static constexpr std::string_view player_texture_set_path{
       "sprites/wiz/player/player_sprites.yaml"};
@@ -43,7 +45,6 @@ private:
   void set_mode(const Mode mode, const bool init = false);
 
   Mode mode_{Mode::idle};
-  Eigen::Vector2f position_{0.f, 0.f};
   Eigen::Vector2i x_direction_{0, 0};
   Eigen::Vector2i y_direction_{0, 0};
 

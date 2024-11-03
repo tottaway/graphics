@@ -6,6 +6,7 @@
 #include "model/entity_id.hh"
 #include "model/game_state.hh"
 #include "view/tileset/texture_set.hh"
+#include "wiz/player.hh"
 
 namespace wiz {
 Skeleton::Skeleton(model::GameState &game_state) : model::Entity(game_state) {}
@@ -29,8 +30,9 @@ Result<void, std::string> Skeleton::init() {
 }
 
 Result<void, std::string> Skeleton::update(const int64_t delta_time_ns) {
-  position_ += (y_direction_ + x_direction_).cast<float>() *
-               (static_cast<double>(delta_time_ns) / 1e9);
+  auto player = TRY(game_state_.get_entity_pointer_by_type<Player>());
+  direction_ = (player->position - position_).normalized() * 0.5f;
+  position_ += direction_ * (static_cast<double>(delta_time_ns) / 1e9);
   for (const auto &component : components_) {
     TRY_VOID(component->update(delta_time_ns));
   }
