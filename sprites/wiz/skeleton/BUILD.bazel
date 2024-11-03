@@ -1,0 +1,12 @@
+filegroup(
+    name = "skeleton",
+    srcs = [
+      "sprites.yaml",
+      "attack.png",
+      "death.png",
+      "idle.png",
+      "walk.png",
+      "take_hit.png",
+    ],
+    visibility = ["//visibility:public"],
+)

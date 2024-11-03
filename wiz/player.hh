@@ -1,5 +1,6 @@
 #pragma once
 #include "model/game_state.hh"
+#include "view/texture.hh"
 
 namespace wiz {
 class Player : public model::Entity {
@@ -31,8 +32,23 @@ public:
 private:
   static constexpr std::string_view player_texture_set_path{
       "sprites/wiz/player/player_sprites.yaml"};
+  enum class Mode {
+    idle,
+    walking_left,
+    walking_right,
+  };
+
+  void update_mode();
+
+  void set_mode(const Mode mode, const bool init = false);
+
+  Mode mode_{Mode::idle};
   Eigen::Vector2f position_{0.f, 0.f};
   Eigen::Vector2i x_direction_{0, 0};
   Eigen::Vector2i y_direction_{0, 0};
+
+  std::vector<view::Texture> idle_textures_;
+  std::vector<view::Texture> walk_right_textures_;
+  std::vector<view::Texture> walk_left_textures_;
 };
 } // namespace wiz

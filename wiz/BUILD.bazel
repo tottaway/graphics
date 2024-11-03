@@ -35,7 +35,6 @@ cc_library(
   data = ["//sprites/wiz/player:player"],
   deps = [
     "//view:texture",
-    "//model:game_state",
     "//view:screen",
     "//components:center",
     "//components:sprite",
@@ -55,6 +54,7 @@ cc_library(
   deps = [
     ":player",
     ":movable_stone",
+    "//wiz/enemies:skeleton",
     "//wiz/map:map",
     "//model:game_state",
     "//view:screen",

@@ -100,7 +100,7 @@ std::vector<ComponentType *> Entity::get_components() const {
 template <typename ComponentType,
           typename std::enable_if_t<
               std::is_base_of_v<component::Component, ComponentType>, int>>
-void Entity::remove_components() const {
+void Entity::remove_components() {
   components_.erase(
       std::remove_if(components_.begin(), components_.end(),
                      [](const auto &component) {

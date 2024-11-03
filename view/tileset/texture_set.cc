@@ -41,12 +41,22 @@ TextureSet::parse_texture_set(const std::filesystem::path path) {
             const Eigen::Vector2i tile_start =
                 start + tile_size.cwiseProduct(Eigen::Vector2i{i, j});
             const Eigen::Vector2i tile_end = tile_start + tile_size;
+
+            Eigen::Vector2i bottom_left;
+            Eigen::Vector2i top_right;
+            if (subsection_node["reflect_x_axis"]) {
+              bottom_left = {tile_start.x() + padding.x(),
+                             tile_start.y() + padding.y()};
+              top_right = {tile_end.x() - padding.x(),
+                           tile_end.y() - padding.y()};
+            } else {
+              bottom_left = {tile_end.x() - padding.x(),
+                             tile_start.y() + padding.y()};
+              top_right = {tile_start.x() + padding.x(),
+                           tile_end.y() - padding.y()};
+            }
             texture_set.texture_sets_[subsection_name].emplace_back(
-                image_file_name,
-                Eigen::Vector2i{tile_end.x() - padding.x(),
-                                tile_start.y() + padding.y()},
-                Eigen::Vector2i{tile_start.x() + padding.x(),
-                                tile_end.y() - padding.y()});
+                image_file_name, bottom_left, top_right);
           }
         }
       }

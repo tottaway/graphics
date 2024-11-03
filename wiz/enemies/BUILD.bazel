@@ -1,0 +1,16 @@
+cc_library(
+  name = "skeleton",
+  srcs = ["skeleton.cc"],
+  hdrs = ["skeleton.hh"],
+  data = ["//sprites/wiz/skeleton:skeleton"],
+  deps = [
+    "//view/tileset:texture_set",
+    "//model:game_state",
+    "//view:screen",
+    "//components:sprite",
+    "//components:collider",
+    "//components:animation",
+    "@eigen",
+  ],
+  visibility = ["//wiz:__subpackages__"],
+)

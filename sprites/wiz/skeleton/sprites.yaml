@@ -1,14 +1,14 @@
-- file_name: "sprites/wiz/player/idle.png"
+- file_name: "sprites/wiz/skeleton/idle.png"
   subsections:
     idle:
-      start: [-3, -2]
+      start: [8, 0]
       tile_size: [150, 150]
       vertical_tile_count: 1
-      horizontal_tile_count: 6
+      horizontal_tile_count: 4
       is_sequence: false
-      padding: [58,47]
+      padding: [53,47]
 
-- file_name: "sprites/wiz/player/attack.png"
+- file_name: "sprites/wiz/skeleton/attack.png"
   subsections:
     attack:
       start: [35, 0]
@@ -18,9 +18,9 @@
       is_sequence: false
       padding: [20,45]
 
-- file_name: "sprites/wiz/player/move.png"
+- file_name: "sprites/wiz/skeleton/walk.png"
   subsections:
-    move_right:
+    move:
       start: [0, 0]
       tile_size: [150, 150]
       vertical_tile_count: 1
@@ -28,18 +28,7 @@
       is_sequence: false
       padding: [50,45]
 
-- file_name: "sprites/wiz/player/move.png"
-  subsections:
-    move_left:
-      start: [0, 0]
-      tile_size: [150, 150]
-      vertical_tile_count: 1
-      horizontal_tile_count: 6
-      is_sequence: false
-      padding: [50,45]
-      reflect_x_axis: true
-
-- file_name: "sprites/wiz/player/take_hit.png"
+- file_name: "sprites/wiz/skeleton/take_hit.png"
   subsections:
     take_hit:
       start: [0, 0]
@@ -49,7 +38,7 @@
       is_sequence: false
       padding: [50,45]
 
-- file_name: "sprites/wiz/player/death.png"
+- file_name: "sprites/wiz/skeleton/death.png"
   subsections:
     death:
       start: [0, 0]

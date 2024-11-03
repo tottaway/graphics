@@ -107,7 +107,7 @@ public:
       typename ComponentType,
       typename std::enable_if_t<
           std::is_base_of_v<component::Component, ComponentType>, int> = 0>
-  void remove_components() const;
+  void remove_components();
 
   /// Get the name of the entity type
   /// @note all Entities should have a static member called `entity_type_name`
