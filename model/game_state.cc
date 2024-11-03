@@ -4,6 +4,9 @@
 #include "utility/overload.hh"
 #include "utility/try.hh"
 #include "view/screen.hh"
+#include <algorithm>
+#include <iterator>
+#include <ranges>
 #include <strings.h>
 
 namespace model {
@@ -62,6 +65,9 @@ GameState::advance_state(const int64_t delta_time_ns) {
   for (const auto &entity : entities_) {
     if (entity) {
       TRY_VOID(entity->late_update());
+      for (const auto component : entity->get_components()) {
+        TRY_VOID(component->late_update());
+      }
     }
   }
   return Ok();
@@ -153,6 +159,15 @@ Result<void, std::string> Entity::draw(view::Screen &screen) const {
     TRY_VOID(component->draw(screen));
   }
   return Ok();
+}
+
+std::vector<component::Component *> Entity::get_components() const {
+  std::vector<component::Component *> result;
+  result.reserve(components_.size());
+  std::transform(
+      components_.begin(), components_.end(), std::back_inserter(result),
+      [](auto &component_unique_ptr) { return component_unique_ptr.get(); });
+  return result;
 }
 
 EntityID Entity::get_entity_id() const { return entity_id_; };

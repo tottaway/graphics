@@ -101,6 +101,8 @@ public:
           std::is_base_of_v<component::Component, ComponentType>, int> = 0>
   [[nodiscard]] std::vector<ComponentType *> get_components() const;
 
+  [[nodiscard]] std::vector<component::Component *> get_components() const;
+
   template <
       typename ComponentType,
       typename std::enable_if_t<

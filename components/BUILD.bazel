@@ -42,6 +42,7 @@ cc_library(
   hdrs = ["collider.hh"],
   deps = [
     ":component",
+    "//geometry:rectangle_utils",
     "//model:entity_id",
     "//utility:try",
     "@eigen",

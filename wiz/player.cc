@@ -13,28 +13,25 @@ namespace wiz {
 Player::Player(model::GameState &game_state) : model::Entity(game_state) {}
 
 Result<void, std::string> Player::init() {
-  // view::Texture player_texture{std::filesystem::path(player_texture_path),
-  //                              Eigen::Vector2i{0, 0},
-  //                              Eigen::Vector2i{100, 100}};
-
   add_component<component::Center>([this]() { return get_transform(); });
 
-  add_component<component::Collider>([this](const model::EntityID &id) {
-    const auto result = game_state_.get_entity_pointer_by_id_as<GrassTile>(id);
-    if (result.isOk()) {
-      result.unwrap()
-          ->get_component<component::Collider>()
-          .value()
-          ->handle_collision(get_entity_id());
-    }
-  });
+  add_component<component::SolidAABBCollider>(
+      [this]() { return get_transform(); },
+      [this](const Eigen::Vector2f &translation) {
+        this->position_ += translation;
+      });
 
   const auto *texture_set = TRY(view::TextureSet::parse_texture_set(
       std::filesystem::path(player_texture_set_path)));
   auto idle_textures = texture_set->get_texture_set_by_name("idle");
 
-  add_component<component::Animation>([this]() { return get_transform(); },
-                                      std::move(idle_textures), 10.f);
+  add_component<component::Animation>(
+      [this]() {
+        return get_transform()
+            .scale(Eigen::Vector2f{1.0, 1.3f})
+            .translate(Eigen::Vector2f{0.f, 0.17f});
+      },
+      std::move(idle_textures), 10.f);
 
   return Ok();
 }
@@ -89,6 +86,6 @@ Player::on_key_release(const view::KeyReleasedEvent &key_release) {
 
 Eigen::Affine2f Player::get_transform() const {
   return geometry::make_rectangle_from_center_and_size(
-      position_, Eigen::Vector2f{0.1f, 0.12f});
+      position_, Eigen::Vector2f{0.07f, 0.1f});
 }
 } // namespace wiz

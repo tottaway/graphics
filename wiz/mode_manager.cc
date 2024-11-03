@@ -1,6 +1,7 @@
 #include "wiz/mode_manager.hh"
 #include "model/game_state.hh"
 #include "wiz/map/map.hh"
+#include "wiz/movable_stone.hh"
 #include "wiz/player.hh"
 
 namespace wiz {
@@ -24,6 +25,7 @@ Result<void, std::string> WizModeManager::update(const int64_t delta_time_ns) {
 Result<void, std::string> WizModeManager::start_new_game() {
   TRY(add_child_entity_and_init<Map>());
   TRY(add_child_entity_and_init<Player>());
+  TRY(add_child_entity_and_init<MovableStone>(Eigen::Vector2f{1.0f, 1.0f}));
   return Ok();
 }
 } // namespace wiz

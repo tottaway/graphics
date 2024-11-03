@@ -10,8 +10,8 @@ namespace wiz {
 Map::Map(model::GameState &game_state) : model::Entity(game_state) {}
 
 Result<void, std::string> Map::init() {
-  for (const auto i : std::ranges::views::iota(0, 50)) {
-    for (const auto j : std::ranges::views::iota(0, 50)) {
+  for (const auto i : std::ranges::views::iota(0, 30)) {
+    for (const auto j : std::ranges::views::iota(0, 30)) {
       std::random_device dev;
       std::mt19937 rng(dev());
       std::uniform_int_distribution<std::mt19937::result_type> dist(

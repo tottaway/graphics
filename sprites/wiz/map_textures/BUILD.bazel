@@ -4,6 +4,7 @@ filegroup(
       "texture_set.yaml",
       "grass.png",
       "plant.png",
+      "props.png",
     ],
     visibility = ["//visibility:public"],
 )

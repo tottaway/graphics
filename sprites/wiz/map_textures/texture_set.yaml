@@ -40,3 +40,13 @@
       is_sequence: false
       padding: [8,8]
 
+- file_name: "sprites/wiz/map_textures/props.png"
+  subsections:
+    big_stone:
+      start: [3, 430]
+      tile_size: [57, 42]
+      vertical_tile_count: 1
+      horizontal_tile_count: 1
+      is_sequence: false
+      padding: [0,0]
+

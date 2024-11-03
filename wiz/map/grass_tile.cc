@@ -13,7 +13,8 @@ GrassTile::GrassTile(model::GameState &game_state)
 
 Result<void, std::string> GrassTile::init(const Eigen::Vector2f position) {
 
-  add_component<component::Collider>(
+  add_component<component::NonCollidableAABBCollider>(
+      [this]() { return get_transform(); },
       [this](const model::EntityID &entity_id) mutable {
         if (flag_) {
           return;
@@ -65,8 +66,10 @@ Result<void, std::string> GrassTile::init(const Eigen::Vector2f position) {
   transform_ = geometry::make_rectangle_from_center_and_size(
       position_, Eigen::Vector2f{0.05f, 0.05f});
 
-  const auto sprite_info = component::Sprite::SpriteInfo{transform_, texture};
-  add_component<component::Sprite>([sprite_info]() { return sprite_info; });
+  add_component<component::Sprite>([this, texture]() {
+    return component::Sprite::SpriteInfo{transform_, texture};
+    ;
+  });
   return Ok();
 }
 
