@@ -11,8 +11,9 @@
 namespace wiz {
 Skeleton::Skeleton(model::GameState &game_state) : model::Entity(game_state) {}
 
-Result<void, std::string> Skeleton::init() {
+Result<void, std::string> Skeleton::init(const Eigen::Vector2f position) {
 
+  position_ = position;
   add_component<component::SolidAABBCollider>(
       [this]() { return get_transform(); },
       [this](const Eigen::Vector2f &translation) {
@@ -20,7 +21,7 @@ Result<void, std::string> Skeleton::init() {
       });
 
   const auto *texture_set = TRY(view::TextureSet::parse_texture_set(
-      std::filesystem::path(player_texture_set_path)));
+      std::filesystem::path(skeleton_texture_set_path)));
   auto idle_textures = texture_set->get_texture_set_by_name("idle");
 
   add_component<component::Animation>([this]() { return get_transform(); },

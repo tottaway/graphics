@@ -13,7 +13,9 @@ cc_library(
   name = "movable_stone",
   srcs = ["movable_stone.cc"],
   hdrs = ["movable_stone.hh"],
-  data = ["//sprites/wiz/player:player"],
+  data = [
+    "//sprites/wiz/map_textures:texture_set",
+  ],
   deps = [
     "//view:texture",
     "//model:game_state",
@@ -54,7 +56,7 @@ cc_library(
   deps = [
     ":player",
     ":movable_stone",
-    "//wiz/enemies:skeleton",
+    "//wiz/enemies:skeleton_spawner",
     "//wiz/map:map",
     "//model:game_state",
     "//view:screen",

@@ -1,4 +1,23 @@
 cc_library(
+  name = "skeleton_spawner",
+  srcs = ["skeleton_spawner.cc"],
+  hdrs = ["skeleton_spawner.hh"],
+  data = [
+    "//sprites/wiz/map_textures:texture_set",
+  ],
+  deps = [
+    ":skeleton",
+    "//view/tileset:texture_set",
+    "//model:game_state",
+    "//view:screen",
+    "//components:sprite",
+    "//components:collider",
+    "//components:animation",
+    "@eigen",
+  ],
+  visibility = ["//wiz:__subpackages__"],
+)
+cc_library(
   name = "skeleton",
   srcs = ["skeleton.cc"],
   hdrs = ["skeleton.hh"],
