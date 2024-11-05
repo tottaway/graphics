@@ -27,6 +27,5 @@ cc_library(
     "//components:label",
     "//components:sprite",
     "@eigen",
-  ],
-  visibility = ["//visibility:public"],
+  ]
 )

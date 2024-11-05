@@ -31,6 +31,7 @@ Result<void, std::string> Player::init() {
   walk_right_textures_ = texture_set->get_texture_set_by_name("move_right");
   walk_left_textures_ = texture_set->get_texture_set_by_name("move_left");
   hit_textures_ = texture_set->get_texture_set_by_name("take_hit");
+  dead_textures_ = texture_set->get_texture_set_by_name("death");
 
   set_mode(Mode::idle, true);
 
@@ -41,7 +42,7 @@ Result<void, std::string> Player::update(const int64_t delta_time_ns) {
   duration_in_current_mode_ns_ += delta_time_ns;
   duration_since_last_exit_hit_ns_ += delta_time_ns;
 
-  if (mode_ != Mode::being_hit) {
+  if (mode_ == Mode::walking_left || mode_ == Mode::walking_right) {
     position += (y_direction_ + x_direction_).cast<float>().normalized() *
                 (static_cast<double>(delta_time_ns) / 1e9);
   }
@@ -58,19 +59,34 @@ Result<void, std::string> Player::late_update() {
 }
 
 void Player::update_mode() {
-  if (was_hit_ && mode_ != Mode::being_hit &&
-      duration_since_last_exit_hit_ns_ > cool_down_after_hit_ns_) {
-    hp -= 1;
-    set_mode(Mode::being_hit);
+  if (mode_ == Mode::dead) {
     return;
   }
 
-  if (mode_ == Mode::being_hit &&
-      duration_in_current_mode_ns_ > max_duration_in_being_hit_ns_) {
-    duration_since_last_exit_hit_ns_ = 0L;
-    set_mode(Mode::idle);
+  if (mode_ == Mode::dying) {
+    if (duration_in_current_mode_ns_ > max_duration_in_dying_ns_) {
+      set_mode(Mode::dead);
+    }
     return;
-  } else if (mode_ == Mode::being_hit) {
+  }
+
+  if (mode_ == Mode::being_hit) {
+    if (duration_in_current_mode_ns_ > max_duration_in_being_hit_ns_) {
+      duration_since_last_exit_hit_ns_ = 0L;
+      set_mode(Mode::idle);
+    }
+    return;
+  }
+
+  if (was_hit_ && mode_ != Mode::being_hit &&
+      duration_since_last_exit_hit_ns_ > cool_down_after_hit_ns_) {
+    hp -= 1;
+    if (hp <= 0) {
+      set_mode(Mode::dying);
+      was_hit_ = false;
+    } else {
+      set_mode(Mode::being_hit);
+    }
     return;
   }
 
@@ -96,7 +112,6 @@ void Player::set_mode(const Mode mode, const bool init) {
 
   remove_components<component::Animation>();
   mode_ = mode;
-  std::cout << "Setting mode to " << static_cast<int32_t>(mode_) << std::endl;
   std::vector<view::Texture> textures;
   switch (mode) {
   case Mode::idle: {
@@ -113,6 +128,13 @@ void Player::set_mode(const Mode mode, const bool init) {
   }
   case Mode::being_hit: {
     textures = hit_textures_;
+    break;
+  }
+  case Mode::dying:
+    [[fallthrough]];
+  case Mode::dead: {
+    textures = dead_textures_;
+    break;
   }
   }
 
@@ -183,6 +205,10 @@ Eigen::Affine2f Player::get_transform() const {
     break;
   }
 
+  case Mode::dying:
+    [[fallthrough]];
+  case Mode::dead:
+    [[fallthrough]];
   case Mode::being_hit: {
     x_scale_factor = 0.1;
     break;

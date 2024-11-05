@@ -57,7 +57,8 @@ cc_library(
   deps = [
     ":player",
     ":movable_stone",
-    "//snake:snake",
+    ":end_screen",
+    ":timer",
     "//wiz/enemies:skeleton_spawner",
     "//wiz/map:map",
     "//model:game_state",
@@ -77,6 +78,32 @@ cc_library(
     "//systems:collisions",
     "//model:game_state",
     "//view:screen",
+  ],
+  visibility = [":__subpackages__"],
+)
+
+cc_library(
+  name = "end_screen",
+  srcs = ["end_screen.cc"],
+  hdrs = ["end_screen.hh"],
+  data = [],
+  deps = [
+    "//components:center",
+    "//components:draw_rectangle",
+    "//components:label",
+    "//model:game_state",
+    "//view:texture",
+  ],
+  visibility = [":__subpackages__"],
+)
+cc_library(
+  name = "timer",
+  srcs = ["timer.cc"],
+  hdrs = ["timer.hh"],
+  data = [],
+  deps = [
+    "//model:game_state",
+    "//view:texture",
   ],
   visibility = [":__subpackages__"],
 )
