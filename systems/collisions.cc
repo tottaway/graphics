@@ -86,8 +86,10 @@ Result<void, std::string> Collisions::update(const int64_t delta_time_ns) {
       game_state_.get_entities_with_component<component::Collider>();
   for (const auto i : std::ranges::views::iota(0UL, entities.size())) {
     auto entity = entities.at(i);
-    auto collider = entity->get_component<component::Collider>().value();
-    quad_tree.add_collider(collider, entity->get_entity_id());
+    auto colliders = entity->get_components<component::Collider>();
+    for (auto collider : colliders) {
+      quad_tree.add_collider(collider, entity->get_entity_id());
+    }
   }
   return Ok();
 }

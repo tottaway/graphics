@@ -1,6 +1,7 @@
 #include "wiz/enemies/skeleton.hh"
 #include "components/animation.hh"
 #include "components/collider.hh"
+#include "components/hit_box.hh"
 #include "components/sprite.hh"
 #include "geometry/rectangle_utils.hh"
 #include "model/entity_id.hh"
@@ -19,6 +20,8 @@ Result<void, std::string> Skeleton::init(const Eigen::Vector2f position) {
       [this](const Eigen::Vector2f &translation) {
         this->position_ += translation;
       });
+
+  add_component<component::HitBox>([this]() { return get_transform(); });
 
   const auto *texture_set = TRY(view::TextureSet::parse_texture_set(
       std::filesystem::path(skeleton_texture_set_path)));

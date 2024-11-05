@@ -91,7 +91,7 @@ std::vector<ComponentType *> Entity::get_components() const {
   for (auto &component : components_) {
     if (component->get_component_type_name() ==
         ComponentType::component_type_name) {
-      return result.emplace_back(component.get());
+      result.emplace_back(dynamic_cast<ComponentType *>(component.get()));
     }
   }
   return result;

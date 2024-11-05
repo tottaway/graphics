@@ -31,6 +31,13 @@ public:
     return component_type_name;
   }
 
+  /// Allow specifify a specific collider type to allow colliders to define
+  /// interactions between other types (i.e. hit boxes and hurt boxes)
+  [[nodiscard]] virtual std::optional<std::string_view>
+  get_collider_type() const {
+    return std::nullopt;
+  }
+
   [[nodiscard]] virtual Result<void, std::string> late_update();
 
   virtual bool handle_collision(Collider &other) = 0;
@@ -51,6 +58,13 @@ protected:
            const CollisionCallback _collision_callback);
 
   bool bounds_collide(Collider &other);
+
+  bool check_collider_types_interact(Collider &other);
+
+  /// optional list of collider types this collider can collide with, if it's
+  /// none then we can collide with any colliders
+  std::optional<std::vector<std::string_view>>
+      maybe_collider_types_to_interact_with_;
 
 private:
   MoveFunc move_func_;

@@ -38,6 +38,7 @@ cc_library(
   deps = [
     "//view:texture",
     "//view:screen",
+    "//components:hurt_box",
     "//components:center",
     "//components:sprite",
     "//components:collider",
@@ -56,6 +57,7 @@ cc_library(
   deps = [
     ":player",
     ":movable_stone",
+    "//snake:snake",
     "//wiz/enemies:skeleton_spawner",
     "//wiz/map:map",
     "//model:game_state",

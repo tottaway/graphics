@@ -1,5 +1,6 @@
 #include "wiz/mode_manager.hh"
 #include "model/game_state.hh"
+#include "snake/snake.hh"
 #include "wiz/enemies/skeleton_spawner.hh"
 #include "wiz/map/map.hh"
 #include "wiz/movable_stone.hh"
@@ -17,6 +18,12 @@ Result<void, std::string> WizModeManager::update(const int64_t delta_time_ns) {
     break;
   }
   case GameMode::in_game: {
+    const auto player = TRY(game_state_.get_entity_pointer_by_type<Player>());
+    if (player->hp == 0) {
+      remove_child_entities();
+      TRY(add_child_entity_and_init<snake::EndScreen>(snake::GameResult{10}));
+      game_mode_ = GameMode::dead;
+    }
     break;
   }
   }

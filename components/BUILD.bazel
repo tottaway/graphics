@@ -115,3 +115,23 @@ cc_library(
   ],
   visibility = ["//visibility:public"],
 )
+
+cc_library(
+  name = "hit_box",
+  srcs = ["hit_box.cc"],
+  hdrs = ["hit_box.hh"],
+  deps = [
+    ":collider",
+  ],
+  visibility = ["//visibility:public"],
+)
+
+cc_library(
+  name = "hurt_box",
+  srcs = ["hurt_box.cc"],
+  hdrs = ["hurt_box.hh"],
+  deps = [
+    ":collider",
+  ],
+  visibility = ["//visibility:public"],
+)

@@ -17,7 +17,7 @@ public:
   [[nodiscard]] virtual Result<void, std::string>
   update(const int64_t delta_time_ns);
 
-  [[nodiscard]] virtual Result<void, std::string> late_update() { return Ok(); }
+  [[nodiscard]] virtual Result<void, std::string> late_update();
 
   [[nodiscard]] virtual Result<bool, std::string>
   on_key_press(const view::KeyPressedEvent &key_press);
@@ -31,6 +31,8 @@ public:
 
   Eigen::Vector2f position{0.f, 0.f};
 
+  uint32_t hp{10};
+
 private:
   static constexpr std::string_view player_texture_set_path{
       "sprites/wiz/player/player_sprites.yaml"};
@@ -38,11 +40,14 @@ private:
     idle,
     walking_left,
     walking_right,
+    being_hit,
   };
 
   void update_mode();
 
   void set_mode(const Mode mode, const bool init = false);
+
+  bool was_hit_{false};
 
   Mode mode_{Mode::idle};
   Eigen::Vector2i x_direction_{0, 0};
@@ -51,5 +56,10 @@ private:
   std::vector<view::Texture> idle_textures_;
   std::vector<view::Texture> walk_right_textures_;
   std::vector<view::Texture> walk_left_textures_;
+  std::vector<view::Texture> hit_textures_;
+  int64_t duration_in_current_mode_ns_{0L};
+  int64_t max_duration_in_being_hit_ns_{250'000'000L};
+  int64_t cool_down_after_hit_ns_{500'000'000L};
+  int64_t duration_since_last_exit_hit_ns_{};
 };
 } // namespace wiz

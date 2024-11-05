@@ -2,7 +2,9 @@
 #include "geometry/rectangle_utils.hh"
 #include "utility/try.hh"
 #include <algorithm>
+#include <iostream>
 #include <optional>
+#include <ostream>
 
 namespace component {
 Collider::Collider(const ColliderType _collider_type, const Shape _shape,
@@ -47,12 +49,28 @@ bool Collider::bounds_collide(Collider &other) {
            (top_right.y() < other_bottom_left.y()));
 }
 
+bool Collider::check_collider_types_interact(Collider &other) {
+  bool self_interacts_with_other =
+      !maybe_collider_types_to_interact_with_ ||
+      (other.get_collider_type() &&
+       std::ranges::contains(maybe_collider_types_to_interact_with_.value(),
+                             other.get_collider_type().value()));
+
+  bool other_interacts_with_self =
+      !other.maybe_collider_types_to_interact_with_ ||
+      (get_collider_type() &&
+       std::ranges::contains(
+           other.maybe_collider_types_to_interact_with_.value(),
+           get_collider_type().value()));
+  return self_interacts_with_other && other_interacts_with_self;
+}
+
 SolidAABBCollider::SolidAABBCollider(GetTransformFunc get_transform,
                                      const MoveFunc move_func)
     : Collider(ColliderType::solid, Shape::aabb, get_transform, move_func) {}
 
 bool SolidAABBCollider::handle_collision(Collider &other) {
-  if (!bounds_collide(other)) {
+  if (!bounds_collide(other) || !check_collider_types_interact(other)) {
     return false;
   }
 
@@ -104,9 +122,10 @@ NonCollidableAABBCollider::NonCollidableAABBCollider(
           [](const Eigen::Vector2f) {}, collision_callback) {}
 
 bool NonCollidableAABBCollider::handle_collision(Collider &other) {
-  if (!bounds_collide(other)) {
+  if (!bounds_collide(other) || !check_collider_types_interact(other)) {
     return false;
   }
+
   switch (other.shape) {
   case Shape::aabb: {
     return true;

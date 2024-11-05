@@ -20,7 +20,7 @@ public:
   };
 
 private:
-  enum class GameMode { init, in_game };
+  enum class GameMode { init, in_game, dead };
   [[nodiscard]] Result<void, std::string> start_new_game();
   GameMode game_mode_{GameMode::init};
 };

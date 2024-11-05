@@ -30,6 +30,7 @@ cc_library(
     "//components:sprite",
     "//components:collider",
     "//components:animation",
+    "//components:hit_box",
     "@eigen",
   ],
   visibility = ["//wiz:__subpackages__"],
