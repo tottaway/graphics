@@ -1,0 +1,9 @@
+cc_library(
+  name = "health_bar",
+  srcs = ["health_bar.cc"],
+  hdrs = ["health_bar.hh"],
+  deps = [
+    "//components:draw_rectangle",
+  ],
+  visibility = ["//visibility:public"],
+)

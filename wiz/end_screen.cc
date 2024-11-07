@@ -15,7 +15,7 @@ void EndScreen::init(const GameResult &game_result) {
   add_component<component::Center>([this]() { return get_transform(); });
 
   display_text_ =
-      std::format("You survived {} seconds, click to try again",
+      std::format("You survived {:.2f} seconds, click to try again",
                   static_cast<double>(game_result.survival_duration_ns) / 1e9);
   add_component<component::Label>([this]() {
     return component::Label::TextInfo{

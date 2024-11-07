@@ -44,6 +44,7 @@ cc_library(
     "//components:collider",
     "//components:animation",
     "//wiz/map:grass_tile",
+    "//wiz/components:health_bar",
     "@eigen",
   ],
   visibility = [":__subpackages__"],
@@ -58,7 +59,6 @@ cc_library(
     ":player",
     ":movable_stone",
     ":end_screen",
-    ":timer",
     "//wiz/enemies:skeleton_spawner",
     "//wiz/map:map",
     "//model:game_state",
@@ -91,17 +91,6 @@ cc_library(
     "//components:center",
     "//components:draw_rectangle",
     "//components:label",
-    "//model:game_state",
-    "//view:texture",
-  ],
-  visibility = [":__subpackages__"],
-)
-cc_library(
-  name = "timer",
-  srcs = ["timer.cc"],
-  hdrs = ["timer.hh"],
-  data = [],
-  deps = [
     "//model:game_state",
     "//view:texture",
   ],

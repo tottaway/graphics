@@ -11,18 +11,22 @@ WizModeManager::WizModeManager(model::GameState &game_state)
     : model::Entity(game_state) {}
 
 Result<void, std::string> WizModeManager::update(const int64_t delta_time_ns) {
+  duration_in_mode_ns_ += delta_time_ns;
   switch (game_mode_) {
   case GameMode::init: {
     TRY_VOID(start_new_game());
     game_mode_ = GameMode::in_game;
+    duration_in_mode_ns_ = 0L;
     break;
   }
   case GameMode::in_game: {
     const auto player = TRY(game_state_.get_entity_pointer_by_type<Player>());
     if (player->get_mode() == Player::Mode::dead) {
       remove_child_entities();
-      TRY(add_child_entity_and_init<EndScreen>(GameResult{10'000'000'000L}));
+      TRY(add_child_entity_and_init<EndScreen>(
+          GameResult{duration_in_mode_ns_}));
       game_mode_ = GameMode::dead;
+      duration_in_mode_ns_ = 0L;
     }
     break;
   }
@@ -33,6 +37,7 @@ Result<void, std::string> WizModeManager::update(const int64_t delta_time_ns) {
       remove_child_entities();
       TRY_VOID(start_new_game());
       game_mode_ = GameMode::in_game;
+      duration_in_mode_ns_ = 0L;
     }
   }
   }

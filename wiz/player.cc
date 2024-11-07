@@ -8,6 +8,7 @@
 #include "model/entity_id.hh"
 #include "model/game_state.hh"
 #include "view/tileset/texture_set.hh"
+#include "wiz/components/health_bar.hh"
 #include "wiz/map/grass_tile.hh"
 
 namespace wiz {
@@ -24,6 +25,9 @@ Result<void, std::string> Player::init() {
 
   add_component<component::HurtBox>([this]() { return get_transform(); },
                                     [this]() { was_hit_ = true; });
+
+  add_component<HealthBar>([this]() { return hp; },
+                           [this]() { return get_transform(); });
 
   const auto *texture_set = TRY(view::TextureSet::parse_texture_set(
       std::filesystem::path(player_texture_set_path)));
@@ -113,6 +117,7 @@ void Player::set_mode(const Mode mode, const bool init) {
   remove_components<component::Animation>();
   mode_ = mode;
   std::vector<view::Texture> textures;
+  float fps = 15.;
   switch (mode) {
   case Mode::idle: {
     textures = idle_textures_;
@@ -128,6 +133,7 @@ void Player::set_mode(const Mode mode, const bool init) {
   }
   case Mode::being_hit: {
     textures = hit_textures_;
+    fps = 20.f;
     break;
   }
   case Mode::dying:
@@ -144,7 +150,7 @@ void Player::set_mode(const Mode mode, const bool init) {
             .scale(Eigen::Vector2f{1.0, 1.3f})
             .translate(Eigen::Vector2f{0.f, 0.17f});
       },
-      std::move(textures), 10.f);
+      std::move(textures), fps);
 }
 
 Result<bool, std::string>
