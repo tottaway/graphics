@@ -71,6 +71,7 @@ cc_library(
     ":movable_stone",
     ":end_screen",
     "//wiz/enemies:skeleton_spawner",
+    "//wiz/good_npcs:worker",
     "//wiz/map:map",
     "//model:game_state",
     "//view:screen",

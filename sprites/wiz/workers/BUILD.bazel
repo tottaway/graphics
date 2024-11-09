@@ -1,0 +1,11 @@
+filegroup(
+    name = "workers",
+    srcs = [
+      "sprites.yaml",
+      "FarmerCyan.png",
+      "FarmerPurple.png",
+      "FarmerRed.png",
+      "FarmerLime.png",
+    ],
+    visibility = ["//visibility:public"],
+)

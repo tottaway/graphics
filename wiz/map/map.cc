@@ -2,7 +2,6 @@
 #include "model/game_state.hh"
 #include "wiz/map/grass_tile.hh"
 #include "wiz/map/tree_tile.hh"
-#include <chrono>
 #include <random>
 
 namespace wiz {
@@ -14,8 +13,7 @@ Result<void, std::string> Map::init() {
     for (const auto j : std::ranges::views::iota(0, 30)) {
       std::random_device dev;
       std::mt19937 rng(dev());
-      std::uniform_int_distribution<std::mt19937::result_type> dist(
-          1, 100); // distribution in range [1, 6]
+      std::uniform_int_distribution<std::mt19937::result_type> dist(1, 100);
       if (dist(rng) > 98) {
         TRY(add_child_entity_and_init<TreeTile>(Eigen::Vector2f{
             static_cast<float>(i) * 0.1f, static_cast<float>(j) * 0.1f}));

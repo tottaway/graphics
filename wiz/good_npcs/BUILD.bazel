@@ -1,0 +1,15 @@
+cc_library(
+  name = "worker",
+  srcs = ["worker.cc"],
+  hdrs = ["worker.hh"],
+  data = ["//sprites/wiz/workers:workers"],
+  deps = [
+    "//model:game_state",
+    "//wiz:character_mode",
+    "//view/tileset:texture_set",
+    "//view:screen",
+    "//wiz/components:character_animation_set",
+    "@eigen",
+  ],
+  visibility = ["//wiz:__subpackages__"],
+)

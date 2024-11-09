@@ -54,10 +54,15 @@ Result<void, std::string> Skeleton::update(const int64_t delta_time_ns) {
   auto player = TRY(game_state_.get_entity_pointer_by_type<Player>());
   direction_ = (player->position - position_).normalized() * 0.5f;
 
-  if (was_hit_ && mode_ != CharacterMode::being_hit) {
+  if (mode_ == CharacterMode::dying) {
+    duration_dying_hit_ns_ += delta_time_ns;
+    if (duration_dying_hit_ns_ > max_duration_in_dying_ns_) {
+      mode_ = CharacterMode::dead;
+    }
+  } else if (was_hit_ && mode_ != CharacterMode::being_hit) {
     hp_ -= 1;
     if (hp_ <= 0) {
-      mode_ = CharacterMode::dead;
+      mode_ = CharacterMode::dying;
     } else {
       mode_ = CharacterMode::being_hit;
     }
@@ -74,11 +79,10 @@ Result<void, std::string> Skeleton::update(const int64_t delta_time_ns) {
     mode_ = CharacterMode::walking_left;
   }
 
-  if (hp_ <= 0) {
-    mode_ = CharacterMode::dead;
+  if (mode_ != CharacterMode::dying && mode_ != CharacterMode::dead) {
+    position_ += direction_ * (static_cast<double>(delta_time_ns) / 1e9);
   }
 
-  position_ += direction_ * (static_cast<double>(delta_time_ns) / 1e9);
   for (const auto &component : components_) {
     TRY_VOID(component->update(delta_time_ns));
   }

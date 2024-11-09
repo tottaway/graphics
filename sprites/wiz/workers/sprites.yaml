@@ -1,0 +1,359 @@
+- file_name: "sprites/wiz/workers/FarmerCyan.png"
+  subsections:
+    cyan_idle:
+      start: [0, 0]
+      tile_size: [16, 16]
+      vertical_tile_count: 1
+      horizontal_tile_count: 5
+      is_sequence: false
+      padding: [1,1]
+
+- file_name: "sprites/wiz/workers/FarmerCyan.png"
+  subsections:
+    cyan_walk_up:
+      start: [0, 16]
+      tile_size: [16, 16]
+      vertical_tile_count: 1
+      horizontal_tile_count: 5
+      is_sequence: false
+      padding: [1,1]
+
+- file_name: "sprites/wiz/workers/FarmerCyan.png"
+  subsections:
+    cyan_walk_right:
+      start: [0, 32]
+      tile_size: [16, 16]
+      vertical_tile_count: 1
+      horizontal_tile_count: 5
+      is_sequence: false
+      padding: [1,1]
+
+- file_name: "sprites/wiz/workers/FarmerCyan.png"
+  subsections:
+    cyan_walk_left:
+      start: [0, 48]
+      tile_size: [16, 16]
+      vertical_tile_count: 1
+      horizontal_tile_count: 5
+      is_sequence: false
+      padding: [1,1]
+
+- file_name: "sprites/wiz/workers/FarmerCyan.png"
+  subsections:
+    cyan_walk_down:
+      start: [0, 64]
+      tile_size: [16, 16]
+      vertical_tile_count: 1
+      horizontal_tile_count: 5
+      is_sequence: false
+      padding: [1,1]
+
+- file_name: "sprites/wiz/workers/FarmerCyan.png"
+  subsections:
+    cyan_attack_down:
+      start: [0, 128]
+      tile_size: [16, 16]
+      vertical_tile_count: 1
+      horizontal_tile_count: 3
+      is_sequence: false
+      padding: [1,1]
+
+- file_name: "sprites/wiz/workers/FarmerCyan.png"
+  subsections:
+    cyan_attack_up:
+      start: [0, 144]
+      tile_size: [16, 16]
+      vertical_tile_count: 1
+      horizontal_tile_count: 3
+      is_sequence: false
+      padding: [1,1]
+
+- file_name: "sprites/wiz/workers/FarmerCyan.png"
+  subsections:
+    cyan_attack_right:
+      start: [0, 160]
+      tile_size: [16, 16]
+      vertical_tile_count: 1
+      horizontal_tile_count: 3
+      is_sequence: false
+      padding: [1,1]
+
+- file_name: "sprites/wiz/workers/FarmerCyan.png"
+  subsections:
+    cyan_attack_left:
+      start: [0, 176]
+      tile_size: [16, 16]
+      vertical_tile_count: 1
+      horizontal_tile_count: 3
+      is_sequence: false
+      padding: [1,1]
+
+- file_name: "sprites/wiz/workers/FarmerPurple.png"
+  subsections:
+    purple_idle:
+      start: [0, 0]
+      tile_size: [16, 16]
+      vertical_tile_count: 1
+      horizontal_tile_count: 5
+      is_sequence: false
+      padding: [1,1]
+
+- file_name: "sprites/wiz/workers/FarmerPurple.png"
+  subsections:
+    purple_walk_up:
+      start: [0, 16]
+      tile_size: [16, 16]
+      vertical_tile_count: 1
+      horizontal_tile_count: 5
+      is_sequence: false
+      padding: [1,1]
+
+- file_name: "sprites/wiz/workers/FarmerPurple.png"
+  subsections:
+    purple_walk_right:
+      start: [0, 32]
+      tile_size: [16, 16]
+      vertical_tile_count: 1
+      horizontal_tile_count: 5
+      is_sequence: false
+      padding: [1,1]
+
+- file_name: "sprites/wiz/workers/FarmerPurple.png"
+  subsections:
+    purple_walk_left:
+      start: [0, 48]
+      tile_size: [16, 16]
+      vertical_tile_count: 1
+      horizontal_tile_count: 5
+      is_sequence: false
+      padding: [1,1]
+
+- file_name: "sprites/wiz/workers/FarmerPurple.png"
+  subsections:
+    purple_walk_down:
+      start: [0, 64]
+      tile_size: [16, 16]
+      vertical_tile_count: 1
+      horizontal_tile_count: 5
+      is_sequence: false
+      padding: [1,1]
+
+- file_name: "sprites/wiz/workers/FarmerPurple.png"
+  subsections:
+    purple_attack_down:
+      start: [0, 128]
+      tile_size: [16, 16]
+      vertical_tile_count: 1
+      horizontal_tile_count: 3
+      is_sequence: false
+      padding: [1,1]
+
+- file_name: "sprites/wiz/workers/FarmerPurple.png"
+  subsections:
+    purple_attack_up:
+      start: [0, 144]
+      tile_size: [16, 16]
+      vertical_tile_count: 1
+      horizontal_tile_count: 3
+      is_sequence: false
+      padding: [1,1]
+
+- file_name: "sprites/wiz/workers/FarmerPurple.png"
+  subsections:
+    purple_attack_right:
+      start: [0, 160]
+      tile_size: [16, 16]
+      vertical_tile_count: 1
+      horizontal_tile_count: 3
+      is_sequence: false
+      padding: [1,1]
+
+- file_name: "sprites/wiz/workers/FarmerPurple.png"
+  subsections:
+    purple_attack_left:
+      start: [0, 176]
+      tile_size: [16, 16]
+      vertical_tile_count: 1
+      horizontal_tile_count: 3
+      is_sequence: false
+      padding: [1,1]
+
+- file_name: "sprites/wiz/workers/FarmerLime.png"
+  subsections:
+    lime_idle:
+      start: [0, 0]
+      tile_size: [16, 16]
+      vertical_tile_count: 1
+      horizontal_tile_count: 5
+      is_sequence: false
+      padding: [1,1]
+
+- file_name: "sprites/wiz/workers/FarmerLime.png"
+  subsections:
+    lime_walk_up:
+      start: [0, 16]
+      tile_size: [16, 16]
+      vertical_tile_count: 1
+      horizontal_tile_count: 5
+      is_sequence: false
+      padding: [1,1]
+
+- file_name: "sprites/wiz/workers/FarmerLime.png"
+  subsections:
+    lime_walk_right:
+      start: [0, 32]
+      tile_size: [16, 16]
+      vertical_tile_count: 1
+      horizontal_tile_count: 5
+      is_sequence: false
+      padding: [1,1]
+
+- file_name: "sprites/wiz/workers/FarmerLime.png"
+  subsections:
+    lime_walk_left:
+      start: [0, 48]
+      tile_size: [16, 16]
+      vertical_tile_count: 1
+      horizontal_tile_count: 5
+      is_sequence: false
+      padding: [1,1]
+
+- file_name: "sprites/wiz/workers/FarmerLime.png"
+  subsections:
+    lime_walk_down:
+      start: [0, 64]
+      tile_size: [16, 16]
+      vertical_tile_count: 1
+      horizontal_tile_count: 5
+      is_sequence: false
+      padding: [1,1]
+
+- file_name: "sprites/wiz/workers/FarmerLime.png"
+  subsections:
+    lime_attack_down:
+      start: [0, 128]
+      tile_size: [16, 16]
+      vertical_tile_count: 1
+      horizontal_tile_count: 3
+      is_sequence: false
+      padding: [1,1]
+
+- file_name: "sprites/wiz/workers/FarmerLime.png"
+  subsections:
+    lime_attack_up:
+      start: [0, 144]
+      tile_size: [16, 16]
+      vertical_tile_count: 1
+      horizontal_tile_count: 3
+      is_sequence: false
+      padding: [1,1]
+
+- file_name: "sprites/wiz/workers/FarmerLime.png"
+  subsections:
+    lime_attack_right:
+      start: [0, 160]
+      tile_size: [16, 16]
+      vertical_tile_count: 1
+      horizontal_tile_count: 3
+      is_sequence: false
+      padding: [1,1]
+
+- file_name: "sprites/wiz/workers/FarmerLime.png"
+  subsections:
+    lime_attack_left:
+      start: [0, 176]
+      tile_size: [16, 16]
+      vertical_tile_count: 1
+      horizontal_tile_count: 3
+      is_sequence: false
+      padding: [1,1]
+
+- file_name: "sprites/wiz/workers/FarmerRed.png"
+  subsections:
+    red_idle:
+      start: [0, 0]
+      tile_size: [16, 16]
+      vertical_tile_count: 1
+      horizontal_tile_count: 5
+      is_sequence: false
+      padding: [1,1]
+
+- file_name: "sprites/wiz/workers/FarmerRed.png"
+  subsections:
+    red_walk_up:
+      start: [0, 16]
+      tile_size: [16, 16]
+      vertical_tile_count: 1
+      horizontal_tile_count: 5
+      is_sequence: false
+      padding: [1,1]
+
+- file_name: "sprites/wiz/workers/FarmerRed.png"
+  subsections:
+    red_walk_right:
+      start: [0, 32]
+      tile_size: [16, 16]
+      vertical_tile_count: 1
+      horizontal_tile_count: 5
+      is_sequence: false
+      padding: [1,1]
+
+- file_name: "sprites/wiz/workers/FarmerRed.png"
+  subsections:
+    red_walk_left:
+      start: [0, 48]
+      tile_size: [16, 16]
+      vertical_tile_count: 1
+      horizontal_tile_count: 5
+      is_sequence: false
+      padding: [1,1]
+
+- file_name: "sprites/wiz/workers/FarmerRed.png"
+  subsections:
+    red_walk_down:
+      start: [0, 64]
+      tile_size: [16, 16]
+      vertical_tile_count: 1
+      horizontal_tile_count: 5
+      is_sequence: false
+      padding: [1,1]
+
+- file_name: "sprites/wiz/workers/FarmerRed.png"
+  subsections:
+    red_attack_down:
+      start: [0, 128]
+      tile_size: [16, 16]
+      vertical_tile_count: 1
+      horizontal_tile_count: 3
+      is_sequence: false
+      padding: [1,1]
+
+- file_name: "sprites/wiz/workers/FarmerRed.png"
+  subsections:
+    red_attack_up:
+      start: [0, 144]
+      tile_size: [16, 16]
+      vertical_tile_count: 1
+      horizontal_tile_count: 3
+      is_sequence: false
+      padding: [1,1]
+
+- file_name: "sprites/wiz/workers/FarmerRed.png"
+  subsections:
+    red_attack_right:
+      start: [0, 160]
+      tile_size: [16, 16]
+      vertical_tile_count: 1
+      horizontal_tile_count: 3
+      is_sequence: false
+      padding: [1,1]
+
+- file_name: "sprites/wiz/workers/FarmerRed.png"
+  subsections:
+    red_attack_left:
+      start: [0, 176]
+      tile_size: [16, 16]
+      vertical_tile_count: 1
+      horizontal_tile_count: 3
+      is_sequence: false
+      padding: [1,1]

@@ -29,9 +29,12 @@ public:
 private:
   static constexpr std::string_view skeleton_texture_set_path{
       "sprites/wiz/skeleton/sprites.yaml"};
+
   static constexpr int64_t max_duration_in_being_hit_ns_{200'000'000L};
+  static constexpr int64_t max_duration_in_dying_ns_{200'000'000L};
 
   int64_t duration_in_being_hit_ns_{0L};
+  int64_t duration_dying_hit_ns_{0L};
 
   bool was_hit_{false};
   int32_t hp_{3};
