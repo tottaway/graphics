@@ -92,7 +92,7 @@ void EndGame::init(const GameResult &result) {
 }
 
 Result<bool, std::string>
-EndGame::on_click(const view::MouseUpEvent &mouse_up) {
+EndGame::on_mouse_up(const view::MouseUpEvent &mouse_up) {
   has_been_clicked_ = true;
   return Ok(false);
 }
@@ -210,7 +210,7 @@ component::Label::TextInfo TicSquare::get_label_info() {
 Eigen::Affine2f TicSquare::get_transform() const { return transform_; }
 
 Result<bool, std::string>
-TicSquare::on_click(const view::MouseUpEvent &mouse_up) {
+TicSquare::on_mouse_up(const view::MouseUpEvent &mouse_up) {
   if (mouse_up.button != view::MouseButton::Left) {
     return Ok(true);
   }

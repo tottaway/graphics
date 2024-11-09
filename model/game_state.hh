@@ -46,20 +46,44 @@ public:
 
   /// Generic handle event function
   /// In general this should be avoided in favor of specific handlers like
-  /// `on_click`
+  /// `on_mouse_up`
   /// @param[in] event event originating from screen
   [[nodiscard]] virtual Result<void, std::string>
   handle_event(const view::EventType &event) {
     return Ok();
   }
 
-  /// Handler for click (defined as mouse up)
+  /// Handler for mouse up
   /// @param[in] mouse_up underlying event from the screen
   /// @return true if we should keep passing this event to other entities,
   /// false otherwise, propagates any error which occur while handling the
   /// event
   [[nodiscard]] virtual Result<bool, std::string>
-  on_click(const view::MouseUpEvent &mouse_up) {
+  on_mouse_up(const view::MouseUpEvent &mouse_up) {
+    return Ok(true);
+  }
+
+  [[nodiscard]] virtual bool get_handle_mouse_events_outside_entitiy() {
+    return false;
+  }
+
+  /// Handler for mouse down
+  /// @param[in] mouse_down underlying event from the screen
+  /// @return true if we should keep passing this event to other entities,
+  /// false otherwise, propagates any error which occur while handling the
+  /// event
+  [[nodiscard]] virtual Result<bool, std::string>
+  on_mouse_down(const view::MouseDownEvent &mouse_down) {
+    return Ok(true);
+  }
+
+  /// Handler for mouse moved
+  /// @param[in] mouse_moved underlying event from the screen
+  /// @return true if we should keep passing this event to other entities,
+  /// false otherwise, propagates any error which occur while handling the
+  /// event
+  [[nodiscard]] virtual Result<bool, std::string>
+  on_mouse_moved(const view::MouseMovedEvent &mouse_moved) {
     return Ok(true);
   }
 
@@ -285,6 +309,17 @@ private:
   [[nodiscard]] Result<bool, std::string>
   handle_mouse_up_for_entity(Entity &entity, const view::MouseUpEvent &event,
                              const view::Screen &screen);
+
+  Result<bool, std::string>
+  handle_mouse_down_for_entity(Entity &entity,
+                               const view::MouseDownEvent &mouse_down,
+                               const view::Screen &screen);
+
+  Result<bool, std::string>
+  handle_mouse_moved_for_entity(Entity &entity,
+                                const view::MouseMovedEvent &mouse_moved,
+                                const view::Screen &screen);
+
   /// Current entities in the game
   std::array<std::unique_ptr<Entity>, max_entity_count> entities_{nullptr};
 

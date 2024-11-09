@@ -17,7 +17,7 @@ public:
   void init(const GameResult &game_result);
 
   [[nodiscard]] virtual Result<bool, std::string>
-  on_click(const view::MouseUpEvent &mouse_up) final;
+  on_mouse_up(const view::MouseUpEvent &mouse_up) final;
 
   [[nodiscard]] virtual Eigen::Affine2f get_transform() const final;
 

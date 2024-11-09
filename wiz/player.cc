@@ -26,14 +26,16 @@ Result<void, std::string> Player::init() {
   add_component<component::HurtBox>([this]() { return get_transform(); },
                                     [this]() { was_hit_ = true; });
 
-  add_component<HealthBar>([this]() { return hp; },
-                           [this]() { return get_transform(); });
+  add_component<HealthBar>(
+      hp, [this]() { return hp; }, [this]() { return get_transform(); });
 
   const auto *texture_set = TRY(view::TextureSet::parse_texture_set(
       std::filesystem::path(player_texture_set_path)));
   idle_textures_ = texture_set->get_texture_set_by_name("idle");
   walk_right_textures_ = texture_set->get_texture_set_by_name("move_right");
   walk_left_textures_ = texture_set->get_texture_set_by_name("move_left");
+  attack_right_textures_ = texture_set->get_texture_set_by_name("attack_right");
+  attack_left_textures_ = texture_set->get_texture_set_by_name("attack_left");
   hit_textures_ = texture_set->get_texture_set_by_name("take_hit");
   dead_textures_ = texture_set->get_texture_set_by_name("death");
 
@@ -46,7 +48,7 @@ Result<void, std::string> Player::update(const int64_t delta_time_ns) {
   duration_in_current_mode_ns_ += delta_time_ns;
   duration_since_last_exit_hit_ns_ += delta_time_ns;
 
-  if (mode_ == Mode::walking_left || mode_ == Mode::walking_right) {
+  if (mode_ != Mode::dying && mode_ != Mode::dead) {
     position += (y_direction_ + x_direction_).cast<float>().normalized() *
                 (static_cast<double>(delta_time_ns) / 1e9);
   }
@@ -94,6 +96,15 @@ void Player::update_mode() {
     return;
   }
 
+  if (attacking_) {
+    if (attacking_dir_.x() > position.x()) {
+      set_mode(Mode::attacking_right);
+    } else {
+      set_mode(Mode::attacking_left);
+    }
+    return;
+  }
+
   if (x_direction_.norm() > 0 || y_direction_.norm() > 0) {
     if (x_direction_.x() > 0) {
       set_mode(Mode::walking_right);
@@ -117,6 +128,7 @@ void Player::set_mode(const Mode mode, const bool init) {
   remove_components<component::Animation>();
   mode_ = mode;
   std::vector<view::Texture> textures;
+  float x_translation = 0.f;
   float fps = 15.;
   switch (mode) {
   case Mode::idle: {
@@ -129,6 +141,16 @@ void Player::set_mode(const Mode mode, const bool init) {
   }
   case Mode::walking_right: {
     textures = walk_right_textures_;
+    break;
+  }
+  case Mode::attacking_left: {
+    textures = attack_left_textures_;
+    x_translation = -0.5f;
+    break;
+  }
+  case Mode::attacking_right: {
+    textures = attack_right_textures_;
+    x_translation = 0.5f;
     break;
   }
   case Mode::being_hit: {
@@ -145,10 +167,10 @@ void Player::set_mode(const Mode mode, const bool init) {
   }
 
   add_component<component::Animation>(
-      [this]() {
+      [this, x_translation]() {
         return get_transform()
             .scale(Eigen::Vector2f{1.0, 1.3f})
-            .translate(Eigen::Vector2f{0.f, 0.17f});
+            .translate(Eigen::Vector2f{x_translation, 0.17f});
       },
       std::move(textures), fps);
 }
@@ -163,6 +185,8 @@ Player::on_key_press(const view::KeyPressedEvent &key_press) {
     y_direction_ += Eigen::Vector2i{0, -1};
   } else if (key_press.key_event.code == sf::Keyboard::D) {
     x_direction_ += Eigen::Vector2i{1, 0};
+  } else if (key_press.key_event.code == sf::Keyboard::Escape) {
+    attacking_ = true;
   } else {
     return Ok(true);
   }
@@ -196,6 +220,33 @@ Player::on_key_release(const view::KeyReleasedEvent &key_release) {
   return Ok(false);
 }
 
+Result<bool, std::string>
+Player::on_mouse_up(const view::MouseUpEvent &mouse_up) {
+  if (mouse_up.button == view::MouseButton::Left) {
+    attacking_ = false;
+    attacking_dir_ = mouse_up.position;
+    update_mode();
+  }
+  return Ok(true);
+}
+
+Result<bool, std::string>
+Player::on_mouse_down(const view::MouseDownEvent &mouse_down) {
+  if (mouse_down.button == view::MouseButton::Left) {
+    attacking_ = true;
+    attacking_dir_ = mouse_down.position;
+    update_mode();
+  }
+  return Ok(true);
+}
+
+Result<bool, std::string>
+Player::on_mouse_moved(const view::MouseMovedEvent &mouse_moved) {
+  attacking_dir_ = mouse_moved.position;
+  update_mode();
+  return Ok(true);
+}
+
 Eigen::Affine2f Player::get_transform() const {
   float x_scale_factor;
   switch (mode_) {
@@ -204,6 +255,12 @@ Eigen::Affine2f Player::get_transform() const {
     break;
   }
 
+  case Mode::attacking_left:
+    [[fallthrough]];
+  case Mode::attacking_right: {
+    x_scale_factor = 0.22;
+    break;
+  }
   case Mode::walking_left:
     [[fallthrough]];
   case Mode::walking_right: {

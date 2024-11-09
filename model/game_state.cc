@@ -83,6 +83,16 @@ Result<void, std::string> GameState::handle_event(const view::EventType &event,
                   -> Result<bool, std::string> {
                 return handle_mouse_up_for_entity(*entity, mouse_up, screen);
               },
+              [this, &entity, &screen](const view::MouseDownEvent &mouse_down)
+                  -> Result<bool, std::string> {
+                return handle_mouse_down_for_entity(*entity, mouse_down,
+                                                    screen);
+              },
+              [this, &entity, &screen](const view::MouseMovedEvent &mouse_moved)
+                  -> Result<bool, std::string> {
+                return handle_mouse_moved_for_entity(*entity, mouse_moved,
+                                                     screen);
+              },
               [&entity](const view::KeyPressedEvent &key_press)
                   -> Result<bool, std::string> {
                 return entity->on_key_press(key_press);
@@ -110,10 +120,29 @@ GameState::handle_mouse_up_for_entity(Entity &entity,
                                       const view::MouseUpEvent &mouse_up,
                                       const view::Screen &screen) {
   if (geometry::rectangle_contains_point(entity.get_transform(),
-                                         mouse_up.position)) {
-    return entity.on_click(mouse_up);
+                                         mouse_up.position) ||
+      entity.get_handle_mouse_events_outside_entitiy()) {
+    return entity.on_mouse_up(mouse_up);
   }
   return Ok(true);
+}
+
+Result<bool, std::string>
+GameState::handle_mouse_down_for_entity(Entity &entity,
+                                        const view::MouseDownEvent &mouse_down,
+                                        const view::Screen &screen) {
+  if (geometry::rectangle_contains_point(entity.get_transform(),
+                                         mouse_down.position) ||
+      entity.get_handle_mouse_events_outside_entitiy()) {
+    return entity.on_mouse_down(mouse_down);
+  }
+  return Ok(true);
+}
+
+Result<bool, std::string> GameState::handle_mouse_moved_for_entity(
+    Entity &entity, const view::MouseMovedEvent &mouse_moved,
+    const view::Screen &screen) {
+  return entity.on_mouse_moved(mouse_moved);
 }
 
 Result<void, std::string> GameState::draw(view::Screen &screen) const {

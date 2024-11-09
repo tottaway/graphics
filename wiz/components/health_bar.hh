@@ -9,7 +9,7 @@ public:
 
   using GetHitPointsFunc = std::function<int32_t()>;
   using GetActorTransformFunc = std::function<Eigen::Affine2f()>;
-  HealthBar(GetHitPointsFunc get_hp,
+  HealthBar(const int32_t max_hp, GetHitPointsFunc get_hp,
             GetActorTransformFunc get_actor_transform_func);
 
   [[nodiscard]] virtual std::string_view get_component_type_name() const {
@@ -17,6 +17,7 @@ public:
   }
 
 private:
+  int32_t max_hp_;
   GetHitPointsFunc get_hp_;
   GetActorTransformFunc get_actor_transform_func_;
 };

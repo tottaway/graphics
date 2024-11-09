@@ -29,7 +29,7 @@ Eigen::Affine2f EndScreen::get_transform() const {
 }
 
 Result<bool, std::string>
-EndScreen::on_click(const view::MouseUpEvent &mouse_up) {
+EndScreen::on_mouse_up(const view::MouseUpEvent &mouse_up) {
   has_been_clicked = true;
   return Ok(false);
 }

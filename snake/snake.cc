@@ -78,7 +78,7 @@ EndScreen::on_key_press(const view::KeyPressedEvent &) {
 }
 
 Result<bool, std::string>
-EndScreen::on_click(const view::MouseUpEvent &mouse_up) {
+EndScreen::on_mouse_up(const view::MouseUpEvent &mouse_up) {
   has_been_clicked_ = true;
   return Ok(false);
 }

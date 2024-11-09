@@ -47,7 +47,7 @@ public:
   void init(const GameResult &result);
 
   [[nodiscard]] virtual Result<bool, std::string>
-  on_click(const view::MouseUpEvent &mouse_up) final;
+  on_mouse_up(const view::MouseUpEvent &mouse_up) final;
 
   [[nodiscard]] virtual Eigen::Affine2f get_transform() const final;
 
@@ -109,7 +109,7 @@ public:
   [[nodiscard]] virtual Eigen::Affine2f get_transform() const final;
 
   [[nodiscard]] virtual Result<bool, std::string>
-  on_click(const view::MouseUpEvent &mouse_up);
+  on_mouse_up(const view::MouseUpEvent &mouse_up);
 
   [[nodiscard]] virtual std::string_view get_entity_type_name() const {
     return entity_type_name;

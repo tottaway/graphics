@@ -11,6 +11,8 @@ public:
     idle,
     walking_left,
     walking_right,
+    attacking_left,
+    attacking_right,
     being_hit,
     dying,
     dead,
@@ -35,6 +37,19 @@ public:
   [[nodiscard]] virtual Result<bool, std::string>
   on_key_release(const view::KeyReleasedEvent &key_release);
 
+  [[nodiscard]] virtual Result<bool, std::string>
+  on_mouse_up(const view::MouseUpEvent &mouse_up) final;
+
+  [[nodiscard]] virtual Result<bool, std::string>
+  on_mouse_down(const view::MouseDownEvent &mouse_down) final;
+
+  [[nodiscard]] virtual Result<bool, std::string>
+  on_mouse_moved(const view::MouseMovedEvent &mouse_moved) final;
+
+  [[nodiscard]] virtual bool get_handle_mouse_events_outside_entitiy() {
+    return true;
+  }
+
   [[nodiscard]] virtual Eigen::Affine2f get_transform() const;
 
   [[nodiscard]] virtual uint8_t get_z_level() const { return 1; }
@@ -43,7 +58,7 @@ public:
 
   Eigen::Vector2f position{0.f, 0.f};
 
-  int32_t hp{3};
+  int32_t hp{10};
 
 private:
   static constexpr std::string_view player_texture_set_path{
@@ -53,6 +68,8 @@ private:
   void set_mode(const Mode mode, const bool init = false);
 
   bool was_hit_{false};
+  bool attacking_{false};
+  Eigen::Vector2f attacking_dir_{};
 
   Mode mode_{Mode::idle};
   Eigen::Vector2i x_direction_{0, 0};
@@ -61,12 +78,14 @@ private:
   std::vector<view::Texture> idle_textures_;
   std::vector<view::Texture> walk_right_textures_;
   std::vector<view::Texture> walk_left_textures_;
+  std::vector<view::Texture> attack_right_textures_;
+  std::vector<view::Texture> attack_left_textures_;
   std::vector<view::Texture> hit_textures_;
   std::vector<view::Texture> dead_textures_;
   int64_t duration_in_current_mode_ns_{0L};
-  int64_t max_duration_in_being_hit_ns_{250'000'000L};
+  int64_t max_duration_in_being_hit_ns_{200'000'000L};
   int64_t max_duration_in_dying_ns_{250'000'000};
-  int64_t cool_down_after_hit_ns_{400'000'000L};
+  int64_t cool_down_after_hit_ns_{200'000'000L};
   int64_t duration_since_last_exit_hit_ns_{};
 };
 } // namespace wiz
