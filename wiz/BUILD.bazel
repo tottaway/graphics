@@ -70,7 +70,8 @@ cc_library(
     ":player",
     ":movable_stone",
     ":end_screen",
-    "//wiz/enemies:skeleton_spawner",
+    "//wiz:spawner",
+    "//wiz/enemies:skeleton",
     "//wiz/good_npcs:worker",
     "//wiz/map:map",
     "//model:game_state",
@@ -107,4 +108,22 @@ cc_library(
     "//view:texture",
   ],
   visibility = [":__subpackages__"],
+)
+
+cc_library(
+  name = "spawner",
+  srcs = ["spawner.inl"],
+  hdrs = ["spawner.hh"],
+  data = [
+    "//sprites/wiz/map_textures:texture_set",
+  ],
+  deps = [
+    "//view/tileset:texture_set",
+    "//model:game_state",
+    "//view:screen",
+    "//components:sprite",
+    "//components:animation",
+    "@eigen",
+  ],
+  visibility = ["//wiz:__subpackages__"],
 )

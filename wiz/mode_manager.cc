@@ -2,11 +2,12 @@
 #include "model/game_state.hh"
 #include "wiz/character_mode.hh"
 #include "wiz/end_screen.hh"
-#include "wiz/enemies/skeleton_spawner.hh"
+#include "wiz/enemies/skeleton.hh"
 #include "wiz/good_npcs/worker.hh"
 #include "wiz/map/map.hh"
 #include "wiz/movable_stone.hh"
 #include "wiz/player.hh"
+#include "wiz/spawner.hh"
 
 namespace wiz {
 WizModeManager::WizModeManager(model::GameState &game_state)
@@ -50,8 +51,9 @@ Result<void, std::string> WizModeManager::start_new_game() {
   TRY(add_child_entity_and_init<Map>());
   TRY(add_child_entity_and_init<Player>());
   TRY(add_child_entity_and_init<MovableStone>(Eigen::Vector2f{1.0f, 1.0f}));
-  TRY(add_child_entity_and_init<SkeletonSpawner>(Eigen::Vector2f{1.5f, 1.5f}));
-  TRY(add_child_entity_and_init<Worker>(Eigen::Vector2f{0.f, 0.f}));
+  TRY(add_child_entity_and_init<Spawner<Skeleton>>(
+      Eigen::Vector2f{1.5f, 1.5f}));
+  TRY(add_child_entity_and_init<Spawner<Worker>>(Eigen::Vector2f{0.f, 0.f}));
   return Ok();
 }
 } // namespace wiz

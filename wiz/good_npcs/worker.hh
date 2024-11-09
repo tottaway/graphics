@@ -1,6 +1,5 @@
 #pragma once
 #include "model/game_state.hh"
-#include "view/texture.hh"
 #include "wiz/character_mode.hh"
 
 namespace wiz {
