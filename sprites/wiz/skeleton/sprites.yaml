@@ -10,7 +10,7 @@
 
 - file_name: "sprites/wiz/skeleton/attack.png"
   subsections:
-    attack:
+    attack_right:
       start: [35, 0]
       tile_size: [150, 150]
       vertical_tile_count: 1
@@ -18,15 +18,37 @@
       is_sequence: false
       padding: [20,45]
 
+- file_name: "sprites/wiz/skeleton/attack.png"
+  subsections:
+    attack_left:
+      start: [35, 0]
+      tile_size: [150, 150]
+      vertical_tile_count: 1
+      horizontal_tile_count: 6
+      is_sequence: false
+      padding: [20,45]
+      reflect_x_axis: true
+
 - file_name: "sprites/wiz/skeleton/walk.png"
   subsections:
-    move:
+    move_right:
       start: [0, 0]
       tile_size: [150, 150]
       vertical_tile_count: 1
       horizontal_tile_count: 4
       is_sequence: false
       padding: [50,45]
+
+- file_name: "sprites/wiz/skeleton/walk.png"
+  subsections:
+    move_left:
+      start: [0, 0]
+      tile_size: [150, 150]
+      vertical_tile_count: 1
+      horizontal_tile_count: 4
+      is_sequence: false
+      padding: [50,45]
+      reflect_x_axis: true
 
 - file_name: "sprites/wiz/skeleton/take_hit.png"
   subsections:

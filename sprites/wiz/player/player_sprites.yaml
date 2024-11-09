@@ -11,22 +11,22 @@
 - file_name: "sprites/wiz/player/attack.png"
   subsections:
     attack_right:
-      start: [35, 0]
+      start: [25, 0]
       tile_size: [150, 150]
       vertical_tile_count: 1
       horizontal_tile_count: 6
       is_sequence: false
-      padding: [20,45]
+      padding: [35,50]
 
 - file_name: "sprites/wiz/player/attack.png"
   subsections:
     attack_left:
-      start: [35, 0]
+      start: [25, 0]
       tile_size: [150, 150]
       vertical_tile_count: 1
       horizontal_tile_count: 6
       is_sequence: false
-      padding: [20,45]
+      padding: [35,47]
       reflect_x_axis: true
 
 - file_name: "sprites/wiz/player/move.png"

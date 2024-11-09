@@ -23,6 +23,10 @@ public:
     return component_type_name;
   }
 
+protected:
+  void update_texture_set(const std::vector<view::Texture> &textures,
+                          const float fps);
+
 private:
   GetTransformFunc get_transform_;
   std::vector<view::Texture> textures_;

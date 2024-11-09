@@ -2,6 +2,7 @@
 #include "components/animation.hh"
 #include "components/center.hh"
 #include "components/collider.hh"
+#include "components/draw_rectangle.hh"
 #include "components/hit_box.hh"
 #include "components/hurt_box.hh"
 #include "components/sprite.hh"
@@ -9,6 +10,7 @@
 #include "model/entity_id.hh"
 #include "model/game_state.hh"
 #include "view/tileset/texture_set.hh"
+#include "wiz/components/character_animation_set.hh"
 #include "wiz/components/health_bar.hh"
 #include "wiz/components/hit_hurt_boxes.hh"
 #include "wiz/map/grass_tile.hh"
@@ -37,15 +39,20 @@ Result<void, std::string> Player::init() {
 
   const auto *texture_set = TRY(view::TextureSet::parse_texture_set(
       std::filesystem::path(player_texture_set_path)));
-  idle_textures_ = texture_set->get_texture_set_by_name("idle");
-  walk_right_textures_ = texture_set->get_texture_set_by_name("move_right");
-  walk_left_textures_ = texture_set->get_texture_set_by_name("move_left");
-  attack_right_textures_ = texture_set->get_texture_set_by_name("attack_right");
-  attack_left_textures_ = texture_set->get_texture_set_by_name("attack_left");
-  hit_textures_ = texture_set->get_texture_set_by_name("take_hit");
-  dead_textures_ = texture_set->get_texture_set_by_name("death");
 
-  set_mode(Mode::idle, true);
+  add_component<CharacterAnimationSet>(
+      [this]() { return get_animation_transform(); },
+      [this]() { return mode_; },
+      CharacterTextureSet{texture_set->get_texture_set_by_name("idle"),
+                          texture_set->get_texture_set_by_name("move_right"),
+                          texture_set->get_texture_set_by_name("move_left"),
+                          texture_set->get_texture_set_by_name("attack_right"),
+                          texture_set->get_texture_set_by_name("attack_left"),
+                          texture_set->get_texture_set_by_name("take_hit"),
+                          texture_set->get_texture_set_by_name("death"), 15.f,
+                          15.f, 15.f, 15.f, 15.f, 20.f, 15.f});
+
+  set_mode(CharacterMode::idle, true);
 
   return Ok();
 }
@@ -54,7 +61,7 @@ Result<void, std::string> Player::update(const int64_t delta_time_ns) {
   duration_in_current_mode_ns_ += delta_time_ns;
   duration_since_last_exit_hit_ns_ += delta_time_ns;
 
-  if (mode_ != Mode::dying && mode_ != Mode::dead) {
+  if (mode_ != CharacterMode::dying && mode_ != CharacterMode::dead) {
     position += (y_direction_ + x_direction_).cast<float>().normalized() *
                 (static_cast<double>(delta_time_ns) / 1e9);
   }
@@ -71,114 +78,66 @@ Result<void, std::string> Player::late_update() {
 }
 
 void Player::update_mode() {
-  if (mode_ == Mode::dead) {
+  if (mode_ == CharacterMode::dead) {
     return;
   }
 
-  if (mode_ == Mode::dying) {
+  if (mode_ == CharacterMode::dying) {
     if (duration_in_current_mode_ns_ > max_duration_in_dying_ns_) {
-      set_mode(Mode::dead);
+      set_mode(CharacterMode::dead);
     }
     return;
   }
 
-  if (mode_ == Mode::being_hit) {
+  if (mode_ == CharacterMode::being_hit) {
     if (duration_in_current_mode_ns_ > max_duration_in_being_hit_ns_) {
       duration_since_last_exit_hit_ns_ = 0L;
-      set_mode(Mode::idle);
+      set_mode(CharacterMode::idle);
     }
     return;
   }
 
-  if (was_hit_ && mode_ != Mode::being_hit &&
+  if (was_hit_ && mode_ != CharacterMode::being_hit &&
       duration_since_last_exit_hit_ns_ > cool_down_after_hit_ns_) {
     hp -= 1;
     if (hp <= 0) {
-      set_mode(Mode::dying);
+      set_mode(CharacterMode::dying);
       was_hit_ = false;
     } else {
-      set_mode(Mode::being_hit);
+      set_mode(CharacterMode::being_hit);
     }
     return;
   }
 
   if (attacking_) {
     if (attacking_dir_.x() > position.x()) {
-      set_mode(Mode::attacking_right);
+      set_mode(CharacterMode::attacking_right);
     } else {
-      set_mode(Mode::attacking_left);
+      set_mode(CharacterMode::attacking_left);
     }
     return;
   }
 
   if (x_direction_.norm() > 0 || y_direction_.norm() > 0) {
     if (x_direction_.x() > 0) {
-      set_mode(Mode::walking_right);
+      set_mode(CharacterMode::walking_right);
       return;
     } else {
-      set_mode(Mode::walking_left);
+      set_mode(CharacterMode::walking_left);
       return;
     }
   } else {
-    set_mode(Mode::idle);
+    set_mode(CharacterMode::idle);
     return;
   }
 }
 
-void Player::set_mode(const Mode mode, const bool init) {
+void Player::set_mode(const CharacterMode mode, const bool init) {
   if (mode == mode_ && !init) {
     return;
   }
   duration_in_current_mode_ns_ = 0L;
-
-  remove_components<component::Animation>();
   mode_ = mode;
-  std::vector<view::Texture> textures;
-  float x_translation = 0.f;
-  float fps = 15.;
-  switch (mode) {
-  case Mode::idle: {
-    textures = idle_textures_;
-    break;
-  }
-  case Mode::walking_left: {
-    textures = walk_left_textures_;
-    break;
-  }
-  case Mode::walking_right: {
-    textures = walk_right_textures_;
-    break;
-  }
-  case Mode::attacking_left: {
-    textures = attack_left_textures_;
-    x_translation = -0.5f;
-    break;
-  }
-  case Mode::attacking_right: {
-    textures = attack_right_textures_;
-    x_translation = 0.5f;
-    break;
-  }
-  case Mode::being_hit: {
-    textures = hit_textures_;
-    fps = 20.f;
-    break;
-  }
-  case Mode::dying:
-    [[fallthrough]];
-  case Mode::dead: {
-    textures = dead_textures_;
-    break;
-  }
-  }
-
-  add_component<component::Animation>(
-      [this, x_translation]() {
-        return get_transform()
-            .scale(Eigen::Vector2f{1.0, 1.3f})
-            .translate(Eigen::Vector2f{x_translation, 0.17f});
-      },
-      std::move(textures), fps);
 }
 
 Result<bool, std::string>
@@ -254,82 +213,96 @@ Player::on_mouse_moved(const view::MouseMovedEvent &mouse_moved) {
 }
 
 Eigen::Affine2f Player::get_transform() const {
-  float x_scale_factor;
-  switch (mode_) {
-  case Mode::idle: {
-    x_scale_factor = 0.07;
-    break;
-  }
-
-  case Mode::attacking_left:
-    [[fallthrough]];
-  case Mode::attacking_right: {
-    x_scale_factor = 0.22;
-    break;
-  }
-  case Mode::walking_left:
-    [[fallthrough]];
-  case Mode::walking_right: {
-    x_scale_factor = 0.1;
-    break;
-  }
-
-  case Mode::dying:
-    [[fallthrough]];
-  case Mode::dead:
-    [[fallthrough]];
-  case Mode::being_hit: {
-    x_scale_factor = 0.1;
-    break;
-  }
-  }
-
   return geometry::make_rectangle_from_center_and_size(
-      position, Eigen::Vector2f{x_scale_factor, 0.1f});
+      position, Eigen::Vector2f{.1f, .1f});
 }
 
 Eigen::Affine2f Player::get_hurt_box_transform() const {
   switch (mode_) {
-  case Mode::attacking_left: {
-    return get_transform()
-        .translate(Eigen::Vector2f{0.2f, 0.f})
-        .scale(Eigen::Vector2f{0.2f, 1.f});
+  case CharacterMode::attacking_left: {
+    return get_animation_transform()
+        .translate(Eigen::Vector2f{0.7f, 0.f})
+        .scale(Eigen::Vector2f{0.22f, 1.f});
   }
-  case Mode::attacking_right: {
-    return get_transform()
-        .translate(Eigen::Vector2f{-0.2f, 0.f})
-        .scale(Eigen::Vector2f{0.2f, 1.f});
+  case CharacterMode::attacking_right: {
+    return get_animation_transform()
+        .translate(Eigen::Vector2f{-0.7f, 0.f})
+        .scale(Eigen::Vector2f{0.22f, 1.f});
   }
 
-  case Mode::walking_left: {
-    return get_transform().scale(Eigen::Vector2f{0.7f, 1.f});
+  case CharacterMode::walking_left: {
+    return get_animation_transform().scale(Eigen::Vector2f{0.7f, 1.f});
   }
-  case Mode::walking_right: {
-    return get_transform().scale(Eigen::Vector2f{0.7f, 1.f});
+  case CharacterMode::walking_right: {
+    return get_animation_transform().scale(Eigen::Vector2f{0.7f, 1.f});
   }
 
   default: {
-    return get_transform();
+    return get_animation_transform();
   }
   }
 }
 
 Eigen::Affine2f Player::get_hit_box_transform() const {
   switch (mode_) {
-  case Mode::attacking_left: {
-    return get_transform()
-        .translate(Eigen::Vector2f{-0.5f, 0.f})
-        .scale(Eigen::Vector2f{0.5f, 1.f});
+  case CharacterMode::attacking_left: {
+    return get_animation_transform()
+        .translate(Eigen::Vector2f{-0.3f, 0.f})
+        .scale(Eigen::Vector2f{0.7f, 1.f});
   }
-  case Mode::attacking_right: {
-    return get_transform()
-        .translate(Eigen::Vector2f{0.5f, 0.f})
-        .scale(Eigen::Vector2f{0.5f, 1.f});
+  case CharacterMode::attacking_right: {
+    return get_animation_transform()
+        .translate(Eigen::Vector2f{0.3f, 0.f})
+        .scale(Eigen::Vector2f{0.7f, 1.f});
   }
 
   default: {
     return get_transform().scale(Eigen::Vector2f{0.0f, .0f});
   }
   }
+}
+
+Eigen::Affine2f Player::get_animation_transform() const {
+  float x_scale_factor = 1.f;
+  float y_scale_factor = 1.f;
+  float x_translation = 0.f;
+  float y_translation = 0.f;
+
+  switch (mode_) {
+  case CharacterMode::idle: {
+    x_scale_factor = 0.7f;
+    break;
+  }
+
+  case CharacterMode::attacking_left:
+    x_translation = -.5f;
+    x_scale_factor = 1.5f;
+    y_scale_factor = 0.8f;
+    break;
+  case CharacterMode::attacking_right: {
+    x_translation = .5f;
+    x_scale_factor = 1.5f;
+    y_scale_factor = 0.8f;
+    break;
+  }
+  case CharacterMode::walking_left:
+    [[fallthrough]];
+  case CharacterMode::walking_right: {
+    x_scale_factor = 1.f;
+    break;
+  }
+
+  case CharacterMode::dying:
+    [[fallthrough]];
+  case CharacterMode::dead:
+    [[fallthrough]];
+  case CharacterMode::being_hit: {
+    x_scale_factor = 1.f;
+    break;
+  }
+  }
+  return get_transform()
+      .scale(Eigen::Vector2f{x_scale_factor, y_scale_factor})
+      .translate(Eigen::Vector2f{x_translation, y_translation});
 }
 } // namespace wiz

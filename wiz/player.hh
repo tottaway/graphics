@@ -1,22 +1,12 @@
 #pragma once
 #include "model/game_state.hh"
 #include "view/texture.hh"
+#include "wiz/character_mode.hh"
 
 namespace wiz {
 class Player : public model::Entity {
 public:
   static constexpr std::string_view entity_type_name = "wiz_player";
-
-  enum class Mode {
-    idle,
-    walking_left,
-    walking_right,
-    attacking_left,
-    attacking_right,
-    being_hit,
-    dying,
-    dead,
-  };
 
   Player(model::GameState &game_state);
 
@@ -56,9 +46,11 @@ public:
 
   [[nodiscard]] virtual Eigen::Affine2f get_hit_box_transform() const;
 
+  [[nodiscard]] virtual Eigen::Affine2f get_animation_transform() const;
+
   [[nodiscard]] virtual uint8_t get_z_level() const { return 1; }
 
-  [[nodiscard]] virtual Mode get_mode() const { return mode_; }
+  [[nodiscard]] virtual CharacterMode get_mode() const { return mode_; }
 
   Eigen::Vector2f position{0.f, 0.f};
 
@@ -69,23 +61,16 @@ private:
       "sprites/wiz/player/player_sprites.yaml"};
   void update_mode();
 
-  void set_mode(const Mode mode, const bool init = false);
+  void set_mode(const CharacterMode mode, const bool init = false);
 
   bool was_hit_{false};
   bool attacking_{false};
   Eigen::Vector2f attacking_dir_{};
 
-  Mode mode_{Mode::idle};
+  CharacterMode mode_{CharacterMode::idle};
   Eigen::Vector2i x_direction_{0, 0};
   Eigen::Vector2i y_direction_{0, 0};
 
-  std::vector<view::Texture> idle_textures_;
-  std::vector<view::Texture> walk_right_textures_;
-  std::vector<view::Texture> walk_left_textures_;
-  std::vector<view::Texture> attack_right_textures_;
-  std::vector<view::Texture> attack_left_textures_;
-  std::vector<view::Texture> hit_textures_;
-  std::vector<view::Texture> dead_textures_;
   int64_t duration_in_current_mode_ns_{0L};
   int64_t max_duration_in_being_hit_ns_{200'000'000L};
   int64_t max_duration_in_dying_ns_{250'000'000};

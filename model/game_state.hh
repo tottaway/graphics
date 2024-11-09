@@ -40,6 +40,10 @@ public:
     return Ok();
   }
 
+  /// Hook to allow the entity to remove itself from the game state
+  /// @return true if the entity should be removed, false otherwise
+  [[nodiscard]] virtual bool should_remove() { return false; }
+
   /// Update the internal state of the Enitity again after systems run
   /// @param[in] delta_time_ns the current time in nanoseconds
   [[nodiscard]] virtual Result<void, std::string> late_update() { return Ok(); }

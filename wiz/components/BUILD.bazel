@@ -1,4 +1,15 @@
 cc_library(
+  name = "character_animation_set",
+  srcs = ["character_animation_set.cc"],
+  hdrs = ["character_animation_set.hh"],
+  deps = [
+    "//wiz:character_mode",
+    "//components:animation",
+  ],
+  visibility = ["//visibility:public"],
+)
+
+cc_library(
   name = "health_bar",
   srcs = ["health_bar.cc"],
   hdrs = ["health_bar.hh"],

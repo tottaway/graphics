@@ -70,6 +70,13 @@ GameState::advance_state(const int64_t delta_time_ns) {
       }
     }
   }
+
+  for (const auto &entity : entities_) {
+    if (entity) {
+      if (entity->should_remove())
+        remove_entity(entity->get_entity_id());
+    }
+  }
   return Ok();
 }
 

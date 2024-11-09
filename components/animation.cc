@@ -19,4 +19,12 @@ Result<void, std::string> Animation::update(const int64_t delta_time_ns) {
 Animation::SpriteInfo Animation::get_sprite_info() {
   return SpriteInfo{get_transform_(), textures_[current_texture_index_]};
 }
+
+void Animation::update_texture_set(const std::vector<view::Texture> &textures,
+                                   const float fps) {
+  textures_ = textures;
+  current_texture_index_ = 0UL;
+  nanos_since_last_change_ = 0UL;
+  nanos_between_changes_ = static_cast<int64_t>(1 / fps * 1e9);
+}
 } // namespace component

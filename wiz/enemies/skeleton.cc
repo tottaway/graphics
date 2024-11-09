@@ -8,6 +8,7 @@
 #include "model/entity_id.hh"
 #include "model/game_state.hh"
 #include "view/tileset/texture_set.hh"
+#include "wiz/components/character_animation_set.hh"
 #include "wiz/components/health_bar.hh"
 #include "wiz/components/hit_hurt_boxes.hh"
 #include "wiz/player.hh"
@@ -29,23 +30,54 @@ Result<void, std::string> Skeleton::init(const Eigen::Vector2f position) {
 
   const auto *texture_set = TRY(view::TextureSet::parse_texture_set(
       std::filesystem::path(skeleton_texture_set_path)));
-  auto idle_textures = texture_set->get_texture_set_by_name("move");
-  add_component<component::Animation>([this]() { return get_transform(); },
-                                      std::move(idle_textures), 10.f);
+  add_component<CharacterAnimationSet>(
+      [this]() { return get_transform(); }, [this]() { return mode_; },
+      CharacterTextureSet{texture_set->get_texture_set_by_name("idle"),
+                          texture_set->get_texture_set_by_name("move_right"),
+                          texture_set->get_texture_set_by_name("move_left"),
+                          texture_set->get_texture_set_by_name("attack_right"),
+                          texture_set->get_texture_set_by_name("attack_left"),
+                          texture_set->get_texture_set_by_name("take_hit"),
+                          texture_set->get_texture_set_by_name("death"), 15.f,
+                          15.f, 15.f, 15.f, 15.f, 20.f, 15.f});
 
   add_component<HealthBar>(
       hp_, [this]() { return hp_; }, [this]() { return get_transform(); });
 
   add_component<WizHurtBox<Alignement::bad>>(
-      [this]() { return get_transform(); }, [this]() { hp_ -= 1; });
+      [this]() { return get_transform(); }, [this]() { was_hit_ = true; });
 
-  return Ok();
   return Ok();
 }
 
 Result<void, std::string> Skeleton::update(const int64_t delta_time_ns) {
   auto player = TRY(game_state_.get_entity_pointer_by_type<Player>());
   direction_ = (player->position - position_).normalized() * 0.5f;
+
+  if (was_hit_ && mode_ != CharacterMode::being_hit) {
+    hp_ -= 1;
+    if (hp_ <= 0) {
+      mode_ = CharacterMode::dead;
+    } else {
+      mode_ = CharacterMode::being_hit;
+    }
+  } else if (was_hit_) {
+    duration_in_being_hit_ns_ += delta_time_ns;
+    if (duration_in_being_hit_ns_ > max_duration_in_being_hit_ns_) {
+      mode_ = CharacterMode::idle;
+      was_hit_ = false;
+      duration_in_being_hit_ns_ = 0L;
+    }
+  } else if (direction_.x() > 0) {
+    mode_ = CharacterMode::walking_right;
+  } else {
+    mode_ = CharacterMode::walking_left;
+  }
+
+  if (hp_ <= 0) {
+    mode_ = CharacterMode::dead;
+  }
+
   position_ += direction_ * (static_cast<double>(delta_time_ns) / 1e9);
   for (const auto &component : components_) {
     TRY_VOID(component->update(delta_time_ns));

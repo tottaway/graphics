@@ -1,5 +1,6 @@
 #include "wiz/mode_manager.hh"
 #include "model/game_state.hh"
+#include "wiz/character_mode.hh"
 #include "wiz/end_screen.hh"
 #include "wiz/enemies/skeleton_spawner.hh"
 #include "wiz/map/map.hh"
@@ -21,7 +22,7 @@ Result<void, std::string> WizModeManager::update(const int64_t delta_time_ns) {
   }
   case GameMode::in_game: {
     const auto player = TRY(game_state_.get_entity_pointer_by_type<Player>());
-    if (player->get_mode() == Player::Mode::dead) {
+    if (player->get_mode() == CharacterMode::dead) {
       remove_child_entities();
       TRY(add_child_entity_and_init<EndScreen>(
           GameResult{duration_in_mode_ns_}));
