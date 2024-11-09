@@ -38,6 +38,7 @@ cc_library(
   deps = [
     "//view:texture",
     "//view:screen",
+    "//components:hit_box",
     "//components:hurt_box",
     "//components:center",
     "//components:sprite",
@@ -45,6 +46,7 @@ cc_library(
     "//components:animation",
     "//wiz/map:grass_tile",
     "//wiz/components:health_bar",
+    "//wiz/components:hit_hurt_boxes",
     "@eigen",
   ],
   visibility = [":__subpackages__"],

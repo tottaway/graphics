@@ -52,6 +52,10 @@ public:
 
   [[nodiscard]] virtual Eigen::Affine2f get_transform() const;
 
+  [[nodiscard]] virtual Eigen::Affine2f get_hurt_box_transform() const;
+
+  [[nodiscard]] virtual Eigen::Affine2f get_hit_box_transform() const;
+
   [[nodiscard]] virtual uint8_t get_z_level() const { return 1; }
 
   [[nodiscard]] virtual Mode get_mode() const { return mode_; }

@@ -1,5 +1,6 @@
 #pragma once
 #include "model/game_state.hh"
+#include <cstdint>
 
 namespace wiz {
 class Skeleton : public model::Entity {
@@ -23,6 +24,8 @@ public:
 private:
   static constexpr std::string_view skeleton_texture_set_path{
       "sprites/wiz/skeleton/sprites.yaml"};
+
+  int32_t hp_{3};
   Eigen::Vector2f position_{0.f, 0.f};
   Eigen::Vector2f direction_{0.5f, 0.f};
 };

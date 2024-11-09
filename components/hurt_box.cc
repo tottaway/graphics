@@ -7,6 +7,11 @@ HurtBox::HurtBox(GetTransformFunc get_transform, HandleHurtFunc handle_hit)
           get_transform,
           [handle_hit](const model::EntityID) { handle_hit(); }) {
 
-  maybe_collider_types_to_interact_with_ = {{"hit_box_collider"}};
+  if (maybe_collider_types_to_interact_with_.has_value()) {
+    maybe_collider_types_to_interact_with_.value().emplace_back(
+        "hit_box_collider");
+  } else {
+    maybe_collider_types_to_interact_with_ = {{"hit_box_collider"}};
+  }
 }
 } // namespace component

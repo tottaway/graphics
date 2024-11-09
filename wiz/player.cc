@@ -2,6 +2,7 @@
 #include "components/animation.hh"
 #include "components/center.hh"
 #include "components/collider.hh"
+#include "components/hit_box.hh"
 #include "components/hurt_box.hh"
 #include "components/sprite.hh"
 #include "geometry/rectangle_utils.hh"
@@ -9,6 +10,7 @@
 #include "model/game_state.hh"
 #include "view/tileset/texture_set.hh"
 #include "wiz/components/health_bar.hh"
+#include "wiz/components/hit_hurt_boxes.hh"
 #include "wiz/map/grass_tile.hh"
 
 namespace wiz {
@@ -18,13 +20,22 @@ Result<void, std::string> Player::init() {
   add_component<component::Center>([this]() { return get_transform(); });
 
   add_component<component::SolidAABBCollider>(
-      [this]() { return get_transform(); },
+      [this]() { return get_hurt_box_transform(); },
       [this](const Eigen::Vector2f &translation) {
         this->position += translation;
       });
 
-  add_component<component::HurtBox>([this]() { return get_transform(); },
-                                    [this]() { was_hit_ = true; });
+  add_component<WizHurtBox<Alignement::good>>(
+      [this]() { return get_hurt_box_transform(); },
+      [this]() { was_hit_ = true; });
+
+  add_component<WizHitBox<Alignement::good>>(
+      [this]() { return get_hit_box_transform(); });
+
+  add_component<component::DrawRectangle>([this]() {
+    return component::DrawRectangle::RectangleInfo{get_hit_box_transform(),
+                                                   view::Color{253, 220, 151}};
+  });
 
   add_component<HealthBar>(
       hp, [this]() { return hp; }, [this]() { return get_transform(); });
@@ -280,5 +291,50 @@ Eigen::Affine2f Player::get_transform() const {
 
   return geometry::make_rectangle_from_center_and_size(
       position, Eigen::Vector2f{x_scale_factor, 0.1f});
+}
+
+Eigen::Affine2f Player::get_hurt_box_transform() const {
+  switch (mode_) {
+  case Mode::attacking_left: {
+    return get_transform()
+        .translate(Eigen::Vector2f{0.2f, 0.f})
+        .scale(Eigen::Vector2f{0.2f, 1.f});
+  }
+  case Mode::attacking_right: {
+    return get_transform()
+        .translate(Eigen::Vector2f{-0.2f, 0.f})
+        .scale(Eigen::Vector2f{0.2f, 1.f});
+  }
+
+  case Mode::walking_left: {
+    return get_transform().scale(Eigen::Vector2f{0.7f, 1.f});
+  }
+  case Mode::walking_right: {
+    return get_transform().scale(Eigen::Vector2f{0.7f, 1.f});
+  }
+
+  default: {
+    return get_transform();
+  }
+  }
+}
+
+Eigen::Affine2f Player::get_hit_box_transform() const {
+  switch (mode_) {
+  case Mode::attacking_left: {
+    return get_transform()
+        .translate(Eigen::Vector2f{-0.5f, 0.f})
+        .scale(Eigen::Vector2f{0.5f, 1.f});
+  }
+  case Mode::attacking_right: {
+    return get_transform()
+        .translate(Eigen::Vector2f{0.5f, 0.f})
+        .scale(Eigen::Vector2f{0.5f, 1.f});
+  }
+
+  default: {
+    return get_transform().scale(Eigen::Vector2f{0.0f, .0f});
+  }
+  }
 }
 } // namespace wiz
