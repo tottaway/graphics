@@ -29,7 +29,7 @@ Result<void, std::string> Skeleton::init(const Eigen::Vector2f position) {
 
   const auto *texture_set = TRY(view::TextureSet::parse_texture_set(
       std::filesystem::path(skeleton_texture_set_path)));
-  auto idle_textures = texture_set->get_texture_set_by_name("idle");
+  auto idle_textures = texture_set->get_texture_set_by_name("move");
   add_component<component::Animation>([this]() { return get_transform(); },
                                       std::move(idle_textures), 10.f);
 

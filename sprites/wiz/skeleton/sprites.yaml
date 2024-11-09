@@ -24,7 +24,7 @@
       start: [0, 0]
       tile_size: [150, 150]
       vertical_tile_count: 1
-      horizontal_tile_count: 6
+      horizontal_tile_count: 4
       is_sequence: false
       padding: [50,45]
 
