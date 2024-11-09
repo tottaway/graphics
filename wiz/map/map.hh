@@ -1,4 +1,5 @@
 #pragma once
+#include "model/entity_id.hh"
 #include "model/game_state.hh"
 
 namespace wiz {
@@ -12,5 +13,20 @@ public:
   [[nodiscard]] virtual std::string_view get_entity_type_name() const {
     return entity_type_name;
   };
+
+  [[nodiscard]] Result<model::EntityID, std::string>
+  get_map_tile_entity_by_position(const Eigen::Vector2f position) const;
+
+private:
+  static constexpr int64_t map_size_x{30UL};
+  static constexpr int64_t map_size_y{30UL};
+  static constexpr float tile_size{0.1f};
+
+  [[nodiscard]] Eigen::Vector2i
+  get_tile_index_by_position(const Eigen::Vector2f position) const;
+
+  [[nodiscard]] Result<model::EntityID, std::string>
+  get_map_tile_entity_by_index(const Eigen::Vector2i tile_index) const;
+  std::array<std::array<model::EntityID, map_size_x>, map_size_y> map_tiles_;
 };
 } // namespace wiz

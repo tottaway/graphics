@@ -6,6 +6,8 @@ cc_library(
   deps = [
     "//model:game_state",
     "//wiz:character_mode",
+    "//wiz/map:map",
+    "//wiz/map:grass_tile",
     "//view/tileset:texture_set",
     "//view:screen",
     "//wiz/components:character_animation_set",

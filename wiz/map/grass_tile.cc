@@ -16,13 +16,13 @@ Result<void, std::string> GrassTile::init(const Eigen::Vector2f position) {
   add_component<component::NonCollidableAABBCollider>(
       [this]() { return get_transform(); },
       [this](const model::EntityID &entity_id) mutable {
-        if (flag_) {
+        if (has_flowers_) {
           return;
         }
         const auto maybe_player =
             game_state_.get_entity_pointer_by_id_as<GrassTile>(entity_id);
         if (maybe_player.isErr()) {
-          flag_ = true;
+          has_flowers_ = true;
           // remove_components<component::Sprite>();
 
           std::random_device dev;

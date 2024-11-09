@@ -15,11 +15,13 @@ public:
 
   [[nodiscard]] virtual Eigen::Affine2f get_transform() const;
 
+  [[nodiscard]] bool has_flowers() const { return has_flowers_; }
+
 private:
   static constexpr std::string_view texture_set_path{
       "sprites/wiz/map_textures/texture_set.yaml"};
   Eigen::Vector2f position_;
   Eigen::Affine2f transform_;
-  bool flag_{false};
+  bool has_flowers_{false};
 };
 } // namespace wiz

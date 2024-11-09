@@ -20,13 +20,19 @@ public:
 
   [[nodiscard]] virtual Eigen::Affine2f get_transform() const;
 
+  [[nodiscard]] virtual bool should_remove() override { return off_flowers_; }
+
 private:
   static constexpr std::string_view worker_texture_set_path{
       "sprites/wiz/workers/sprites.yaml"};
 
   enum class WorkerColor { cyan, purple, lime, red };
 
+  Result<void, std::string> update_direction();
+
   CharacterMode mode_{CharacterMode::idle};
   Eigen::Vector2f position_{0.f, 0.f};
+  Eigen::Vector2f direction_{0.1, 0.1};
+  bool off_flowers_{false};
 };
 } // namespace wiz
