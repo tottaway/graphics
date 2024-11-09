@@ -32,11 +32,6 @@ Result<void, std::string> Player::init() {
   add_component<WizHitBox<Alignement::good>>(
       [this]() { return get_hit_box_transform(); });
 
-  add_component<component::DrawRectangle>([this]() {
-    return component::DrawRectangle::RectangleInfo{get_hit_box_transform(),
-                                                   view::Color{253, 220, 151}};
-  });
-
   add_component<HealthBar>(
       hp, [this]() { return hp; }, [this]() { return get_transform(); });
 
