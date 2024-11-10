@@ -38,8 +38,8 @@ Result<void, std::string> Skeleton::init(const Eigen::Vector2f position) {
                           texture_set->get_texture_set_by_name("attack_right"),
                           texture_set->get_texture_set_by_name("attack_left"),
                           texture_set->get_texture_set_by_name("take_hit"),
-                          texture_set->get_texture_set_by_name("death"), 15.f,
-                          15.f, 15.f, 15.f, 15.f, 20.f, 15.f});
+                          texture_set->get_texture_set_by_name("death"), 10.f,
+                          10.f, 10.f, 10.f, 10.f, 15.f, 10.f});
 
   add_component<HealthBar>(
       hp_, [this]() { return hp_; }, [this]() { return get_transform(); });
@@ -52,7 +52,7 @@ Result<void, std::string> Skeleton::init(const Eigen::Vector2f position) {
 
 Result<void, std::string> Skeleton::update(const int64_t delta_time_ns) {
   auto player = TRY(game_state_.get_entity_pointer_by_type<Player>());
-  direction_ = (player->position - position_).normalized() * 0.5f;
+  direction_ = (player->position - position_).normalized() * 0.25f;
 
   if (mode_ == CharacterMode::dying) {
     duration_dying_hit_ns_ += delta_time_ns;

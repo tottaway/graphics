@@ -1,6 +1,8 @@
 #pragma once
 #include "model/game_state.hh"
 #include "wiz/character_mode.hh"
+#include <deque>
+#include <random>
 
 namespace wiz {
 class Worker : public model::Entity {
@@ -28,11 +30,22 @@ private:
 
   enum class WorkerColor { cyan, purple, lime, red };
 
-  Result<void, std::string> update_direction();
+  Result<void, std::string> follow_path(const int64_t delta_time_ns);
 
+  Result<void, std::string> plan();
+
+  std::random_device dev_;
+  std::mt19937 rng_{dev_()};
   CharacterMode mode_{CharacterMode::idle};
   Eigen::Vector2f position_{0.f, 0.f};
-  Eigen::Vector2f direction_{0.1, 0.1};
+  float speed_{0.25f};
+  Eigen::Vector2f direction_{speed_, speed_};
   bool off_flowers_{false};
+
+  int64_t replan_delay_{500'000'000L};
+  int64_t time_since_last_replan_{0L};
+
+  Eigen::Vector2i goal_tile_{30, 30};
+  std::optional<std::deque<Eigen::Vector2i>> maybe_current_path_on_tiles_;
 };
 } // namespace wiz

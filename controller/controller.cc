@@ -37,7 +37,7 @@ Result<void, std::string> Controller::run(
       TRY_VOID(game_state_->advance_state(
           std::chrono::nanoseconds(now - last_update).count()));
       screen_->clear_events();
-      last_update = std::chrono::high_resolution_clock::now();
+      last_update = now;
     }
     TRY_VOID(game_state_->draw(*screen_));
     screen_->finish_update();

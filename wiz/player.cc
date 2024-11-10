@@ -13,7 +13,6 @@
 #include "wiz/components/character_animation_set.hh"
 #include "wiz/components/health_bar.hh"
 #include "wiz/components/hit_hurt_boxes.hh"
-#include "wiz/map/grass_tile.hh"
 
 namespace wiz {
 Player::Player(model::GameState &game_state) : model::Entity(game_state) {}
@@ -49,8 +48,8 @@ Result<void, std::string> Player::init() {
                           texture_set->get_texture_set_by_name("attack_right"),
                           texture_set->get_texture_set_by_name("attack_left"),
                           texture_set->get_texture_set_by_name("take_hit"),
-                          texture_set->get_texture_set_by_name("death"), 15.f,
-                          15.f, 15.f, 15.f, 15.f, 20.f, 15.f});
+                          texture_set->get_texture_set_by_name("death"), 10.f,
+                          10.f, 10.f, 10.f, 10.f, 15.f, 10.f});
 
   set_mode(CharacterMode::idle, true);
 
@@ -63,7 +62,7 @@ Result<void, std::string> Player::update(const int64_t delta_time_ns) {
 
   if (mode_ != CharacterMode::dying && mode_ != CharacterMode::dead) {
     position += (y_direction_ + x_direction_).cast<float>().normalized() *
-                (static_cast<double>(delta_time_ns) / 1e9);
+                (static_cast<double>(delta_time_ns) / 1e9) * 0.5f;
   }
   for (const auto &component : components_) {
     TRY_VOID(component->update(delta_time_ns));

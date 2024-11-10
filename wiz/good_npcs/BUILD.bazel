@@ -4,6 +4,7 @@ cc_library(
   hdrs = ["worker.hh"],
   data = ["//sprites/wiz/workers:workers"],
   deps = [
+    "//algs:a_star",
     "//model:game_state",
     "//wiz:character_mode",
     "//wiz/map:map",

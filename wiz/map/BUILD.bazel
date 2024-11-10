@@ -5,7 +5,6 @@ cc_library(
   srcs = ["map.cc"],
   hdrs = ["map.hh"],
   deps = [
-    ":tree_tile",
     ":grass_tile",
     "//model:game_state",
     "@eigen",
@@ -27,25 +26,8 @@ cc_library(
     "//view/tileset:texture_set",
     "//view:texture",
     "//view:screen",
-    "@eigen",
-  ],
-  visibility = ["//wiz:__subpackages__"],
-)
-
-cc_library(
-  name = "tree_tile",
-  srcs = ["tree_tile.cc"],
-  hdrs = ["tree_tile.hh"],
-  data = [
-    "//sprites/wiz/map_textures:texture_set",
-  ],
-  deps = [
-    ":grass_tile",
-    "//view/tileset:texture_set",
-    "//view:texture",
-    "//model:game_state",
-    "//view:screen",
-    "//components:sprite",
+    "//wiz:player",
+    "//wiz/enemies:skeleton",
     "@eigen",
   ],
   visibility = ["//wiz:__subpackages__"],

@@ -72,9 +72,9 @@ private:
   Eigen::Vector2i y_direction_{0, 0};
 
   int64_t duration_in_current_mode_ns_{0L};
-  int64_t max_duration_in_being_hit_ns_{200'000'000L};
-  int64_t max_duration_in_dying_ns_{250'000'000};
-  int64_t cool_down_after_hit_ns_{200'000'000L};
+  int64_t max_duration_in_being_hit_ns_{400'000'000L};
+  int64_t max_duration_in_dying_ns_{500'000'000};
+  int64_t cool_down_after_hit_ns_{400'000'000L};
   int64_t duration_since_last_exit_hit_ns_{};
 };
 } // namespace wiz
