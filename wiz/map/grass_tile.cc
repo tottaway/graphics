@@ -3,7 +3,7 @@
 #include "components/sprite.hh"
 #include "geometry/rectangle_utils.hh"
 #include "view/tileset/texture_set.hh"
-#include "wiz/enemies/skeleton.hh"
+#include "wiz/components/hit_hurt_boxes.hh"
 #include "wiz/player.hh"
 #include <chrono>
 #include <iostream>
@@ -23,13 +23,10 @@ Result<void, std::string> GrassTile::init(const Eigen::Vector2f position) {
         if (maybe_player.isOk()) {
           has_player_ = true;
         }
-
-        const auto maybe_skeleton =
-            game_state_.get_entity_pointer_by_id_as<Skeleton>(entity_id);
-        if (maybe_skeleton.isOk()) {
-          has_bad_guy_ = true;
-        }
       });
+
+  add_component<WizHurtBox<Alignement::neutral>>(
+      [this]() { return get_transform(); }, [this]() { was_hit_ = true; });
 
   position_ = position;
 
@@ -79,9 +76,10 @@ Result<void, std::string> GrassTile::update(const int64_t) {
   if (has_player_) {
     has_flowers_ = true;
     has_player_ = false;
-  } else if (has_bad_guy_) {
+    was_hit_ = false;
+  } else if (was_hit_) {
     has_flowers_ = false;
-    has_bad_guy_ = false;
+    was_hit_ = false;
   }
   return Ok();
 }

@@ -2,12 +2,14 @@
 
 #include "components/component.hh"
 #include "components/hit_box.hh"
+#include "components/hurt_box.hh"
 
 namespace wiz {
 
 enum class Alignement {
   good = 0,
   bad = 1,
+  neutral = 2,
 };
 
 template <Alignement alignement> class WizHitBox : public component::HitBox {

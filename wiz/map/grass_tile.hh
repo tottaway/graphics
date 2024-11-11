@@ -19,6 +19,8 @@ public:
 
   [[nodiscard]] bool has_flowers() const { return has_flowers_; }
 
+  void set_has_player() { has_player_ = true; }
+
 private:
   static constexpr std::string_view texture_set_path{
       "sprites/wiz/map_textures/texture_set.yaml"};
@@ -35,7 +37,7 @@ private:
   bool has_tree_{false};
   bool has_flowers_{false};
   bool has_player_{false};
-  bool has_bad_guy_{false};
+  bool was_hit_{false};
 };
 
 class Tree : public model::Entity {

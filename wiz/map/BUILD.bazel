@@ -27,7 +27,7 @@ cc_library(
     "//view:texture",
     "//view:screen",
     "//wiz:player",
-    "//wiz/enemies:skeleton",
+    "//wiz/components:hit_hurt_boxes",
     "@eigen",
   ],
   visibility = ["//wiz:__subpackages__"],

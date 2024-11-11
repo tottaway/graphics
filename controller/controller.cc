@@ -37,6 +37,11 @@ Result<void, std::string> Controller::run(
       TRY_VOID(game_state_->advance_state(
           std::chrono::nanoseconds(now - last_update).count()));
       screen_->clear_events();
+      std::cout << "Last frame druation "
+                << std::chrono::duration_cast<std::chrono::milliseconds>(
+                       now - last_update)
+                       .count()
+                << "ms" << std::endl;
       last_update = now;
     }
     TRY_VOID(game_state_->draw(*screen_));
