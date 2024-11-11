@@ -150,7 +150,6 @@ Result<void, std::string> Worker::plan() {
   };
 
   const auto start = map->get_tile_index_by_position(position_);
-  std::cout << "Start: " << start.x() << ", " << start.y() << std::endl;
   TRY_VOID(algs::a_star<Eigen::Vector2i, 8>(
       distance_func, get_neighbors, hueristic_function, start, goal_tile_,
       500UL, maybe_current_path_on_tiles_));
