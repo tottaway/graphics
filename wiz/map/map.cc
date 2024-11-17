@@ -8,8 +8,8 @@ namespace wiz {
 Map::Map(model::GameState &game_state) : model::Entity(game_state) {}
 
 Result<void, std::string> Map::init() {
-  for (const auto i : std::ranges::views::iota(0, 30)) {
-    for (const auto j : std::ranges::views::iota(0, 30)) {
+  for (const auto i : std::ranges::views::iota(0, map_size_x)) {
+    for (const auto j : std::ranges::views::iota(0, map_size_y)) {
       const auto entity = TRY(add_child_entity_and_init<GrassTile>(
           Eigen::Vector2f{static_cast<float>(i) * tile_size,
                           static_cast<float>(j) * tile_size}));
@@ -33,8 +33,7 @@ Map::get_tile_index_by_position(const Eigen::Vector2f position) const {
 }
 
 [[nodiscard]] Eigen::Vector2f
-Map::get_tile_position_by_index(const Eigen::Vector2i tile_index) const
-{
+Map::get_tile_position_by_index(const Eigen::Vector2i tile_index) const {
   return Eigen::Vector2f{static_cast<float>(tile_index.x()) * tile_size,
                          static_cast<float>(tile_index.y()) * tile_size};
 }

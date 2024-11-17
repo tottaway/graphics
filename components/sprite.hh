@@ -11,6 +11,7 @@ public:
   struct SpriteInfo {
     Eigen::Affine2f transform;
     view::Texture texture;
+    float z_level = 0;
   };
 
   using GetSpriteInfoFunc = std::function<SpriteInfo()>;

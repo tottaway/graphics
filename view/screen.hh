@@ -58,10 +58,12 @@ public:
   void start_update();
   void finish_update();
   void draw_rectangle(const Eigen::Vector2f bottom_left,
-                      const Eigen::Vector2f top_right, const Color color);
+                      const Eigen::Vector2f top_right, const Color color,
+                      const float z_level = 0);
 
   void draw_rectangle(const Eigen::Vector2f bottom_left,
-                      const Eigen::Vector2f top_right, const Texture &texture);
+                      const Eigen::Vector2f top_right, const Texture &texture,
+                      const float z_level = 0);
 
   void draw_text(const Eigen::Vector2f location, const float font_size,
                  const std::string_view text, const Color color);

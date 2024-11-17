@@ -13,7 +13,7 @@ Sprite::draw(view::Screen &screen) const {
   const auto t2 = std::chrono::high_resolution_clock::now();
   const auto [bottom_left, top_right] =
       geometry::get_bottom_left_and_top_right_from_transform(info.transform);
-  screen.draw_rectangle(bottom_left, top_right, info.texture);
+  screen.draw_rectangle(bottom_left, top_right, info.texture, info.z_level);
   return Ok();
 }
 } // namespace component

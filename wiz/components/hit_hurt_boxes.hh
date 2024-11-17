@@ -15,17 +15,11 @@ enum class Alignement {
 template <Alignement alignement> class WizHitBox : public component::HitBox {
 public:
   WizHitBox(GetTransformFunc get_transform);
-
-  [[nodiscard]] virtual std::optional<std::string_view>
-  get_collider_type() const override;
 };
 
 template <Alignement alignement> class WizHurtBox : public component::HurtBox {
 public:
   WizHurtBox(GetTransformFunc get_transform, HandleHurtFunc handle_hit);
-
-  [[nodiscard]] virtual std::optional<std::string_view>
-  get_collider_type() const override;
 };
 
 } // namespace wiz

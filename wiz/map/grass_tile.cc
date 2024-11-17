@@ -25,6 +25,11 @@ Result<void, std::string> GrassTile::init(const Eigen::Vector2f position) {
         }
       });
 
+  get_component<component::NonCollidableAABBCollider>()
+      .value()
+      ->set_interaction_type(
+          component::InteractionType::wiz_grass_tile_collider);
+
   add_component<WizHurtBox<Alignement::neutral>>(
       [this]() { return get_transform(); }, [this]() { was_hit_ = true; });
 

@@ -75,23 +75,23 @@ void Screen::finish_update() {
 }
 
 void Screen::draw_rectangle(const Eigen::Vector2f bottom_left,
-                            const Eigen::Vector2f top_right,
-                            const Color color) {
+                            const Eigen::Vector2f top_right, const Color color,
+                            const float z_level) {
   const auto absolute_bottom_left = window_pixels_from_game_m_ * bottom_left;
   const auto absolute_top_right = window_pixels_from_game_m_ * top_right;
 
   glBegin(GL_QUADS);
   glColor4f(color.r / 255.f, color.g / 255.f, color.b / 255.f, 1.);
-  glVertex2f(absolute_bottom_left.x(), absolute_bottom_left.y());
-  glVertex2f(absolute_bottom_left.x(), absolute_top_right.y());
-  glVertex2f(absolute_top_right.x(), absolute_top_right.y());
-  glVertex2f(absolute_top_right.x(), absolute_bottom_left.y());
+  glVertex3f(absolute_bottom_left.x(), absolute_bottom_left.y(), z_level);
+  glVertex3f(absolute_bottom_left.x(), absolute_top_right.y(), z_level);
+  glVertex3f(absolute_top_right.x(), absolute_top_right.y(), z_level);
+  glVertex3f(absolute_top_right.x(), absolute_bottom_left.y(), z_level);
   glEnd();
 }
 
 void Screen::draw_rectangle(const Eigen::Vector2f bottom_left,
                             const Eigen::Vector2f top_right,
-                            const Texture &texture) {
+                            const Texture &texture, const float z_level) {
   const auto t1 = std::chrono::high_resolution_clock::now();
   const auto absolute_bottom_left = window_pixels_from_game_m_ * bottom_left;
   const auto absolute_top_right = window_pixels_from_game_m_ * top_right;
@@ -100,13 +100,13 @@ void Screen::draw_rectangle(const Eigen::Vector2f bottom_left,
   glColor4f(1.0, 1.0, 1.0, 1.0);
   glBegin(GL_QUADS);
   glTexCoord2f(texture.top_right_uv_.x(), texture.top_right_uv_.y());
-  glVertex2f(absolute_bottom_left.x(), absolute_bottom_left.y());
+  glVertex3f(absolute_bottom_left.x(), absolute_bottom_left.y(), z_level);
   glTexCoord2f(texture.top_right_uv_.x(), texture.bottom_left_uv_.y());
-  glVertex2f(absolute_bottom_left.x(), absolute_top_right.y());
+  glVertex3f(absolute_bottom_left.x(), absolute_top_right.y(), z_level);
   glTexCoord2f(texture.bottom_left_uv_.x(), texture.bottom_left_uv_.y());
-  glVertex2f(absolute_top_right.x(), absolute_top_right.y());
+  glVertex3f(absolute_top_right.x(), absolute_top_right.y(), z_level);
   glTexCoord2f(texture.bottom_left_uv_.x(), texture.top_right_uv_.y());
-  glVertex2f(absolute_top_right.x(), absolute_bottom_left.y());
+  glVertex3f(absolute_top_right.x(), absolute_bottom_left.y(), z_level);
 
   glEnd();
   sf::Texture::bind(NULL);

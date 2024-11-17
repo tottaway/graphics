@@ -34,7 +34,7 @@ private:
   };
 
   struct QuadTreeNode {
-    std::vector<QuadTreeElement> elements;
+    std::unordered_map<std::size_t, std::vector<QuadTreeElement>> elements;
   };
 
   std::array<QuadTreeNode, x_dim * y_dim> nodes_{QuadTreeNode{{}}};
@@ -72,15 +72,24 @@ void QuadTree<x_dim, y_dim>::add_collider(component::Collider *collider,
   for (const auto i : std::ranges::views::iota(min_x, max_x)) {
     for (const auto j : std::ranges::views::iota(min_y, max_y)) {
       auto &node = nodes_[i + j * x_dim];
-      for (const auto &element : node.elements) {
-        if (bounds_overlap(element.bounds, entity_bounds)) {
-          if (collider->handle_collision(*element.collider)) {
-            collider->collision_callback(element.entity_id);
-            element.collider->collision_callback(entity_id);
+      for (const auto &[_, interaction_type_specific_elements] :
+           node.elements) {
+        if (!interaction_type_specific_elements.empty() &&
+            !collider->check_collider_types_interact(
+                *interaction_type_specific_elements.begin()->collider)) {
+          continue;
+        }
+        for (const auto &element : interaction_type_specific_elements) {
+          if (bounds_overlap(element.bounds, entity_bounds)) {
+            if (collider->handle_collision(*element.collider)) {
+              collider->collision_callback(element.entity_id);
+              element.collider->collision_callback(entity_id);
+            }
           }
         }
       }
-      node.elements.emplace_back(collider, entity_id, entity_bounds);
+      node.elements[collider->get_interaction_type_index()].emplace_back(
+          collider, entity_id, entity_bounds);
     }
   }
 }

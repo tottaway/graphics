@@ -3,6 +3,7 @@
 #include "model/entity_id.hh"
 
 #include <Eigen/Dense>
+#include <bit>
 #include <cstddef>
 #include <map>
 #include <optional>
@@ -20,6 +21,63 @@ enum class Shape {
   aabb = 0,
 };
 
+enum class InteractionType : uint16_t {
+  unspecified = 0U,
+  hit_box_collider = 1U << 0,
+  hurt_box_collider = 1U << 1,
+  wiz_good_hurt_box_collider = 1U << 2,
+  wiz_bad_hurt_box_collider = 1U << 3,
+  wiz_neutral_hurt_box_collider = 1U << 4,
+  wiz_good_hit_box_collider = 1U << 5,
+  wiz_bad_hit_box_collider = 1U << 6,
+  wiz_neutral_hit_box_collider = 1U << 7,
+  wiz_grass_tile_collider = 1U << 8,
+  solid_collider = 1U << 9,
+  max_value = 1U << 10,
+};
+
+static constexpr uint16_t unspecified_collider_interaction_mask{
+    std::numeric_limits<uint16_t>::max()};
+
+static constexpr uint16_t hit_box_collider_interaction_mask{
+    static_cast<uint16_t>(InteractionType::hurt_box_collider)};
+
+static constexpr uint16_t hurt_box_collider_interaction_mask{
+    static_cast<uint16_t>(InteractionType::hit_box_collider)};
+
+static constexpr uint16_t wiz_good_hurt_box_collider_interaction_mask{
+    static_cast<uint16_t>(InteractionType::wiz_bad_hit_box_collider) |
+    static_cast<uint16_t>(InteractionType::wiz_neutral_hit_box_collider)};
+
+static constexpr uint16_t wiz_bad_hurt_box_collider_interaction_mask{
+    static_cast<uint16_t>(InteractionType::wiz_good_hit_box_collider) |
+    static_cast<uint16_t>(InteractionType::wiz_neutral_hit_box_collider)};
+
+static constexpr uint16_t wiz_neutral_hurt_box_collider_interaction_mask{
+    static_cast<uint16_t>(InteractionType::wiz_good_hit_box_collider) |
+    static_cast<uint16_t>(InteractionType::wiz_neutral_hit_box_collider) |
+    static_cast<uint16_t>(InteractionType::wiz_bad_hit_box_collider)};
+
+static constexpr uint16_t wiz_good_hit_box_collider_interaction_mask{
+    static_cast<uint16_t>(InteractionType::wiz_bad_hurt_box_collider) |
+    static_cast<uint16_t>(InteractionType::wiz_neutral_hurt_box_collider)};
+
+static constexpr uint16_t wiz_bad_hit_box_collider_interaction_mask{
+    static_cast<uint16_t>(InteractionType::wiz_good_hurt_box_collider) |
+    static_cast<uint16_t>(InteractionType::wiz_neutral_hurt_box_collider)};
+
+static constexpr uint16_t wiz_neutral_hit_box_collider_interaction_mask{
+    static_cast<uint16_t>(InteractionType::wiz_good_hurt_box_collider) |
+    static_cast<uint16_t>(InteractionType::wiz_neutral_hurt_box_collider) |
+    static_cast<uint16_t>(InteractionType::wiz_bad_hurt_box_collider)};
+
+static constexpr uint16_t wiz_grass_tile_collider_interaction_mask{
+    static_cast<uint16_t>(InteractionType::solid_collider)};
+
+static constexpr uint16_t solid_collider_interaction_mask{
+    static_cast<uint16_t>(InteractionType::solid_collider) |
+    static_cast<uint16_t>(InteractionType::wiz_grass_tile_collider)};
+
 class Collider : public Component {
 public:
   static constexpr std::string_view component_type_name = "collider_component";
@@ -30,13 +88,6 @@ public:
 
   [[nodiscard]] virtual std::string_view get_component_type_name() const {
     return component_type_name;
-  }
-
-  /// Allow specifify a specific collider type to allow colliders to define
-  /// interactions between other types (i.e. hit boxes and hurt boxes)
-  [[nodiscard]] virtual std::optional<std::string_view>
-  get_collider_type() const {
-    return std::nullopt;
   }
 
   [[nodiscard]] virtual Result<void, std::string> late_update();
@@ -50,6 +101,20 @@ public:
 
   void update_translation(const Eigen::Vector2f translation);
 
+  std::optional<std::pair<Eigen::Vector2f, Eigen::Vector2f>>
+      maybe_bottom_left_top_right{};
+
+  void set_interaction_type(const InteractionType interaction_type);
+  std::size_t get_interaction_type_index() const {
+    return std::countr_zero(interaction_type_);
+  }
+
+  bool check_collider_types_interact(Collider &other) {
+    return ((interaction_mask_ & other.interaction_type_) &&
+            (other.interaction_mask_ & interaction_type_)) ||
+           (!interaction_type_ && !other.interaction_type_);
+  }
+
 protected:
   Collider(const ColliderType _collider_type, const Shape _shape,
            GetTransformFunc _get_transform, const MoveFunc move_func);
@@ -60,17 +125,16 @@ protected:
 
   bool bounds_collide(Collider &other);
 
-  bool check_collider_types_interact(Collider &other);
-
-  /// optional list of collider types this collider can collide with, if it's
-  /// none then we can collide with any colliders
-  std::optional<std::unordered_set<std::string_view>>
-      maybe_collider_types_to_interact_with_;
-
 private:
   MoveFunc move_func_;
 
   std::optional<Eigen::Vector2f> maybe_translation_;
+
+  /// Indicates which classes of colliders this collider can interact with. If
+  /// none then we can collide with any colliders
+  uint16_t interaction_type_{
+      static_cast<uint16_t>(InteractionType::unspecified)};
+  uint16_t interaction_mask_{std::numeric_limits<uint16_t>::max()};
 };
 
 class SolidAABBCollider : public Collider {
