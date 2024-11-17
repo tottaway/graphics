@@ -26,15 +26,15 @@ WizHitBox<alignement>::WizHitBox(GetTransformFunc get_transform)
   auto &collider_type_to_interact_with =
       maybe_collider_types_to_interact_with_.value();
   if constexpr (alignement == Alignement::good) {
-    collider_type_to_interact_with.push_back(bad_hurt_box_name);
-    collider_type_to_interact_with.push_back(neutral_hurt_box_name);
+    collider_type_to_interact_with.insert(bad_hurt_box_name);
+    collider_type_to_interact_with.insert(neutral_hurt_box_name);
   } else if constexpr (alignement == Alignement::neutral) {
-    collider_type_to_interact_with.push_back(good_hurt_box_name);
-    collider_type_to_interact_with.push_back(bad_hurt_box_name);
-    collider_type_to_interact_with.push_back(neutral_hurt_box_name);
+    collider_type_to_interact_with.insert(good_hurt_box_name);
+    collider_type_to_interact_with.insert(bad_hurt_box_name);
+    collider_type_to_interact_with.insert(neutral_hurt_box_name);
   } else if constexpr (alignement == Alignement::bad) {
-    collider_type_to_interact_with.push_back(good_hurt_box_name);
-    collider_type_to_interact_with.push_back(neutral_hurt_box_name);
+    collider_type_to_interact_with.insert(good_hurt_box_name);
+    collider_type_to_interact_with.insert(neutral_hurt_box_name);
   } else {
     static_assert("Unhandled alignement in WizHitBox");
   }
@@ -62,15 +62,15 @@ WizHurtBox<alignement>::WizHurtBox(GetTransformFunc get_transform,
   auto &collider_type_to_interact_with =
       maybe_collider_types_to_interact_with_.value();
   if constexpr (alignement == Alignement::good) {
-    collider_type_to_interact_with.push_back(bad_hit_box_name);
-    collider_type_to_interact_with.push_back(neutral_hit_box_name);
+    collider_type_to_interact_with.insert(bad_hit_box_name);
+    collider_type_to_interact_with.insert(neutral_hit_box_name);
   } else if constexpr (alignement == Alignement::neutral) {
-    collider_type_to_interact_with.push_back(good_hit_box_name);
-    collider_type_to_interact_with.push_back(bad_hit_box_name);
-    collider_type_to_interact_with.push_back(neutral_hit_box_name);
+    collider_type_to_interact_with.insert(good_hit_box_name);
+    collider_type_to_interact_with.insert(bad_hit_box_name);
+    collider_type_to_interact_with.insert(neutral_hit_box_name);
   } else if constexpr (alignement == Alignement::bad) {
-    collider_type_to_interact_with.push_back(good_hit_box_name);
-    collider_type_to_interact_with.push_back(neutral_hit_box_name);
+    collider_type_to_interact_with.insert(good_hit_box_name);
+    collider_type_to_interact_with.insert(neutral_hit_box_name);
   } else {
     static_assert("Unhandled alignement in WizHitBox");
   }

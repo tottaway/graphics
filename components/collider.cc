@@ -70,7 +70,9 @@ SolidAABBCollider::SolidAABBCollider(GetTransformFunc get_transform,
     : Collider(ColliderType::solid, Shape::aabb, get_transform, move_func) {}
 
 bool SolidAABBCollider::handle_collision(Collider &other) {
-  if (!bounds_collide(other) || !check_collider_types_interact(other)) {
+  // note we don't need to check whether bounds collide since that is checked by
+  // collision system
+  if (!check_collider_types_interact(other)) {
     return false;
   }
 
@@ -122,7 +124,9 @@ NonCollidableAABBCollider::NonCollidableAABBCollider(
           [](const Eigen::Vector2f) {}, collision_callback) {}
 
 bool NonCollidableAABBCollider::handle_collision(Collider &other) {
-  if (!bounds_collide(other) || !check_collider_types_interact(other)) {
+  // note we don't need to check whether bounds collide since that is checked by
+  // collision system
+  if (!check_collider_types_interact(other)) {
     return false;
   }
 

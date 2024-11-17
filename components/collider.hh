@@ -6,6 +6,7 @@
 #include <cstddef>
 #include <map>
 #include <optional>
+#include <unordered_set>
 
 namespace component {
 
@@ -63,7 +64,7 @@ protected:
 
   /// optional list of collider types this collider can collide with, if it's
   /// none then we can collide with any colliders
-  std::optional<std::vector<std::string_view>>
+  std::optional<std::unordered_set<std::string_view>>
       maybe_collider_types_to_interact_with_;
 
 private:
