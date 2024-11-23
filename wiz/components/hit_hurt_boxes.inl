@@ -33,4 +33,12 @@ WizHurtBox<alignement>::WizHurtBox(GetTransformFunc get_transform,
     static_assert("Unhandled alignement in WizHitBox");
   }
 }
+
+template <Alignement alignment>
+WizHurtBox<alignment>::WizHurtBox(GetTransformFunc get_transform,
+                                  GetBoundsFunc _get_bounds,
+                                  HandleHurtFunc handle_hit)
+    : WizHurtBox(get_transform, handle_hit) {
+  get_bounds = _get_bounds;
+}
 } // namespace wiz

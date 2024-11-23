@@ -48,9 +48,7 @@ bool bounds_overlap(const Bounds &a, const Bounds &b) {
 template <std::size_t x_dim, std::size_t y_dim>
 void QuadTree<x_dim, y_dim>::add_collider(component::Collider *collider,
                                           const model::EntityID entity_id) {
-  const auto [bottom_left, top_right] =
-      geometry::get_bottom_left_and_top_right_from_transform(
-          collider->get_transform());
+  const auto [bottom_left, top_right] = collider->get_bounds();
   const Bounds entity_bounds = {top_right.x(), bottom_left.x(), top_right.y(),
                                 bottom_left.y()};
 

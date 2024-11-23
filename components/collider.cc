@@ -58,15 +58,29 @@ uint16_t get_iteraction_mask_for_interaction_type(
 Collider::Collider(const ColliderType _collider_type, const Shape _shape,
                    GetTransformFunc _get_transform, const MoveFunc move_func)
     : collider_type(_collider_type), shape(_shape),
-      get_transform(_get_transform),
+      get_transform(_get_transform), get_bounds([this]() {
+        return geometry::get_bottom_left_and_top_right_from_transform(
+            get_transform());
+      }),
       collision_callback([](const model::EntityID) {}), move_func_(move_func) {}
 
 Collider::Collider(const ColliderType _collider_type, const Shape _shape,
                    GetTransformFunc _get_transform, const MoveFunc move_func,
                    const CollisionCallback _collision_callback)
     : collider_type(_collider_type), shape(_shape),
-      get_transform(_get_transform), collision_callback(_collision_callback),
-      move_func_(move_func) {}
+      get_transform(_get_transform), get_bounds([this]() {
+        return geometry::get_bottom_left_and_top_right_from_transform(
+            get_transform());
+      }),
+      collision_callback(_collision_callback), move_func_(move_func) {}
+
+Collider::Collider(const ColliderType _collider_type, const Shape _shape,
+                   GetTransformFunc _get_transform, GetBoundsFunc _get_bounds,
+                   const MoveFunc move_func,
+                   const CollisionCallback _collision_callback)
+    : collider_type(_collider_type), shape(_shape),
+      get_transform(_get_transform), get_bounds(_get_bounds),
+      collision_callback(_collision_callback), move_func_(move_func) {}
 
 void Collider::update_translation(const Eigen::Vector2f translation) {
   if (maybe_translation_) {
@@ -87,13 +101,10 @@ void Collider::update_translation(const Eigen::Vector2f translation) {
 
 bool Collider::bounds_collide(Collider &other) {
   if (!maybe_bottom_left_top_right) {
-    maybe_bottom_left_top_right =
-        geometry::get_bottom_left_and_top_right_from_transform(get_transform());
+    maybe_bottom_left_top_right = get_bounds();
   }
   if (!other.maybe_bottom_left_top_right) {
-    other.maybe_bottom_left_top_right =
-        geometry::get_bottom_left_and_top_right_from_transform(
-            other.get_transform());
+    other.maybe_bottom_left_top_right = other.get_bounds();
   }
   const auto [bottom_left, top_right] = maybe_bottom_left_top_right.value();
   const auto [other_bottom_left, other_top_right] =
@@ -118,11 +129,8 @@ SolidAABBCollider::SolidAABBCollider(GetTransformFunc get_transform,
 }
 
 bool SolidAABBCollider::handle_collision(Collider &other) {
-  const auto &[bottom_left, top_right] =
-      geometry::get_bottom_left_and_top_right_from_transform(get_transform());
-  const auto &[other_bottom_left, other_top_right] =
-      geometry::get_bottom_left_and_top_right_from_transform(
-          other.get_transform());
+  const auto &[bottom_left, top_right] = get_bounds();
+  const auto &[other_bottom_left, other_top_right] = other.get_bounds();
 
   switch (other.shape) {
   case Shape::aabb: {
@@ -163,6 +171,13 @@ NonCollidableAABBCollider::NonCollidableAABBCollider(
     GetTransformFunc get_transform, CollisionCallback collision_callback)
     : Collider(
           ColliderType::non_collidable, Shape::aabb, get_transform,
+          [](const Eigen::Vector2f) {}, collision_callback) {}
+
+NonCollidableAABBCollider::NonCollidableAABBCollider(
+    GetTransformFunc get_transform, GetBoundsFunc get_bounds,
+    CollisionCallback collision_callback)
+    : Collider(
+          ColliderType::non_collidable, Shape::aabb, get_transform, get_bounds,
           [](const Eigen::Vector2f) {}, collision_callback) {}
 
 bool NonCollidableAABBCollider::handle_collision(Collider &other) {

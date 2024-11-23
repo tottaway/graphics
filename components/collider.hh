@@ -85,6 +85,8 @@ public:
   using MoveFunc = std::function<void(const Eigen::Vector2f &)>;
   using GetTransformFunc = std::function<Eigen::Affine2f()>;
   using CollisionCallback = std::function<void(const model::EntityID)>;
+  using GetBoundsFunc =
+      std::function<std::pair<Eigen::Vector2f, Eigen::Vector2f>()>;
 
   [[nodiscard]] virtual std::string_view get_component_type_name() const {
     return component_type_name;
@@ -97,6 +99,7 @@ public:
   ColliderType collider_type;
   Shape shape;
   GetTransformFunc get_transform;
+  GetBoundsFunc get_bounds;
   CollisionCallback collision_callback;
 
   void update_translation(const Eigen::Vector2f translation);
@@ -123,6 +126,11 @@ protected:
            GetTransformFunc _get_transform, const MoveFunc move_func,
            const CollisionCallback _collision_callback);
 
+  Collider(const ColliderType _collider_type, const Shape _shape,
+           GetTransformFunc _get_transform, GetBoundsFunc _get_bounds,
+           const MoveFunc move_func,
+           const CollisionCallback _collision_callback);
+
   bool bounds_collide(Collider &other);
 
 private:
@@ -147,6 +155,10 @@ public:
 class NonCollidableAABBCollider : public Collider {
 public:
   NonCollidableAABBCollider(GetTransformFunc get_transform,
+                            CollisionCallback collision_callback);
+
+  NonCollidableAABBCollider(GetTransformFunc get_transform,
+                            GetBoundsFunc get_bounds,
                             CollisionCallback collision_callback);
 
   virtual bool handle_collision(Collider &other) override;

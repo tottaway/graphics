@@ -20,6 +20,8 @@ public:
 template <Alignement alignement> class WizHurtBox : public component::HurtBox {
 public:
   WizHurtBox(GetTransformFunc get_transform, HandleHurtFunc handle_hit);
+  WizHurtBox(GetTransformFunc get_transform, GetBoundsFunc _get_bounds,
+             HandleHurtFunc handle_hit);
 };
 
 } // namespace wiz

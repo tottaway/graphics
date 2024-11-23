@@ -14,9 +14,14 @@ GrassTile::GrassTile(model::GameState &game_state)
     : model::Entity(game_state) {}
 
 Result<void, std::string> GrassTile::init(const Eigen::Vector2f position) {
+  position_ = position;
+  transform_ = geometry::make_rectangle_from_center_and_size(
+      position_, Eigen::Vector2f{0.05f, 0.05f});
 
+  const auto bounds =
+      geometry::get_bottom_left_and_top_right_from_transform(get_transform());
   add_component<component::NonCollidableAABBCollider>(
-      [this]() { return get_transform(); },
+      [this]() { return get_transform(); }, [bounds]() { return bounds; },
       [this](const model::EntityID &entity_id) mutable {
         const auto maybe_player =
             game_state_.get_entity_pointer_by_id_as<Player>(entity_id);
@@ -31,9 +36,8 @@ Result<void, std::string> GrassTile::init(const Eigen::Vector2f position) {
           component::InteractionType::wiz_grass_tile_collider);
 
   add_component<WizHurtBox<Alignement::neutral>>(
-      [this]() { return get_transform(); }, [this]() { was_hit_ = true; });
-
-  position_ = position;
+      [this]() { return get_transform(); }, [bounds]() { return bounds; },
+      [this]() { was_hit_ = true; });
 
   const auto *texture_set = TRY(view::TextureSet::parse_texture_set(
       std::filesystem::path(texture_set_path)));
@@ -58,9 +62,6 @@ Result<void, std::string> GrassTile::init(const Eigen::Vector2f position) {
       0, tree_texture_set.size() - 1);
   maybe_tree_texture_.emplace(
       texture_set->get_texture_set_by_name(tree_texture_name)[tree_dist(rng)]);
-
-  transform_ = geometry::make_rectangle_from_center_and_size(
-      position_, Eigen::Vector2f{0.05f, 0.05f});
 
   add_component<component::Sprite>([this]() {
     return component::Sprite::SpriteInfo{
