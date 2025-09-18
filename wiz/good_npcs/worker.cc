@@ -112,7 +112,7 @@ Result<void, std::string> Worker::plan() {
     algs::Neighbors<Eigen::Vector2i, 8> neighbors;
     for (const auto &neighbor_delta : side_neighbors_deltas) {
       const auto neighbor_tile_index = tile_index + neighbor_delta;
-      if (map->get_map_tile_is_grass_and_has_flowers(neighbor_tile_index)) {
+      if (map->is_walkable_tile(neighbor_tile_index, movement_type)) {
         neighbors.neighbor_array[neighbors.num_neighbors++] =
             neighbor_tile_index;
       }
@@ -136,7 +136,7 @@ Result<void, std::string> Worker::plan() {
         continue;
       }
 
-      if (map->get_map_tile_is_grass_and_has_flowers(neighbor_tile_index)) {
+      if (map->is_walkable_tile(neighbor_tile_index, movement_type)) {
         neighbors.neighbor_array[neighbors.num_neighbors++] =
             neighbor_tile_index;
       }

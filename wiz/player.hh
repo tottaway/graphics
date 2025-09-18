@@ -52,7 +52,7 @@ public:
 
   [[nodiscard]] virtual CharacterMode get_mode() const { return mode_; }
 
-  Eigen::Vector2f position{0.f, 0.f};
+  Eigen::Vector2f position{0.15f, 0.15f};  // Inside border walls (tile 1,1)
 
   int32_t hp{10};
 

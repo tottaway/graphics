@@ -163,4 +163,11 @@ public:
 
   virtual bool handle_collision(Collider &other) override;
 };
+
+class StaticAABBCollider : public Collider {
+public:
+  StaticAABBCollider(GetTransformFunc get_transform);
+
+  virtual bool handle_collision(Collider &other) override;
+};
 } // namespace component

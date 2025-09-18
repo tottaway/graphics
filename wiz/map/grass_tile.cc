@@ -13,10 +13,10 @@ namespace wiz {
 GrassTile::GrassTile(model::GameState &game_state)
     : model::Entity(game_state) {}
 
-Result<void, std::string> GrassTile::init(const Eigen::Vector2f position) {
+Result<void, std::string> GrassTile::init(const Eigen::Vector2f position, const float size) {
   position_ = position;
-  transform_ = geometry::make_rectangle_from_center_and_size(
-      position_, Eigen::Vector2f{0.05f, 0.05f});
+  const Eigen::Vector2f tile_size_vec{size * 0.5f, size * 0.5f};
+  transform_ = geometry::make_rectangle_from_center_and_size(position_, tile_size_vec);
 
   const auto bounds =
       geometry::get_bottom_left_and_top_right_from_transform(get_transform());

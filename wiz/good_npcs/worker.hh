@@ -1,6 +1,7 @@
 #pragma once
 #include "model/game_state.hh"
 #include "wiz/character_mode.hh"
+#include "wiz/map/map.hh"
 #include <deque>
 #include <random>
 
@@ -8,6 +9,7 @@ namespace wiz {
 class Worker : public model::Entity {
 public:
   static constexpr std::string_view entity_type_name = "wiz_worker";
+  static constexpr MapInteractionType movement_type = MapInteractionType::walk_only_on_flowers;
 
   Worker(model::GameState &game_state);
 

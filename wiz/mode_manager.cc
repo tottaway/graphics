@@ -52,8 +52,8 @@ Result<void, std::string> WizModeManager::start_new_game() {
   TRY(add_child_entity_and_init<Player>());
   TRY(add_child_entity_and_init<MovableStone>(Eigen::Vector2f{1.0f, 1.0f}));
   TRY(add_child_entity_and_init<Spawner<Skeleton>>(
-      Eigen::Vector2f{1.5f, 1.5f}));
-  TRY(add_child_entity_and_init<Spawner<Worker>>(Eigen::Vector2f{0.f, 0.f}));
+      Eigen::Vector2f{2.5f, 2.5f}));  // Away from player, inside playable area
+  TRY(add_child_entity_and_init<Spawner<Worker>>(Eigen::Vector2f{0.15f, 0.15f}));  // Same cell as player
   return Ok();
 }
 } // namespace wiz

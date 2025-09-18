@@ -6,6 +6,7 @@ cc_library(
   hdrs = ["map.hh"],
   deps = [
     ":grass_tile",
+    ":wall_tile",
     "//model:game_state",
     "@eigen",
   ],
@@ -28,6 +29,24 @@ cc_library(
     "//view:screen",
     "//wiz:player",
     "//wiz/components:hit_hurt_boxes",
+    "@eigen",
+  ],
+  visibility = ["//wiz:__subpackages__"],
+)
+
+cc_library(
+  name = "wall_tile",
+  srcs = ["wall_tile.cc"],
+  hdrs = ["wall_tile.hh"],
+  data = [
+    "//sprites/wiz/map_textures:texture_set",
+  ],
+  deps = [
+    "//components:collider",
+    "//components:sprite",
+    "//model:game_state",
+    "//view/tileset:texture_set",
+    "//view:texture",
     "@eigen",
   ],
   visibility = ["//wiz:__subpackages__"],
