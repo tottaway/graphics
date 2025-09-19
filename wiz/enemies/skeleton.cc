@@ -11,6 +11,8 @@
 #include "wiz/components/character_animation_set.hh"
 #include "wiz/components/health_bar.hh"
 #include "wiz/components/hit_hurt_boxes.hh"
+#include "wiz/map/map.hh"
+#include "wiz/pathfinding/pathfinder.hh"
 #include "wiz/player.hh"
 
 namespace wiz {
@@ -51,9 +53,7 @@ Result<void, std::string> Skeleton::init(const Eigen::Vector2f position) {
 }
 
 Result<void, std::string> Skeleton::update(const int64_t delta_time_ns) {
-  auto player = TRY(game_state_.get_entity_pointer_by_type<Player>());
-  direction_ = (player->position - position_).normalized() * 0.25f;
-
+  // Handle character state logic
   if (mode_ == CharacterMode::dying) {
     duration_dying_hit_ns_ += delta_time_ns;
     if (duration_dying_hit_ns_ > max_duration_in_dying_ns_) {
@@ -73,10 +73,17 @@ Result<void, std::string> Skeleton::update(const int64_t delta_time_ns) {
       was_hit_ = false;
       duration_in_being_hit_ns_ = 0L;
     }
-  } else if (direction_.x() > 0) {
-    mode_ = CharacterMode::walking_right;
   } else {
-    mode_ = CharacterMode::walking_left;
+    // Use A* pathfinding to move towards player
+    TRY_VOID(follow_path_to_player(delta_time_ns));
+
+    if (direction_.x() > 0) {
+      mode_ = CharacterMode::walking_right;
+    } else if (direction_.x() < 0) {
+      mode_ = CharacterMode::walking_left;
+    } else {
+      mode_ = CharacterMode::idle;
+    }
   }
 
   if (mode_ != CharacterMode::dying && mode_ != CharacterMode::dead) {
@@ -93,4 +100,57 @@ Eigen::Affine2f Skeleton::get_transform() const {
   return geometry::make_rectangle_from_center_and_size(
       position_, Eigen::Vector2f{0.07f, 0.1f});
 }
+
+Result<void, std::string> Skeleton::follow_path_to_player(const int64_t delta_time_ns) {
+  time_since_last_replan_ns_ += delta_time_ns;
+
+  // Get player position
+  auto player = TRY(game_state_.get_entity_pointer_by_type<Player>());
+
+  // Replan if we don't have a path or it's time to replan
+  if (!maybe_current_path_on_tiles_ || time_since_last_replan_ns_ > replan_delay_ns_) {
+    auto maybe_new_path = pathfinding::find_path(game_state_, position_, player->position, movement_type);
+    if (maybe_new_path.isOk()) {
+      maybe_current_path_on_tiles_ = std::move(maybe_new_path.unwrap());
+      time_since_last_replan_ns_ = 0L;
+    } else {
+      // If pathfinding fails, fall back to direct movement
+      direction_ = (player->position - position_).normalized() * speed_m_per_s_;
+      return Ok();
+    }
+  }
+
+  const auto map = TRY(game_state_.get_entity_pointer_by_type<Map>());
+  const auto current_tile = map->get_tile_index_by_position(position_);
+  const auto goal_tile = map->get_tile_index_by_position(player->position);
+
+  // Check if we've reached the target
+  if (current_tile == goal_tile) {
+    direction_ = {0.f, 0.f};
+    return Ok();
+  }
+
+  // Check if we have a valid path
+  if (maybe_current_path_on_tiles_->size() < 2) {
+    direction_ = {0.f, 0.f};
+    return Ok();
+  }
+
+  // Remove completed waypoints
+  if (current_tile == maybe_current_path_on_tiles_->at(1)) {
+    maybe_current_path_on_tiles_->pop_front();
+    if (maybe_current_path_on_tiles_->size() < 2) {
+      direction_ = {0.f, 0.f};
+      return Ok();
+    }
+  }
+
+  // Move towards next waypoint
+  const auto next_tile = maybe_current_path_on_tiles_->at(1);
+  const auto next_position = map->get_tile_position_by_index(next_tile);
+  direction_ = (next_position - position_).normalized().cast<float>() * speed_m_per_s_;
+
+  return Ok();
+}
+
 } // namespace wiz

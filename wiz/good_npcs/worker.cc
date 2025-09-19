@@ -1,11 +1,11 @@
 #include "wiz/good_npcs/worker.hh"
-#include "algs/a_star.hh"
 #include "geometry/rectangle_utils.hh"
 #include "model/game_state.hh"
 #include "view/tileset/texture_set.hh"
 #include "wiz/components/character_animation_set.hh"
 #include "wiz/map/grass_tile.hh"
 #include "wiz/map/map.hh"
+#include "wiz/pathfinding/pathfinder.hh"
 #include <ranges>
 
 namespace wiz {
@@ -92,67 +92,16 @@ Result<void, std::string> Worker::init(const Eigen::Vector2f position) {
 }
 
 Result<void, std::string> Worker::plan() {
-  auto distance_func = [](const Eigen::Vector2i &tile_a,
-                          const Eigen::Vector2i &tile_b) {
-    return (tile_a - tile_b).norm();
-  };
-
   const auto map = TRY(game_state_.get_entity_pointer_by_type<Map>());
-  auto get_neighbors = [&map, this](const Eigen::Vector2i &tile_index) {
-    std::array<Eigen::Vector2i, 4> side_neighbors_deltas{
-        Eigen::Vector2i{0, 1},  Eigen::Vector2i{0, -1}, Eigen::Vector2i{1, 0},
-        Eigen::Vector2i{-1, 0}
-    };
+  const auto goal_position = map->get_tile_position_by_index(goal_tile_);
 
-    std::array<Eigen::Vector2i, 4> diagonal_neighbors_deltas{
-        Eigen::Vector2i{1, 1},  Eigen::Vector2i{-1, -1},
-        Eigen::Vector2i{-1, 1}, Eigen::Vector2i{1, -1}
-    };
+  auto maybe_path = pathfinding::find_path(game_state_, position_, goal_position, movement_type);
+  if (maybe_path.isOk()) {
+    maybe_current_path_on_tiles_ = std::move(maybe_path.unwrap());
+  } else {
+    maybe_current_path_on_tiles_.reset();
+  }
 
-    algs::Neighbors<Eigen::Vector2i, 8> neighbors;
-    for (const auto &neighbor_delta : side_neighbors_deltas) {
-      const auto neighbor_tile_index = tile_index + neighbor_delta;
-      if (map->is_walkable_tile(neighbor_tile_index, movement_type)) {
-        neighbors.neighbor_array[neighbors.num_neighbors++] =
-            neighbor_tile_index;
-      }
-    }
-
-  for (const auto &neighbor_delta : diagonal_neighbors_deltas) {
-      const auto neighbor_tile_index = tile_index + neighbor_delta;
-      const Eigen::Vector2i adjacent_side_tile1 = {neighbor_tile_index.x(), 0};
-      const Eigen::Vector2i adjacent_side_tile2 = {0, neighbor_tile_index.y()};
-
-      uint8_t num_adjacent_side_tiles_included{0U};
-      for (std::size_t i = 0; i < neighbors.num_neighbors; ++i) {
-        const auto existing_neighbor = neighbors.neighbor_array[i];
-        if (adjacent_side_tile1 ==  existing_neighbor ||
-            adjacent_side_tile2 == existing_neighbor) {
-          num_adjacent_side_tiles_included++;
-        }
-      }
-
-      if (num_adjacent_side_tiles_included != 2) {
-        continue;
-      }
-
-      if (map->is_walkable_tile(neighbor_tile_index, movement_type)) {
-        neighbors.neighbor_array[neighbors.num_neighbors++] =
-            neighbor_tile_index;
-      }
-    }
-
-    return neighbors;
-  };
-
-  auto hueristic_function = [this](const Eigen::Vector2i &tile_index) {
-    return (tile_index - goal_tile_).norm();
-  };
-
-  const auto start = map->get_tile_index_by_position(position_);
-  TRY_VOID(algs::a_star<Eigen::Vector2i, 8>(
-      distance_func, get_neighbors, hueristic_function, start, goal_tile_,
-      500UL, maybe_current_path_on_tiles_));
   return Ok();
 }
 

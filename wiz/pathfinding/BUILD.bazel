@@ -1,0 +1,13 @@
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+cc_library(
+  name = "pathfinder",
+  srcs = ["pathfinder.cc"],
+  hdrs = ["pathfinder.hh"],
+  deps = [
+    "//algs:a_star",
+    "//model:game_state",
+    "//wiz/map:map",
+  ],
+  visibility = ["//wiz:__subpackages__"],
+)

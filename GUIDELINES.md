@@ -24,6 +24,8 @@
 - For template classes: put implementation in `.inl` files and include them in the header to avoid explicit instantiation
 - Always use fixed-size integers like uint32_t instead of int
 - If a variable should never be negative, use an unsigned integer type
+- **Unit suffixes**: All variables with physical units should include unit suffixes in their names (e.g., `duration_ns`, `speed_m_per_s`, `distance_meters`, `angle_radians`)
+- **Optional naming**: All std::optional variables should use the `maybe_` prefix (e.g., `maybe_current_path`, `maybe_entity`, `maybe_result`)
 - All new classes and functions should have Doxygen-style docstrings that describe:
   - Parameters and return values
   - Assumptions about pre/post conditions

@@ -1,12 +1,17 @@
 #pragma once
 #include "model/game_state.hh"
 #include "wiz/character_mode.hh"
+#include "wiz/map/map.hh"
 #include <cstdint>
+#include <deque>
+#include <optional>
 
 namespace wiz {
 class Skeleton : public model::Entity {
 public:
   static constexpr std::string_view entity_type_name = "wiz_skeleton";
+  static constexpr MapInteractionType movement_type = MapInteractionType::walk_on_grass_and_flowers;
+
   Skeleton(model::GameState &game_state);
 
   Result<void, std::string> init(const Eigen::Vector2f position);
@@ -41,5 +46,14 @@ private:
   CharacterMode mode_{CharacterMode::idle};
   Eigen::Vector2f position_{0.f, 0.f};
   Eigen::Vector2f direction_{0.5f, 0.f};
+
+  // Pathfinding members
+  float speed_m_per_s_{0.25f};
+  int64_t replan_delay_ns_{500'000'000L};
+  int64_t time_since_last_replan_ns_{0L};
+  std::optional<std::deque<Eigen::Vector2i>> maybe_current_path_on_tiles_;
+
+  // Pathfinding methods
+  Result<void, std::string> follow_path_to_player(const int64_t delta_time_ns);
 };
 } // namespace wiz

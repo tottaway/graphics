@@ -5,6 +5,7 @@ cc_library(
   data = ["//sprites/wiz/skeleton:skeleton"],
   deps = [
     "//wiz:player",
+    "//wiz/pathfinding:pathfinder",
     "//view/tileset:texture_set",
     "//model:game_state",
     "//view:screen",
