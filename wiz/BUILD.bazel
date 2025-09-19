@@ -74,6 +74,7 @@ cc_library(
     "//wiz/enemies:skeleton",
     "//wiz/good_npcs:worker",
     "//wiz/map:map",
+    "//wiz/ui:fps_counter",
     "//model:game_state",
     "//view:screen",
     "@eigen",

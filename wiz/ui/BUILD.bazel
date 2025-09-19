@@ -1,0 +1,16 @@
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+cc_library(
+  name = "fps_counter",
+  srcs = ["fps_counter.cc"],
+  hdrs = ["fps_counter.hh"],
+  deps = [
+    "//components:label",
+    "//components:draw_rectangle",
+    "//model:game_state",
+    "//view:screen",
+    "//wiz:player",
+    "@eigen",
+  ],
+  visibility = ["//wiz:__subpackages__"],
+)

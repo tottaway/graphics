@@ -8,6 +8,7 @@
 #include "wiz/movable_stone.hh"
 #include "wiz/player.hh"
 #include "wiz/spawner.hh"
+#include "wiz/ui/fps_counter.hh"
 
 namespace wiz {
 WizModeManager::WizModeManager(model::GameState &game_state)
@@ -54,6 +55,7 @@ Result<void, std::string> WizModeManager::start_new_game() {
   TRY(add_child_entity_and_init<Spawner<Skeleton>>(
       Eigen::Vector2f{2.5f, 2.5f}));  // Away from player, inside playable area
   TRY(add_child_entity_and_init<Spawner<Worker>>(Eigen::Vector2f{0.15f, 0.15f}));  // Same cell as player
+  // TRY(add_child_entity_and_init<FpsCounter>());  // Performance monitoring
   return Ok();
 }
 } // namespace wiz
