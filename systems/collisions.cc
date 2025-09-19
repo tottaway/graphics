@@ -21,7 +21,7 @@ public:
                     const model::EntityID entity_id);
 
 private:
-  static constexpr Bounds max_bounds{4, -1, 4, -1};
+  static constexpr Bounds max_bounds{7.0f, -1.0f, 7.0f, -1.0f};
   static constexpr float cell_size_x{(max_bounds.x_max - max_bounds.x_min) /
                                      static_cast<float>(x_dim)};
   static constexpr float cell_size_y{(max_bounds.y_max - max_bounds.y_min) /
@@ -100,7 +100,7 @@ Result<void, std::string> Collisions::update(const int64_t delta_time_ns) {
 
   const auto entities =
       game_state_.get_entities_with_component<component::Collider>();
-  for (const auto i : std::ranges::views::iota(0UL, entities.size())) {
+  for (const auto i : std::ranges::views::iota(size_t{0}, entities.size())) {
     auto entity = entities.at(i);
     auto colliders = entity->get_components<component::Collider>();
     for (auto collider : colliders) {

@@ -2,6 +2,7 @@
 #include "model/game_state.hh"
 #include "wiz/map/grass_tile.hh"
 #include "wiz/map/wall_tile.hh"
+#include <iostream>
 #include <random>
 
 namespace wiz {
@@ -9,28 +10,66 @@ namespace wiz {
 Map::Map(model::GameState &game_state) : model::Entity(game_state) {}
 
 Result<void, std::string> Map::init() {
-  for (const auto i : std::ranges::views::iota(0, map_size_x)) {
-    for (const auto j : std::ranges::views::iota(0, map_size_y)) {
+  std::array<std::array<bool, map_size_x>, map_size_y> grid;
+
+  if constexpr (generation_algorithm == MapGenerationAlgorithm::CellularAutomata) {
+    // Generate map using cellular automata
+    CellularAutomataGenerator<map_size_x, map_size_y>::GenerationParams ca_params;
+    ca_params.initial_wall_probability = 0.3f;
+    ca_params.smoothing_iterations = 3;
+    ca_params.min_passage_width = 2;
+    ca_params.seed = 42;
+
+    CellularAutomataGenerator<map_size_x, map_size_y> ca_generator(ca_params);
+    grid = ca_generator.generate();
+    ca_generator.print_map_ascii();
+  } else {
+    // Generate map using room-corridor algorithm
+    RoomCorridorGenerator<map_size_x, map_size_y>::GenerationParams rc_params;
+    rc_params.min_room_size = 6;
+    rc_params.max_room_size = 12;
+    rc_params.rooms_per_axis = 3;
+    rc_params.room_spawn_probability = 0.8f;
+    rc_params.interior_wall_probability = 0.05f;
+    rc_params.seed = 42;
+
+    RoomCorridorGenerator<map_size_x, map_size_y> rc_generator(rc_params);
+    grid = rc_generator.generate();
+    rc_generator.print_map_ascii();
+  }
+
+  int wall_count = 0;
+  int grass_count = 0;
+
+  for (const auto i : std::ranges::views::iota(int64_t{0}, map_size_x)) {
+    for (const auto j : std::ranges::views::iota(int64_t{0}, map_size_y)) {
       const Eigen::Vector2f position{static_cast<float>(i) * tile_size,
                                      static_cast<float>(j) * tile_size};
 
-      // Create border walls around the entire map
-      const bool is_border = (i == 0 || i == map_size_x - 1 ||
-                             j == 0 || j == map_size_y - 1);
-
-      // Add a few interior walls for testing
-      const bool is_test_wall = ((i == 10 && j >= 5 && j <= 15) ||
-                                (i == 20 && j >= 10 && j <= 20));
-
-      if (is_border || is_test_wall) {
-        const auto entity = TRY(add_child_entity_and_init<WallTile>(position, tile_size));
-        map_tiles_[i][j] = entity->get_entity_id();
+      if (grid[i][j]) {
+        const auto entity = add_child_entity_and_init<WallTile>(position, tile_size);
+        if (entity.isErr()) {
+          return Err(std::string("Failed to create WallTile at position (") +
+                     std::to_string(i) + ", " + std::to_string(j) + "): " + entity.unwrapErr());
+        }
+        map_tiles_[i][j] = entity.unwrap()->get_entity_id();
+        wall_count++;
       } else {
-        const auto entity = TRY(add_child_entity_and_init<GrassTile>(position, tile_size));
-        map_tiles_[i][j] = entity->get_entity_id();
+        const auto entity = add_child_entity_and_init<GrassTile>(position, tile_size);
+        if (entity.isErr()) {
+          return Err(std::string("Failed to create GrassTile at position (") +
+                     std::to_string(i) + ", " + std::to_string(j) + "): " + entity.unwrapErr());
+        }
+        map_tiles_[i][j] = entity.unwrap()->get_entity_id();
+        grass_count++;
       }
     }
   }
+
+  // Debug output for map generation
+  std::cout << "Map generation complete: " << wall_count << " walls, "
+            << grass_count << " grass tiles" << std::endl;
+
   return Ok();
 }
 

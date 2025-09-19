@@ -11,7 +11,7 @@ int main() {
               << game_result.unwrapErr() << std::endl;
     return EXIT_FAILURE;
   }
-  controller::Controller controller(std::make_unique<view::Screen>(),
+  controller::Controller controller(std::make_unique<view::Screen>(Eigen::Vector2f{2.5f, 2.5f}),
                                     std::move(game_result).unwrap());
   const auto result = controller.run();
   if (result.isErr()) {

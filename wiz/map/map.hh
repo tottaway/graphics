@@ -1,8 +1,18 @@
 #pragma once
 #include "model/entity_id.hh"
 #include "model/game_state.hh"
+#include "wiz/map/cellular_automata_generator.hh"
+#include "wiz/map/room_corridor_generator.hh"
 
 namespace wiz {
+
+/**
+ * @brief Map generation algorithm options.
+ */
+enum class MapGenerationAlgorithm {
+  CellularAutomata,
+  RoomCorridor
+};
 
 /**
  * @brief Defines different types of movement interactions with map tiles.
@@ -38,6 +48,7 @@ enum class MapInteractionType {
 class Map : public model::Entity {
 public:
   static constexpr std::string_view entity_type_name = "wiz_map";
+  static constexpr MapGenerationAlgorithm generation_algorithm = MapGenerationAlgorithm::RoomCorridor;
 
   /**
    * @brief Construct a new Map entity.
@@ -120,7 +131,7 @@ public:
 private:
   static constexpr int64_t map_size_x{30UL};
   static constexpr int64_t map_size_y{30UL};
-  static constexpr float tile_size{0.1f};
+  static constexpr float tile_size{0.2f};
 
   std::array<std::array<model::EntityID, map_size_x>, map_size_y> map_tiles_;
 };

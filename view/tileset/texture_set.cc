@@ -35,9 +35,9 @@ TextureSet::parse_texture_set(const std::filesystem::path path) {
             subsection_node["padding"][1].as<int>(),
         };
         for (const auto i : std::ranges::views::iota(
-                 0, subsection_node["horizontal_tile_count"].as<int>())) {
+                 int32_t{0}, subsection_node["horizontal_tile_count"].as<int32_t>())) {
           for (const auto j : std::ranges::views::iota(
-                   0, subsection_node["vertical_tile_count"].as<int>())) {
+                   int32_t{0}, subsection_node["vertical_tile_count"].as<int32_t>())) {
             const Eigen::Vector2i tile_start =
                 start + tile_size.cwiseProduct(Eigen::Vector2i{i, j});
             const Eigen::Vector2i tile_end = tile_start + tile_size;

@@ -5,10 +5,30 @@ cc_library(
   srcs = ["map.cc"],
   hdrs = ["map.hh"],
   deps = [
+    ":cellular_automata_generator",
+    ":room_corridor_generator",
     ":grass_tile",
     ":wall_tile",
     "//model:game_state",
     "@eigen",
+  ],
+  visibility = ["//wiz:__subpackages__"],
+)
+
+cc_library(
+  name = "cellular_automata_generator",
+  hdrs = [
+    "cellular_automata_generator.hh",
+    "cellular_automata_generator.inl",
+  ],
+  visibility = ["//wiz:__subpackages__"],
+)
+
+cc_library(
+  name = "room_corridor_generator",
+  hdrs = [
+    "room_corridor_generator.hh",
+    "room_corridor_generator.inl",
   ],
   visibility = ["//wiz:__subpackages__"],
 )
