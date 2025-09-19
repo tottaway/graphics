@@ -101,14 +101,6 @@ private:
   void smooth_iteration(MapGrid& grid);
   int count_wall_neighbors(const MapGrid& grid, int x, int y);
   void ensure_border_walls(MapGrid& grid);
-  void widen_narrow_passages(MapGrid& grid);
-  bool is_narrow_passage(const MapGrid& grid, int x, int y) const;
-  void ensure_connectivity(MapGrid& grid);
-  std::vector<std::pair<int32_t, int32_t>> find_valid_2x2_blocks(const MapGrid& grid) const;
-  bool blocks_are_connected(const MapGrid& grid, int32_t x1, int32_t y1, int32_t x2, int32_t y2) const;
-  bool is_valid_entity_move(const MapGrid& grid, int32_t from_x, int32_t from_y, int32_t to_x, int32_t to_y) const;
-  void create_connecting_corridor(MapGrid& grid, const std::vector<std::pair<int32_t, int32_t>>& from_component, const std::vector<std::pair<int32_t, int32_t>>& to_component);
-  std::pair<std::pair<int32_t, int32_t>, std::pair<int32_t, int32_t>> find_closest_blocks(const std::vector<std::pair<int32_t, int32_t>>& component1, const std::vector<std::pair<int32_t, int32_t>>& component2) const;
 };
 
 } // namespace wiz

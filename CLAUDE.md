@@ -29,4 +29,17 @@ This appears to be a graphics project with a "wiz game" component that includes 
 
 ## Session History
 - Session 1: Created project guideline files (GUIDELINES.md, CLAUDE.md)
+- Session 2: Implemented comprehensive map generation system
+  - Created two procedural algorithms: cellular automata and room-corridor
+  - Added template-based generators with .inl implementation files
+  - Fixed collision system bounds and camera viewport for better gameplay
+  - Optimized room-corridor parameters for open spaces (6-12 tile rooms, 3x3 grid, 5% interior walls)
+  - Doubled tile size and adjusted camera to 2.5x2.5m viewport for better visual scale
 - Always make bazel targets when creating a new library, when importing a new library remember to add it as a bazel dep.
+
+## Map Generation Details
+- **Current algorithm**: Room-corridor (configurable via enum in map.hh)
+- **Cellular automata**: Organic cave-like structures with 2x2 connectivity validation
+- **Room-corridor**: Structured layouts with large open rooms connected by minimal corridors
+- **Parameters tuned for gameplay**: Larger rooms (6-12 tiles), fewer interior walls (5%), better spawn probability (80%)
+- **Debug features**: ASCII visualization, entity count reporting, full connectivity guaranteed

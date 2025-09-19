@@ -48,7 +48,7 @@ enum class MapInteractionType {
 class Map : public model::Entity {
 public:
   static constexpr std::string_view entity_type_name = "wiz_map";
-  static constexpr MapGenerationAlgorithm generation_algorithm = MapGenerationAlgorithm::RoomCorridor;
+  static constexpr MapGenerationAlgorithm generation_algorithm = MapGenerationAlgorithm::CellularAutomata;
 
   /**
    * @brief Construct a new Map entity.
