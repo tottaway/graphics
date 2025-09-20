@@ -15,6 +15,7 @@
 5. Follow existing code conventions and patterns
 6. Run lint and typecheck commands after making changes
 7. Test implementations when possible
+8. **Debug assertion failures**: If an assertion fails while running the game, ALWAYS investigate and fix the root cause rather than ignoring it. Assertion failures indicate logic errors that can lead to undefined behavior or crashes.
 
 ### Code Conventions
 - Maintain existing code style and patterns

@@ -1,0 +1,76 @@
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+cc_binary(
+  name = "lightmaze_main",
+  srcs = ["lightmaze_main.cc"],
+  deps = [
+    ":lightmaze",
+    "//controller:controller"
+  ],
+)
+
+cc_library(
+  name = "player",
+  srcs = ["player.cc"],
+  hdrs = ["player.hh"],
+  data = ["//sprites/wiz/player:player"],
+  deps = [
+    "//model:game_state",
+    "//view:screen",
+    "//view/tileset:texture_set",
+    "//components:center",
+    "//components:sprite",
+    "//components:collider",
+    "//components:animation",
+    "//components:gravity",
+    "//components:jumper",
+    "@eigen",
+  ],
+  visibility = [":__subpackages__"],
+)
+
+cc_library(
+  name = "platform",
+  srcs = ["platform.cc"],
+  hdrs = ["platform.hh"],
+  data = [],
+  deps = [
+    "//model:game_state",
+    "//view:screen",
+    "//components:center",
+    "//components:draw_rectangle",
+    "//components:collider",
+    "//components:jump_reset",
+    "@eigen",
+  ],
+  visibility = [":__subpackages__"],
+)
+
+cc_library(
+  name = "mode_manager",
+  srcs = ["mode_manager.cc"],
+  hdrs = ["mode_manager.hh"],
+  data = [],
+  deps = [
+    ":player",
+    ":platform",
+    "//model:game_state",
+    "//view:screen",
+    "@eigen",
+  ],
+  visibility = [":__subpackages__"],
+)
+
+cc_library(
+  name = "lightmaze",
+  srcs = ["lightmaze.cc"],
+  hdrs = ["lightmaze.hh"],
+  data = [],
+  deps = [
+    ":mode_manager",
+    "//systems:collisions",
+    "//model:game_state",
+    "//view:screen",
+  ],
+  visibility = [":__subpackages__"],
+)

@@ -135,3 +135,36 @@ cc_library(
   ],
   visibility = ["//visibility:public"],
 )
+
+cc_library(
+  name = "gravity",
+  srcs = ["gravity.cc"],
+  hdrs = ["gravity.hh"],
+  deps = [
+    ":component",
+    "//utility:try",
+    "@eigen",
+  ],
+  visibility = ["//visibility:public"],
+)
+
+cc_library(
+  name = "jump_reset",
+  srcs = ["jump_reset.cc"],
+  hdrs = ["jump_reset.hh"],
+  deps = [
+    ":collider",
+  ],
+  visibility = ["//visibility:public"],
+)
+
+cc_library(
+  name = "jumper",
+  srcs = ["jumper.cc"],
+  hdrs = ["jumper.hh"],
+  deps = [
+    ":collider",
+    "@eigen",
+  ],
+  visibility = ["//visibility:public"],
+)

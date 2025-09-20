@@ -33,7 +33,9 @@ enum class InteractionType : uint16_t {
   wiz_neutral_hit_box_collider = 1U << 7,
   wiz_grass_tile_collider = 1U << 8,
   solid_collider = 1U << 9,
-  max_value = 1U << 10,
+  jump_reset_collider = 1U << 10,
+  jumper_collider = 1U << 11,
+  max_value = 1U << 12,
 };
 
 static constexpr uint16_t unspecified_collider_interaction_mask{
@@ -78,6 +80,12 @@ static constexpr uint16_t solid_collider_interaction_mask{
     static_cast<uint16_t>(InteractionType::solid_collider) |
     static_cast<uint16_t>(InteractionType::wiz_grass_tile_collider)};
 
+static constexpr uint16_t jump_reset_collider_interaction_mask{
+    static_cast<uint16_t>(InteractionType::jumper_collider)};
+
+static constexpr uint16_t jumper_collider_interaction_mask{
+    static_cast<uint16_t>(InteractionType::jump_reset_collider)};
+
 class Collider : public Component {
 public:
   static constexpr std::string_view component_type_name = "collider_component";
@@ -91,6 +99,8 @@ public:
   [[nodiscard]] virtual std::string_view get_component_type_name() const {
     return component_type_name;
   }
+
+  [[nodiscard]] virtual std::string_view get_collider_type_name() const = 0;
 
   [[nodiscard]] virtual Result<void, std::string> late_update();
 
@@ -147,6 +157,12 @@ private:
 
 class SolidAABBCollider : public Collider {
 public:
+  static constexpr std::string_view collider_type_name = "solid_collider";
+
+  [[nodiscard]] virtual std::string_view get_collider_type_name() const override {
+    return collider_type_name;
+  }
+
   SolidAABBCollider(GetTransformFunc get_transform, const MoveFunc move_func);
 
   virtual bool handle_collision(Collider &other) override;
@@ -154,6 +170,12 @@ public:
 
 class NonCollidableAABBCollider : public Collider {
 public:
+  static constexpr std::string_view collider_type_name = "non_collidable_collider";
+
+  [[nodiscard]] virtual std::string_view get_collider_type_name() const override {
+    return collider_type_name;
+  }
+
   NonCollidableAABBCollider(GetTransformFunc get_transform,
                             CollisionCallback collision_callback);
 
@@ -166,6 +188,12 @@ public:
 
 class StaticAABBCollider : public Collider {
 public:
+  static constexpr std::string_view collider_type_name = "static_collider";
+
+  [[nodiscard]] virtual std::string_view get_collider_type_name() const override {
+    return collider_type_name;
+  }
+
   StaticAABBCollider(GetTransformFunc get_transform);
 
   virtual bool handle_collision(Collider &other) override;

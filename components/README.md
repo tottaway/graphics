@@ -189,6 +189,29 @@ Result<void, std::string> Player::init() {
 }
 ```
 
+## Component Update Pattern
+
+**IMPORTANT**: Entities must manually call `update()` on their components during their own `update()` method for components to function properly.
+
+```cpp
+Result<void, std::string> MyEntity::update(const int64_t delta_time_ns) {
+    // Entity-specific update logic here
+    // ...
+
+    // Update all components - REQUIRED for component functionality
+    for (const auto &component : components_) {
+        TRY_VOID(component->update(delta_time_ns));
+    }
+
+    return Ok();
+}
+```
+
+Without this pattern:
+- Animation components won't advance their frame timers
+- Physics components won't update their state
+- Other time-dependent components will remain static
+
 ## Design Principles
 
 - Components are owned by entities and destroyed with them
@@ -196,3 +219,4 @@ Result<void, std::string> Player::init() {
 - Use function callbacks for dynamic data (transforms, states)
 - Collision system uses bitmasks for efficient filtering
 - Drawing components use z-levels for layering
+- **Entities must call component->update() for proper component functionality**

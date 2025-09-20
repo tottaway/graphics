@@ -17,8 +17,8 @@ This appears to be a graphics project with a "wiz game" component that includes 
 - Perfect UX: what looks walkable IS walkable, no confusing narrow passages
 
 ## Useful Commands
-- Build wiz game: `bazel build //wiz:wiz_main --enable_workspace=true`
 - Run wiz game: `bazel run //wiz:wiz_main --enable_workspace=true` (builds automatically before running)
+- Run lightmaze game: `bazel run //lightmaze:lightmaze_main --enable_workspace=true` (builds automatically before running)
 
 ## Architecture Notes
 - Map configuration: 30x30 tiles, tile_size = 0.2f (doubled from original 0.1f), total map = 6x6 meters

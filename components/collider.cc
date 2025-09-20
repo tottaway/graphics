@@ -44,6 +44,12 @@ uint16_t get_iteraction_mask_for_interaction_type(
   case InteractionType::solid_collider: {
     return solid_collider_interaction_mask;
   }
+  case InteractionType::jump_reset_collider: {
+    return jump_reset_collider_interaction_mask;
+  }
+  case InteractionType::jumper_collider: {
+    return jumper_collider_interaction_mask;
+  }
   case InteractionType::max_value: {
     std::cout
         << "UNREACHABLE CODE HIT IN COLLIDER: max value interaction type found"
@@ -157,7 +163,8 @@ bool SolidAABBCollider::handle_collision(Collider &other) {
       other.update_translation(translation / 2);
       update_translation(-translation / 2);
     } else if (other.collider_type == ColliderType::static_object) {
-      // Solid object (this) colliding with static object - only move this solid object
+      // Solid object (this) colliding with static object - only move this solid
+      // object
       update_translation(-translation);
     }
     return true;
@@ -207,7 +214,8 @@ bool StaticAABBCollider::handle_collision(Collider &other) {
     if (other.collider_type == ColliderType::non_collidable) {
       return true;
     } else if (other.collider_type == ColliderType::solid) {
-      // Calculate the translation needed to move the other object out of this static object
+      // Calculate the translation needed to move the other object out of this
+      // static object
       std::array<Eigen::Vector2f, 4> moves;
       // move left
       moves[0] = Eigen::Vector2f{bottom_left.x() - other_top_right.x(), 0.f};
@@ -218,18 +226,21 @@ bool StaticAABBCollider::handle_collision(Collider &other) {
       // move up
       moves[3] = Eigen::Vector2f{0.f, top_right.y() - other_bottom_left.y()};
 
-      const auto translation = *std::min_element(
-          moves.begin(), moves.end(), [](const auto &first, const auto &second) {
-            return first.norm() < second.norm();
-          });
+      const auto translation =
+          *std::min_element(moves.begin(), moves.end(),
+                            [](const auto &first, const auto &second) {
+                              return first.norm() < second.norm();
+                            });
 
       // Only move the other object, this static object doesn't move
       other.update_translation(translation);
       return true;
     } else if (other.collider_type == ColliderType::static_object) {
       // Two static objects colliding - this shouldn't happen in normal gameplay
-      std::cout << "WARNING: Two static objects are intersecting. This may indicate "
-                   "a problem with map generation or entity placement." << std::endl;
+      std::cout
+          << "WARNING: Two static objects are intersecting. This may indicate "
+             "a problem with map generation or entity placement."
+          << std::endl;
       return true;
     }
     return true;
