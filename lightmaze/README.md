@@ -82,15 +82,19 @@ The following components from the main engine will be reused:
 - [x] Set up basic sprite rendering and animation using `component::Animation`
 - [x] Add static floor for visual reference and collision
 
-### Phase 2: Refine Platformer Mechanics 🔄 CURRENT FOCUS
-- [ ] Extract gravity logic into generic `component::Gravity` component
+### Phase 2: Refine Platformer Mechanics ✅ COMPLETED
+- [x] Extract gravity logic into generic `component::Gravity` component
+- [x] Improve ground detection using proper collision callbacks with `component::JumpReset`
+- [x] Add coyote time prevention for better feel (prevents mid-air jumps after walking off platforms)
+- [x] Implement double jump mechanics with proper state tracking
+- [x] Create `component::Jumper` for jump management and collision state detection
+- [x] Add platform collision with proper top-surface detection
+- [x] Fix bounce prevention using grounded state detection
+- [x] Test and polish basic platformer movement feel
 - [ ] Create `component::Velocity` for momentum tracking and physics consistency
-- [ ] Improve ground detection using proper collision callbacks
-- [ ] Add jump buffering and coyote time for better feel
 - [ ] Implement variable jump height based on input duration
 - [ ] Add horizontal acceleration/deceleration curves
 - [ ] Create multiple platform types (solid, one-way, moving)
-- [ ] Test and polish basic platformer movement feel
 
 ### Phase 3: Enhanced Level Design Tools
 - [ ] Create additional static platform entities
@@ -136,11 +140,13 @@ The following components from the main engine will be reused:
 ```
 # Generic components (reusable across games)
 components/
-├── gravity.hh/.cc              # Generic gravity component
-├── velocity.hh/.cc             # Generic velocity/momentum tracking
-├── light_emitter.hh/.cc        # Generic light source component
-├── light_receiver.hh/.cc       # Generic light-affected objects
-└── platformer_movement.hh/.cc  # Generic platformer physics
+├── gravity.hh/.cc              # ✅ Generic gravity component
+├── jumper.hh/.cc               # ✅ Generic jump mechanics with double jump and coyote time prevention
+├── jump_reset.hh/.cc           # ✅ Generic ground detection component
+├── velocity.hh/.cc             # Generic velocity/momentum tracking (planned)
+├── light_emitter.hh/.cc        # Generic light source component (planned)
+├── light_receiver.hh/.cc       # Generic light-affected objects (planned)
+└── platformer_movement.hh/.cc  # Generic platformer physics (planned)
 
 systems/
 ├── lighting_system.hh/.cc      # Generic lighting calculation system

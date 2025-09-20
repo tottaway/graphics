@@ -35,9 +35,25 @@ This appears to be a graphics project with a "wiz game" component that includes 
   - Fixed collision system bounds and camera viewport for better gameplay
   - Optimized room-corridor parameters for open spaces (6-12 tile rooms, 3x3 grid, 5% interior walls)
   - Doubled tile size and adjusted camera to 2.5x2.5m viewport for better visual scale
+- Session 3: Implemented LightMaze platformer game
+  - Created complete 2D platformer with player entity, platforms, and physics
+  - Added Gravity component for realistic downward acceleration
+  - Implemented Jumper component with double jump mechanics and coyote time prevention
+  - Created JumpReset component for precise ground detection on platform tops
+  - Fixed collision system interaction types and enhanced component type identification
+  - Debugged and resolved multiple platformer physics issues (bouncing, input handling, collision detection)
+  - Enhanced component documentation and update patterns
 - Always make bazel targets when creating a new library, when importing a new library remember to add it as a bazel dep.
 
-## Map Generation Details
+## LightMaze Game Details
+- **Game Type**: 2D platformer with physics-based movement
+- **Player Features**: Double jump mechanics with coyote time prevention
+- **Physics**: Gravity component with realistic downward acceleration (-9.8 m/s²)
+- **Collision System**: Enhanced with jump reset detection on platform tops
+- **Components**: Gravity, Jumper (double jump), JumpReset (ground detection)
+- **Key Mechanics**: Precise collision detection, bounce prevention, proper input handling
+
+## Map Generation Details (Wiz Game)
 - **Current algorithm**: Room-corridor (configurable via enum in map.hh)
 - **Cellular automata**: Organic cave-like structures with 2x2 connectivity validation
 - **Room-corridor**: Structured layouts with large open rooms connected by minimal corridors

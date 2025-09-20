@@ -67,6 +67,65 @@ Renders colored rectangles (useful for debugging or simple shapes).
 
 Specialized component for rendering grid-based layouts.
 
+## Physics Components
+
+### Gravity (`gravity.hh`)
+
+Applies configurable acceleration (typically downward) for realistic physics simulation.
+
+**Usage:**
+```cpp
+auto gravity = entity->add_component<component::Gravity>(
+    [this]() { return velocity_; },           // get velocity
+    [this](const Eigen::Vector2f &velocity) { // set velocity
+        velocity_ = velocity;
+    },
+    Eigen::Vector2f{0.0f, -9.8f} // acceleration vector (downward)
+);
+```
+
+### Jumper (`jumper.hh`)
+
+Manages jump mechanics with support for double jumps and coyote time prevention.
+
+**Key features:**
+- Configurable maximum jump count (single, double, triple jump, etc.)
+- Coyote time prevention (no jumping after walking off platforms)
+- Ground state detection through collision with JumpReset components
+- Automatic jump count reset when touching ground
+
+**Usage:**
+```cpp
+auto jumper = entity->add_component<component::Jumper>(
+    [this]() { return get_transform(); },
+    2 // max jumps (double jump)
+);
+
+// In update loop:
+if (jump_pressed) {
+    Eigen::Vector2f jump_velocity = jumper->try_jump(Eigen::Vector2f{0.0f, 4.0f});
+    velocity_ += jump_velocity;
+}
+```
+
+### JumpReset (`jump_reset.hh`)
+
+Ground detection component that resets jump state when colliding with Jumper components.
+
+**Usage:**
+```cpp
+// Add to platform tops for ground detection
+auto jump_reset = entity->add_component<component::JumpReset>(
+    [this]() {
+        Eigen::Affine2f transform = get_transform();
+        // Position on top surface only
+        transform.translate(Eigen::Vector2f{0.0f, 1.0f});
+        transform.scale(Eigen::Vector2f{1.0f, 0.03f}); // thin strip
+        return transform;
+    }
+);
+```
+
 ## Collision Components
 
 ### Collider (`collider.hh`)
@@ -83,6 +142,7 @@ Base class for all collision detection components with a sophisticated interacti
 - `hit_box_collider` / `hurt_box_collider` - Damage system
 - `wiz_good_*` / `wiz_bad_*` / `wiz_neutral_*` - Faction-based collisions
 - `solid_collider` - Physical blocking
+- `jump_reset_collider` / `jumper_collider` - Jump mechanics and ground detection
 - `wiz_grass_tile_collider` - Environment interactions
 
 ### SolidAABBCollider
