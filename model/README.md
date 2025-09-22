@@ -107,3 +107,39 @@ See the `wiz` folder for comprehensive examples:
 - Entity updates happen in phases: update() → systems → late_update()
 - Z-level determines drawing order (lower values drawn first)
 - Event handling supports propagation control (return false to stop propagation)
+
+## Event Handling Return Values ⚠️ IMPORTANT
+
+**CRITICAL**: Event handler return values control event propagation in a counter-intuitive way:
+
+- **`return Ok(false)`** = "Event consumed/handled, STOP processing other entities"
+- **`return Ok(true)`** = "Event not handled, CONTINUE processing other entities"
+
+### Common Mistakes to Avoid:
+```cpp
+// ❌ WRONG - This allows multiple entities to handle the same key press
+case sf::Keyboard::A:
+    move_left_pressed_ = true;
+    return Ok(true);  // BUG: Other entities will also receive this event
+
+// ✅ CORRECT - This properly consumes the event
+case sf::Keyboard::A:
+    move_left_pressed_ = true;
+    return Ok(false); // Event handled, stop processing other entities
+
+// ✅ CORRECT - This passes through unhandled events
+default:
+    return Ok(true);  // Event not handled, let other entities try
+```
+
+### Event Processing Order:
+1. GameState iterates through entities in array order
+2. Each entity's event handler is called
+3. If handler returns `false`, processing stops immediately
+4. If handler returns `true`, processing continues to next entity
+
+### Best Practices:
+- Return `false` when your entity consumes/handles the event
+- Return `true` when your entity doesn't handle the event
+- Only handle events that are specifically relevant to your entity
+- Use descriptive comments to clarify the return value intent

@@ -1,0 +1,14 @@
+load("@rules_cc//cc:defs.bzl", "cc_test", "cc_library")
+
+cc_test(
+    name = "map_entity_test",
+    srcs = ["map_entity_test.cc"],
+    deps = [
+        "//test_utils:test_main",
+        "//lightmaze/map:map_entity",
+        "//model:game_state",
+        "@catch2//:catch2",
+        "@yaml-cpp",
+        "@eigen",
+    ],
+)

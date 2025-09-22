@@ -27,10 +27,18 @@
 - If a variable should never be negative, use an unsigned integer type
 - **Unit suffixes**: All variables with physical units should include unit suffixes in their names (e.g., `duration_ns`, `speed_m_per_s`, `distance_meters`, `angle_radians`)
 - **Optional naming**: All std::optional variables should use the `maybe_` prefix (e.g., `maybe_current_path`, `maybe_entity`, `maybe_result`)
+- **Entity creation**: Entities should NEVER be constructed directly using `new` or `std::make_unique`. Always use GameState helper methods like `add_entity_and_init<T>()` or `add_child_entity_and_init<T>()`. This ensures entities are properly registered with the game state and can be safely referenced by other systems.
 - All new classes and functions should have Doxygen-style docstrings that describe:
   - Parameters and return values
   - Assumptions about pre/post conditions
   - Error cases and edge cases with unintuitive behavior
+
+### Unit Testing
+- Always use the Catch2 framework for unit tests
+- Use `CHECK` macro instead of `REQUIRE` macro unless the test cannot continue if the statement is false
+- Using `CHECK` allows us to see more failures in a single test run, improving debugging efficiency
+- Only use `REQUIRE` when a failure would make the rest of the test meaningless or cause crashes
+- Test files should be placed in appropriate `tests/` directories within each module
 
 ### Session Management
 - Update CLAUDE.md with findings and context for future sessions

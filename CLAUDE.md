@@ -19,6 +19,8 @@ This appears to be a graphics project with a "wiz game" component that includes 
 ## Useful Commands
 - Run wiz game: `bazel run //wiz:wiz_main --enable_workspace=true` (builds automatically before running)
 - Run lightmaze game: `bazel run //lightmaze:lightmaze_main --enable_workspace=true` (builds automatically before running)
+- Run all tests: `bazel test //... --enable_workspace=true --test_output=all`
+- Run specific test: `bazel test //lightmaze/tests:map_entity_test --enable_workspace=true --test_output=all`
 
 ## Architecture Notes
 - Map configuration: 30x30 tiles, tile_size = 0.2f (doubled from original 0.1f), total map = 6x6 meters
@@ -26,6 +28,7 @@ This appears to be a graphics project with a "wiz game" component that includes 
 - Collision system bounds hardcoded in systems/collisions.cc: {7.0f, -1.0f, 7.0f, -1.0f} (updated to fix top-edge collisions)
 - **SYNC ISSUE**: Collision bounds can go out of sync with map configuration - currently manually updated for doubled tile size
 - QuadTree is private class in collision system, bounds not exposed to external systems
+- **COORDINATE SYSTEM ODDITY**: A square with "size" 1 actually has vertices at (1,1), (-1,1), (-1,-1), (1,-1), meaning it has side lengths of 2. This is inherited from the engine design and difficult to change due to dependencies across multiple games. Platform creation logic must account for this by dividing drag distances by 2 to get actual platform sizes.
 
 ## Session History
 - Session 1: Created project guideline files (GUIDELINES.md, CLAUDE.md)

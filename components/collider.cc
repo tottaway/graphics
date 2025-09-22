@@ -233,7 +233,7 @@ bool StaticAABBCollider::handle_collision(Collider &other) {
                             });
 
       // Only move the other object, this static object doesn't move
-      other.update_translation(translation);
+      other.update_translation(-translation);
       return true;
     } else if (other.collider_type == ColliderType::static_object) {
       // Two static objects colliding - this shouldn't happen in normal gameplay

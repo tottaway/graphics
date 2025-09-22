@@ -1,0 +1,35 @@
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+cc_library(
+  name = "map_entity",
+  srcs = ["map_entity.cc"],
+  hdrs = ["map_entity.hh"],
+  data = [],
+  deps = [
+    "//model:game_state",
+    "//view:screen",
+    "//components:center",
+    "//components:draw_rectangle",
+    "//components:collider",
+    "//components:jump_reset",
+    "@eigen",
+    "@yaml-cpp",
+  ],
+  visibility = ["//lightmaze:__subpackages__"],
+)
+
+cc_library(
+  name = "map",
+  srcs = ["map.cc"],
+  hdrs = ["map.hh"],
+  data = [],
+  deps = [
+    ":map_entity",
+    "//lightmaze:player",
+    "//model:game_state",
+    "//view:screen",
+    "@eigen",
+    "@yaml-cpp",
+  ],
+  visibility = ["//lightmaze:__subpackages__"],
+)

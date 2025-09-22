@@ -21,31 +21,22 @@ Eigen::Vector2f Jumper::try_jump(const Eigen::Vector2f &desired_jump_velocity) {
   return desired_jump_velocity; // Jump allowed, return the desired velocity
 }
 
-uint32_t Jumper::get_jump_count() const {
-  return jump_count_;
-}
+uint32_t Jumper::get_jump_count() const { return jump_count_; }
 
-uint32_t Jumper::get_max_jumps() const {
-  return max_jumps_allowed_;
-}
+uint32_t Jumper::get_max_jumps() const { return max_jumps_allowed_; }
 
-bool Jumper::can_jump() const {
-  return jump_count_ < max_jumps_allowed_;
-}
+bool Jumper::can_jump() const { return jump_count_ < max_jumps_allowed_; }
 
-bool Jumper::is_grounded() const {
-  return is_colliding_with_jump_reset_;
-}
+bool Jumper::is_grounded() const { return is_colliding_with_jump_reset_; }
 
-void Jumper::reset_jumps() {
-  jump_count_ = 0;
-}
+void Jumper::reset_jumps() { jump_count_ = 0; }
 
 void Jumper::set_max_jumps(uint32_t max_jumps) {
   max_jumps_allowed_ = max_jumps;
 }
 
-void Jumper::handle_jump_reset_collision(const model::EntityID other_entity_id) {
+void Jumper::handle_jump_reset_collision(
+    const model::EntityID other_entity_id) {
   // Mark that we are currently colliding with a jump reset
   is_colliding_with_jump_reset_ = true;
   // Reset jump count when colliding with a JumpReset collider
@@ -63,7 +54,8 @@ Result<void, std::string> Jumper::update(const int64_t delta_time_ns) {
 
   // Update collision state for next frame
   was_colliding_with_jump_reset_ = is_colliding_with_jump_reset_;
-  is_colliding_with_jump_reset_ = false; // Reset for next frame's collision detection
+  is_colliding_with_jump_reset_ =
+      false; // Reset for next frame's collision detection
 
   return NonCollidableAABBCollider::update(delta_time_ns);
 }

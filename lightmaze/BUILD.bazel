@@ -18,6 +18,7 @@ cc_library(
     "//model:game_state",
     "//view:screen",
     "//view/tileset:texture_set",
+    "//components:draw_rectangle",
     "//components:center",
     "//components:sprite",
     "//components:collider",
@@ -29,22 +30,7 @@ cc_library(
   visibility = [":__subpackages__"],
 )
 
-cc_library(
-  name = "platform",
-  srcs = ["platform.cc"],
-  hdrs = ["platform.hh"],
-  data = [],
-  deps = [
-    "//model:game_state",
-    "//view:screen",
-    "//components:center",
-    "//components:draw_rectangle",
-    "//components:collider",
-    "//components:jump_reset",
-    "@eigen",
-  ],
-  visibility = [":__subpackages__"],
-)
+
 
 cc_library(
   name = "mode_manager",
@@ -53,7 +39,7 @@ cc_library(
   data = [],
   deps = [
     ":player",
-    ":platform",
+    "//lightmaze/map:map",
     "//model:game_state",
     "//view:screen",
     "@eigen",

@@ -46,11 +46,12 @@ Result<EntityType *, std::string> Entity::add_child_entity() {
 template <typename ComponentType, typename... Args,
           typename std::enable_if_t<
               std::is_base_of_v<component::Component, ComponentType>, int>>
-component::Component *Entity::add_component(Args &&...args) {
-  return components_
-      .emplace_back(
-          std::make_unique<ComponentType>(std::forward<Args>(args)...))
-      .get();
+ComponentType *Entity::add_component(Args &&...args) {
+  return dynamic_cast<ComponentType *>(
+      components_
+          .emplace_back(
+              std::make_unique<ComponentType>(std::forward<Args>(args)...))
+          .get());
 }
 
 template <typename EntityType,
@@ -210,4 +211,30 @@ template <typename SystemType,
 void GameState::add_system() {
   systems_.emplace_back(std::make_unique<SystemType>(*this));
 }
+
+template <typename EntityType, typename... Args,
+          typename std::enable_if_t<std::is_base_of_v<Entity, EntityType>, int>>
+Result<EntityType *, std::string>
+GameState::add_entity_and_init(Args &&...args) {
+  auto entity = std::make_unique<EntityType>(*this);
+  auto entity_raw = entity.get();
+
+  auto entity_result = add_entity(std::move(entity));
+  if (entity_result.isErr()) {
+    return Err(entity_result.unwrapErr());
+  }
+
+  if constexpr (std::is_void_v<decltype(entity_raw->init(
+                    std::forward<Args>(args)...))>) {
+    entity_raw->init(std::forward<Args>(args)...);
+  } else {
+    const auto init_result = entity_raw->init(std::forward<Args>(args)...);
+    if (init_result.isErr()) {
+      return Err(init_result.unwrapErr());
+    }
+  }
+
+  return Ok(entity_raw);
+}
+
 } // namespace model

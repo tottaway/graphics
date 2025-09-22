@@ -12,7 +12,6 @@ Texture::Texture(const std::filesystem::path &path) {
   if (find_result != s_texture_cache.end()) {
     texture_ = find_result->second;
   } else {
-    std::cout << "cache miss " << path << std::endl;
     texture_ = std::make_shared<sf::Texture>();
     texture_->loadFromFile(path);
     s_texture_cache.emplace(path.string(), texture_);
@@ -28,7 +27,6 @@ Texture::Texture(const std::filesystem::path &path,
   if (find_result != s_texture_cache.end()) {
     texture_ = find_result->second;
   } else {
-    std::cout << "cache miss " << path << std::endl;
     texture_ = std::make_shared<sf::Texture>();
     texture_->loadFromFile(path);
     s_texture_cache.emplace(path.string(), texture_);

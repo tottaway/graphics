@@ -2,8 +2,8 @@
 
 #include "components/collider.hh"
 #include "components/component.hh"
-#include <cstdint>
 #include <Eigen/Dense>
+#include <cstdint>
 
 namespace component {
 
@@ -37,7 +37,8 @@ public:
   /**
    * @brief Attempt to perform a jump with given velocity
    * @param desired_jump_velocity Velocity to apply if jump is allowed
-   * @return Jump velocity to add (desired velocity if allowed, zero vector if not)
+   * @return Jump velocity to add (desired velocity if allowed, zero vector if
+   * not)
    * @post Jump count incremented if jump was allowed
    */
   Eigen::Vector2f try_jump(const Eigen::Vector2f &desired_jump_velocity);
@@ -85,7 +86,8 @@ public:
    * @return Ok() on success, Err(message) if update fails
    * @post Tracks collision state and prevents coyote time jumps
    */
-  [[nodiscard]] virtual Result<void, std::string> update(const int64_t delta_time_ns);
+  [[nodiscard]] virtual Result<void, std::string>
+  update(const int64_t delta_time_ns);
 
 private:
   /// Current number of jumps since last ground contact

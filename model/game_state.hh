@@ -215,6 +215,12 @@ protected:
   /// @note this is called on destruction
   void remove_child_entities();
 
+  /// Get the list of child entity IDs
+  /// @return vector of child entity IDs
+  [[nodiscard]] const std::vector<EntityID> &get_child_entities() const {
+    return child_entities_;
+  }
+
   /// Constructs and adds a new component of the speicified type to the entity
   /// @note components are owned by the entity
   /// @tparam ComponentType
@@ -226,7 +232,7 @@ protected:
       typename ComponentType, typename... Args,
       typename std::enable_if_t<
           std::is_base_of_v<component::Component, ComponentType>, int> = 0>
-  component::Component *add_component(Args &&...args);
+  ComponentType *add_component(Args &&...args);
 
   /// underlying reference the game state note, that entities are owned by the
   /// game state so it will always outlive the entity
@@ -254,6 +260,17 @@ public:
   /// @param[in] entity entity to be added to the game state
   [[nodiscard]] Result<EntityID, std::string>
   add_entity(std::unique_ptr<Entity> entity);
+
+  /// Create, add, and initialize a new entity to the game state
+  /// @tparam EntityType type of entity to create
+  /// @tparam Args types of arguments to pass to init method
+  /// @param args arguments to forward to the entity's init method
+  /// @return pointer to the created entity on success, error message on failure
+  template <
+      typename EntityType, typename... Args,
+      typename std::enable_if_t<std::is_base_of_v<Entity, EntityType>, int> = 0>
+  [[nodiscard]] Result<EntityType *, std::string>
+  add_entity_and_init(Args &&...args);
 
   template <typename SystemType,
             typename std::enable_if_t<

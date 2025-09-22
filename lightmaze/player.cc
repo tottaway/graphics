@@ -2,6 +2,7 @@
 #include "components/animation.hh"
 #include "components/center.hh"
 #include "components/collider.hh"
+#include "components/draw_rectangle.hh"
 #include "components/gravity.hh"
 #include "components/jumper.hh"
 #include "components/sprite.hh"
@@ -24,6 +25,9 @@ Result<void, std::string> Player::init() {
       [this]() { return get_transform(); },
       [this](const Eigen::Vector2f &translation) {
         this->position_ += translation;
+        // if we hit our head on something while jumping bounce down
+        if (std::abs(translation.y()) > 0 && this->velocity_.y())
+          this->velocity_.y() -= 0.5;
       });
 
   // Load player textures and add sprite component
@@ -46,22 +50,17 @@ Result<void, std::string> Player::init() {
       Eigen::Vector2f{0.0f, gravity_} // acceleration vector
   );
 
-  // Add jumper component for jump mechanics (extend slightly for better
-  // collision detection)
-  auto *jumper = add_component<component::Jumper>(
+  // Add jumper component for jump mechanics
+  jumper_component_ = add_component<component::Jumper>(
       [this]() {
         Eigen::Affine2f transform = get_transform();
-        // Extend the jumper collision area by 3% in all directions for more
-        // reliable detection
-        transform.scale(Eigen::Vector2f{1.03f, 1.03f});
+        transform.translate(Eigen::Vector2f{0.f, -1.f});
+        transform.scale(Eigen::Vector2f{1.f, .01f});
+
         return transform;
       },
       1 // max jumps (double jump)
   );
-
-  // Cache the Jumper component pointer for efficient access
-  jumper_component_ = dynamic_cast<component::Jumper *>(jumper);
-
   return Ok();
 }
 
@@ -86,13 +85,11 @@ Result<void, std::string> Player::update(const int64_t delta_time_ns) {
   // Handle jumping using cached Jumper component (only once per key press)
   if (jump_pressed_) {
     if (jumper_component_ != nullptr) {
-      Eigen::Vector2f jump_velocity =
-          jumper_component_->try_jump(Eigen::Vector2f{0.0f, jump_speed_});
-      velocity_.y() =
-          jump_velocity.y(); // Add jump velocity (0 if no jump allowed)
+      if (jumper_component_->try_jump(Eigen::Vector2f{0.0, jump_speed_}).y() >
+          0.f) {
+        velocity_.y() = jump_speed_;
+      }
     }
-    jump_pressed_ = false; // Reset flag after attempting jump (must release and
-                           // press again)
   }
 
   // Update position
@@ -114,21 +111,21 @@ Player::on_key_press(const view::KeyPressedEvent &key_press) {
   case sf::Keyboard::Left:
   case sf::Keyboard::A:
     move_left_pressed_ = true;
-    return Ok(true);
+    return Ok(false); // Event handled, stop processing
 
   case sf::Keyboard::Right:
   case sf::Keyboard::D:
     move_right_pressed_ = true;
-    return Ok(true);
+    return Ok(false); // Event handled, stop processing
 
   case sf::Keyboard::Up:
   case sf::Keyboard::W:
   case sf::Keyboard::Space:
     jump_pressed_ = true;
-    return Ok(true);
+    return Ok(false); // Event handled, stop processing
 
   default:
-    return Ok(false);
+    return Ok(true); // Event not handled, continue processing
   }
 }
 
@@ -138,21 +135,21 @@ Player::on_key_release(const view::KeyReleasedEvent &key_release) {
   case sf::Keyboard::Left:
   case sf::Keyboard::A:
     move_left_pressed_ = false;
-    return Ok(true);
+    return Ok(false); // Event handled, stop processing
 
   case sf::Keyboard::Right:
   case sf::Keyboard::D:
     move_right_pressed_ = false;
-    return Ok(true);
+    return Ok(false); // Event handled, stop processing
 
   case sf::Keyboard::Up:
   case sf::Keyboard::W:
   case sf::Keyboard::Space:
     jump_pressed_ = false;
-    return Ok(true);
+    return Ok(false); // Event handled, stop processing
 
   default:
-    return Ok(false);
+    return Ok(true); // Event not handled, continue processing
   }
 }
 
