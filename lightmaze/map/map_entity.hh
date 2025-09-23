@@ -3,15 +3,22 @@
 #include <yaml-cpp/yaml.h>
 #include <Eigen/Geometry>
 #include <variant>
+#include <chrono>
 
 namespace lightmaze {
 
 /**
- * @brief Configurable entity that can represent different map objects (platforms, walls, etc.)
+ * @brief Represents a platform entity with editor manipulation capabilities
  *
- * MapEntity is a flexible entity that can be configured to represent different types
- * of map objects through its initialization parameters. The entity type determines
- * which components are added and how the entity behaves.
+ * MapEntity currently implements platform functionality with support for:
+ * - Solid collision detection for player physics
+ * - Jump reset detection on platform tops
+ * - Right-click drag manipulation in editor mode
+ * - Double right-click deletion in editor mode
+ * - YAML serialization for save/load functionality
+ *
+ * The entity is designed to be extensible for future map object types through
+ * the variant-based EntityParams system.
  */
 class MapEntity : public model::Entity {
 public:
@@ -92,15 +99,10 @@ public:
    */
   [[nodiscard]] Eigen::Vector2f get_top_center_position() const;
 
-  /**
-   * @brief Get the current entity parameters
-   * @return The EntityParams this MapEntity was initialized with
-   */
-  [[nodiscard]] const EntityParams& get_entity_params() const { return entity_params_; }
 
   /**
-   * @brief Get the current size (works for platform entities)
-   * @return Size vector (width, height) in meters
+   * @brief Get the entity size based on its transform
+   * @return Size vector (width, height) in meters calculated from transform bounds
    */
   [[nodiscard]] Eigen::Vector2f get_size() const;
 
@@ -110,6 +112,40 @@ public:
    */
   [[nodiscard]] YAML::Node serialize() const;
 
+  /**
+   * @brief Handle mouse down events for platform manipulation
+   * @param event Mouse down event with button and position
+   * @return true if event was handled and should not propagate, false otherwise
+   * @post Platform dragging may begin if right-click on this platform in editor mode
+   */
+  [[nodiscard]] virtual Result<bool, std::string>
+  on_mouse_down(const view::MouseDownEvent &event);
+
+  /**
+   * @brief Handle mouse up events for platform manipulation
+   * @param event Mouse up event with button and position
+   * @return true if event was handled and should not propagate, false otherwise
+   * @post Platform dragging may end or deletion may occur with double right-click
+   */
+  [[nodiscard]] virtual Result<bool, std::string>
+  on_mouse_up(const view::MouseUpEvent &event);
+
+  /**
+   * @brief Handle mouse moved events for platform dragging
+   * @param event Mouse moved event with new position
+   * @return true if event was handled and should not propagate, false otherwise
+   * @post Platform position may be updated during dragging
+   */
+  [[nodiscard]] virtual Result<bool, std::string>
+  on_mouse_moved(const view::MouseMovedEvent &event);
+
+  /**
+   * @brief Set the platform's position (updates the top center position)
+   * @param new_top_center_position New position for the platform's top center
+   * @post Platform position updated and internal state synchronized
+   */
+  void set_position(const Eigen::Vector2f &new_top_center_position);
+
 
 private:
   /// Current entity parameters
@@ -117,6 +153,14 @@ private:
 
   /// Entity position in world coordinates (calculated from params)
   Eigen::Vector2f position_{0.0f, 0.0f};
+
+  /// Platform manipulation state
+  bool is_being_dragged_{false};
+  Eigen::Vector2f drag_offset_;
+
+  /// Double-click detection for deletion
+  std::chrono::steady_clock::time_point last_right_click_time_;
+  static constexpr int64_t double_click_threshold_ns_{400'000'000}; // 400ms
 
   /**
    * @brief Initialize as a platform entity

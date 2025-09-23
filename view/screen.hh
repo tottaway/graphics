@@ -68,6 +68,12 @@ public:
   void draw_text(const Eigen::Vector2f location, const float font_size,
                  const std::string_view text, const Color color);
 
+  // Lighting system methods
+  void begin_lighting_pass();
+  void draw_light_mask(const Eigen::Vector2f bottom_left,
+                       const Eigen::Vector2f top_right, const Color color);
+  void end_lighting_pass();
+
   void set_viewport_center(const Eigen::Vector2f new_center);
 
   /// returns boolean indicating if the system is still running or an error

@@ -34,3 +34,18 @@ cc_library(
   ],
   visibility = ["//visibility:public"],
 )
+
+cc_library(
+  name = "lighting_system",
+  srcs = ["lighting_system.cc"],
+  hdrs = ["lighting_system.hh"],
+  deps = [
+    ":system",
+    "//components:light_emitter",
+    "//geometry:rectangle_utils",
+    "//model:game_state",
+    "//view:screen",
+    "//utility:try",
+  ],
+  visibility = ["//visibility:public"],
+)

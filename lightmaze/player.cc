@@ -5,6 +5,7 @@
 #include "components/draw_rectangle.hh"
 #include "components/gravity.hh"
 #include "components/jumper.hh"
+#include "components/light_emitter.hh"
 #include "components/sprite.hh"
 #include "model/game_state.hh"
 #include "view/tileset/texture_set.hh"
@@ -61,6 +62,16 @@ Result<void, std::string> Player::init() {
       },
       1 // max jumps (double jump)
   );
+
+  // Add light emitter component for lighting gameplay
+  add_component<component::LightEmitter>(
+      component::LightEmitter::CircularLightParams{
+        .transform_func = [this]() { return get_transform(); },
+        .radius_meters = 0.7f,  // 0.7 meter radius light
+        .color = view::Color{255, 255, 200},  // Warm white light
+        .intensity = 1.0f  // Full intensity
+      });
+
   return Ok();
 }
 

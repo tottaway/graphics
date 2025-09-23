@@ -168,3 +168,15 @@ cc_library(
   ],
   visibility = ["//visibility:public"],
 )
+
+cc_library(
+  name = "light_emitter",
+  srcs = ["light_emitter.cc"],
+  hdrs = ["light_emitter.hh"],
+  deps = [
+    ":component",
+    "//view:screen",
+    "@eigen",
+  ],
+  visibility = ["//visibility:public"],
+)

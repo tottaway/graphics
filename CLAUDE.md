@@ -62,3 +62,38 @@ This appears to be a graphics project with a "wiz game" component that includes 
 - **Room-corridor**: Structured layouts with large open rooms connected by minimal corridors
 - **Parameters tuned for gameplay**: Larger rooms (6-12 tiles), fewer interior walls (5%), better spawn probability (80%)
 - **Debug features**: ASCII visualization, entity count reporting, full connectivity guaranteed
+
+## LightMaze Map Editor Implementation Details (Session 4)
+- **Enhanced Platform Manipulation**: Added right-click drag and double-click deletion to MapEntity class
+- **Key Design Decisions**:
+  - Platform entities handle their own mouse events rather than delegating to Map entity for simpler hit detection
+  - Platforms track relative mouse movement (delta) rather than snapping to absolute mouse position for natural dragging feel
+  - Entity bounds automatically handle hit detection - no need for manual contains_point checks
+  - Platforms delete themselves using remove_entity(get_entity_id()) rather than asking parent to delete them
+  - Double-click threshold set to 400ms for responsive feel
+- **Architecture Improvements**:
+  - Added SFML abstraction guideline - no direct SFML usage in game code
+  - Added variant safety guideline - never blindly unwrap with std::get, always check with std::holds_alternative first
+  - Enhanced session initialization workflow to include key header file reading
+- **Implementation Details**:
+  - Right-click starts drag mode, stores initial mouse position in drag_offset_
+  - Mouse movement calculates delta from previous position and applies to platform
+  - Double-click detection uses chrono::steady_clock with 400ms threshold
+  - All unsafe std::get calls replaced with proper variant safety checks
+
+### Session 4: Basic Lighting System Implementation
+- **Lighting Architecture**: Implemented complete lighting system with LightEmitter component and LightingSystem
+- **Component Design**: Created extensible LightEmitter with CircularLightGeometry and support for multiple light shapes
+- **Rendering Pipeline**: Fixed OpenGL depth testing to support proper z-level ordering for lighting effects
+- **Player Lighting**: Added 0.7 meter radius warm white light (255,255,200) that follows the player
+- **Visual Effect**: Achieved black-by-default world with illuminated areas around light sources
+- **Key Technical Solutions**:
+  - Enabled OpenGL depth testing (GL_DEPTH_TEST, GL_LEQUAL) and depth buffer clearing
+  - Used negative z-levels for lighting system (black overlay at z=-1.0, lights at z=-0.5) to appear in front of game entities
+  - Systems draw() methods called after entity drawing, allowing proper layering
+  - Parameter struct pattern for extensible component constructors (CircularLightParams, etc.)
+- **Architecture Notes**:
+  - LightingSystem collects lights in update(), renders black overlay + lights in draw()
+  - LightEmitter component with geometry-based design ready for cones, rectangles, etc.
+  - Z-level system: game entities (z=0,1) < black overlay (z=-1.0) < lights (z=-0.5)
+  - Added visual bug fixing guideline: always prompt for user feedback after each attempt

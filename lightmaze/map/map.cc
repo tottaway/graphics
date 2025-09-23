@@ -1,5 +1,6 @@
 #include "lightmaze/map/map.hh"
 #include "lightmaze/map/map_entity.hh"
+#include "lightmaze/map/map_mode_manager.hh"
 #include "lightmaze/player.hh"
 #include "model/game_state.hh"
 #include "view/screen.hh"
@@ -15,6 +16,10 @@ namespace lightmaze {
 Map::Map(model::GameState &game_state) : model::Entity(game_state) {}
 
 Result<void, std::string> Map::init() {
+  // Create the mode manager first
+  auto mode_manager = TRY(add_child_entity_and_init<MapModeManager>());
+  mode_manager_id_ = mode_manager->get_entity_id();
+
   // Try to load saved state first, fall back to default if not available
   auto load_result = load_saved_state();
   if (load_result.isErr()) {
@@ -37,19 +42,12 @@ Result<void, std::string> Map::init() {
   return Ok();
 }
 
-Result<void, std::string> Map::toggle_editor_mode() {
-  if (current_mode_ == EditorMode::gameplay) {
-    current_mode_ = EditorMode::editor;
-  } else {
-    current_mode_ = EditorMode::gameplay;
-
-    // Cancel any in-progress platform creation
-    if (is_creating_platform_) {
-      is_creating_platform_ = false;
-    }
+MapModeManager* Map::get_mode_manager() const {
+  auto result = game_state_.get_entity_pointer_by_id_as<MapModeManager>(mode_manager_id_);
+  if (result.isOk()) {
+    return result.unwrap();
   }
-
-  return Ok();
+  return nullptr;
 }
 
 Result<model::EntityID, std::string>
@@ -65,12 +63,6 @@ Map::add_platform(const Eigen::Vector2f &top_center_position,
   return Ok(map_entity->get_entity_id());
 }
 
-Result<void, std::string>
-Map::remove_platform(const model::EntityID &platform_id) {
-  // Use remove_entity to remove the platform
-  remove_entity(platform_id);
-  return Ok();
-}
 
 Result<void, std::string>
 Map::save_current_state(const std::string &file_path) {
@@ -146,21 +138,12 @@ Result<void, std::string> Map::load_saved_state(const std::string &file_path) {
   }
 }
 
-Result<bool, std::string>
-Map::on_key_press(const view::KeyPressedEvent &key_press) {
-  // Handle E key for editor mode toggle
-  if (key_press.key_event.code == sf::Keyboard::E) {
-    TRY_VOID(toggle_editor_mode());
-    return Ok(false); // Event handled, stop processing other entities
-  }
-
-  return Ok(true); // Event not handled, continue processing other entities
-}
 
 Result<bool, std::string>
 Map::on_mouse_down(const view::MouseDownEvent &event) {
   // Only handle left-click in editor mode
-  if (current_mode_ != EditorMode::editor ||
+  auto* mode_manager = get_mode_manager();
+  if (!mode_manager || !mode_manager->is_editor_mode() ||
       event.button != view::MouseButton::Left) {
     return Ok(true); // Event not handled, continue processing
   }
@@ -174,7 +157,8 @@ Map::on_mouse_down(const view::MouseDownEvent &event) {
 
 Result<bool, std::string> Map::on_mouse_up(const view::MouseUpEvent &event) {
   // Only handle left-click release in editor mode during creation
-  if (current_mode_ != EditorMode::editor ||
+  auto* mode_manager = get_mode_manager();
+  if (!mode_manager || !mode_manager->is_editor_mode() ||
       event.button != view::MouseButton::Left || !is_creating_platform_) {
     return Ok(true); // Event not handled, continue processing
   }

@@ -1,5 +1,6 @@
 #include "lightmaze/lightmaze.hh"
 #include "systems/collisions.hh"
+#include "systems/lighting_system.hh"
 #include "lightmaze/mode_manager.hh"
 
 namespace lightmaze {
@@ -8,6 +9,7 @@ make_lightmaze_game() {
   auto game_state = std::make_unique<model::GameState>();
   TRY(game_state->add_entity(std::make_unique<LightMazeModeManager>(*game_state)));
   game_state->add_system<systems::Collisions>();
+  game_state->add_system<systems::LightingSystem>();
   return Ok(std::move(game_state));
 }
 

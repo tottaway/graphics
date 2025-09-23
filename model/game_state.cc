@@ -59,7 +59,7 @@ GameState::advance_state(const int64_t delta_time_ns) {
   }
 
   for (const auto &system : systems_) {
-    TRY_VOID(system->update(delta_time_ns));
+    TRY_VOID(system->update(*this, delta_time_ns));
   }
 
   for (const auto &entity : entities_) {
@@ -169,6 +169,10 @@ Result<void, std::string> GameState::draw(view::Screen &screen) const {
     for (const auto &index : draw_list) {
       TRY_VOID(entities_[index]->draw(screen));
     }
+  }
+
+  for (const auto &system : systems_) {
+    TRY_VOID(system->draw(screen));
   }
   return Ok();
 }

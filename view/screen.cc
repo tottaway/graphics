@@ -44,6 +44,10 @@ Screen::Screen(const Eigen::Vector2f viewport_size_m,
   // call it if you only draw ImGui. Otherwise not needed.
   window_.resetGLStates();
 
+  // Enable depth testing for proper z-level support
+  glEnable(GL_DEPTH_TEST);
+  glDepthFunc(GL_LEQUAL);
+
   ImGuiIO &io = ImGui::GetIO();
   fonts_.emplace_back(
       io.Fonts->AddFontFromFileTTF("fonts/Roboto-Medium.ttf", 128));
@@ -64,6 +68,7 @@ void Screen::start_update() {
   ImGui::Begin("Sample window"); // begin window
 
   window_.clear();
+  glClear(GL_DEPTH_BUFFER_BIT);
   const auto window_size = ImGui::GetWindowSize();
   handle_resize({window_size.x, window_size.y});
 }
@@ -130,6 +135,19 @@ void Screen::draw_text(const Eigen::Vector2f location, const float font_size,
                      text.data() + text.size());
   ImGui::PopFont();
   window_.popGLStates();
+}
+
+void Screen::begin_lighting_pass() {
+  // This method is no longer used - lighting uses simple draw_rectangle calls instead
+}
+
+void Screen::draw_light_mask(const Eigen::Vector2f bottom_left,
+                             const Eigen::Vector2f top_right, const Color color) {
+  // This method is no longer used - lighting uses simple draw_rectangle calls instead
+}
+
+void Screen::end_lighting_pass() {
+  // This method is no longer used - lighting uses simple draw_rectangle calls instead
 }
 
 void Screen::set_viewport_center(const Eigen::Vector2f new_center) {

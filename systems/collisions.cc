@@ -92,14 +92,12 @@ void QuadTree<x_dim, y_dim>::add_collider(component::Collider *collider,
   }
 }
 
-Collisions::Collisions(model::GameState &game_state)
-    : game_state_(game_state) {}
 
-Result<void, std::string> Collisions::update(const int64_t delta_time_ns) {
+Result<void, std::string> Collisions::update(model::GameState& game_state, const int64_t delta_time_ns) {
   QuadTree<10, 10> quad_tree;
 
   const auto entities =
-      game_state_.get_entities_with_component<component::Collider>();
+      game_state.get_entities_with_component<component::Collider>();
   for (const auto i : std::ranges::views::iota(size_t{0}, entities.size())) {
     auto entity = entities.at(i);
     auto colliders = entity->get_components<component::Collider>();

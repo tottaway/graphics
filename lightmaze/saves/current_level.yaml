@@ -2,36 +2,36 @@ format_version: 1.0
 entities:
   - type: platform
     top_center_position:
-      x: 0
-      y: 0
+      x: -0.432859421
+      y: 0.0816736221
     size:
       x: 1
       y: 0.200000003
   - type: platform
     top_center_position:
-      x: 1.5
-      y: 0.800000012
+      x: 1.28199053
+      y: 0.559873641
     size:
       x: 1
       y: 0.200000003
   - type: platform
     top_center_position:
-      x: -0.947867274
-      y: 1.11452413
-    size:
-      x: 0.167456508
-      y: 0.121643007
-  - type: platform
-    top_center_position:
-      x: -1.27330172
-      y: 0.56160152
+      x: -1.68404448
+      y: 0.567920685
     size:
       x: 0.189573407
       y: 0.0884676576
   - type: platform
     top_center_position:
-      x: -0.201020598
-      y: 1.24927926
+      x: -0.795017242
+      y: 0.939642549
+    size:
+      x: 0.358609796
+      y: 0.00999999978
+  - type: platform
+    top_center_position:
+      x: -0.795017242
+      y: 0.939642549
     size:
       x: 0.358609796
       y: 0.00999999978

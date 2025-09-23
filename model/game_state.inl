@@ -209,7 +209,7 @@ template <typename SystemType,
           typename std::enable_if_t<
               std::is_base_of_v<systems::System, SystemType>, int>>
 void GameState::add_system() {
-  systems_.emplace_back(std::make_unique<SystemType>(*this));
+  systems_.emplace_back(std::make_unique<SystemType>());
 }
 
 template <typename EntityType, typename... Args,

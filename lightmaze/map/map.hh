@@ -7,23 +7,24 @@
 namespace lightmaze {
 
 class MapEntity;
+class MapModeManager;
 
 /**
- * @brief Central map entity that manages all platforms and handles editor mode
+ * @brief Central map entity that manages all platforms and editor functionality
  *
  * The Map entity serves as the parent container for all platforms in the level
- * and manages the map editor functionality. It handles:
- * - Editor mode toggling (E key)
- * - Platform creation via left-click drag
+ * and coordinates map editor functionality. It handles:
+ * - Platform creation via left-click drag in editor mode
  * - Auto-saving every 5 seconds
- * - Save/load integration
+ * - Save/load integration with YAML persistence
  * - Platform management and coordination
+ * - Integration with MapModeManager for editor state
+ *
+ * Editor mode toggling is handled by the child MapModeManager entity.
  */
 class Map : public model::Entity {
 public:
   static constexpr std::string_view entity_type_name = "lightmaze_map";
-
-  enum class EditorMode { gameplay, editor };
 
   /**
    * @brief Construct a new Map entity
@@ -48,17 +49,10 @@ public:
   };
 
   /**
-   * @brief Check if currently in editor mode
-   * @return true if in editor mode, false if in gameplay mode
+   * @brief Get the mode manager for checking editor state
+   * @return Pointer to MapModeManager if found, nullptr otherwise
    */
-  bool is_editor_mode() const { return current_mode_ == EditorMode::editor; }
-
-  /**
-   * @brief Toggle between gameplay and editor modes
-   * @return Ok() on success, Err(message) if toggle fails
-   * @post Editor mode state flipped, visual feedback may be updated
-   */
-  Result<void, std::string> toggle_editor_mode();
+  MapModeManager* get_mode_manager() const;
 
   /**
    * @brief Add a new map entity (platform) as a child entity
@@ -71,14 +65,6 @@ public:
   add_platform(const Eigen::Vector2f &top_center_position,
                const Eigen::Vector2f &size);
 
-  /**
-   * @brief Remove a platform by its entity ID
-   * @param platform_id EntityID of the platform to remove
-   * @return Ok() on success, Err(message) if platform not found or removal
-   * fails
-   * @post Platform entity removed from game state
-   */
-  Result<void, std::string> remove_platform(const model::EntityID &platform_id);
 
   /**
    * @brief Save current map state to YAML file
@@ -99,14 +85,6 @@ public:
   Result<void, std::string>
   load_saved_state(const std::string &file_path = default_save_path);
 
-  /**
-   * @brief Handle key press events for editor mode toggle
-   * @param key_press Key press event containing which key was pressed
-   * @return true if event was handled and should not propagate, false otherwise
-   * @post Editor mode may be toggled if E key was pressed
-   */
-  [[nodiscard]] virtual Result<bool, std::string>
-  on_key_press(const view::KeyPressedEvent &key_press);
 
   /**
    * @brief Handle mouse down events for platform creation
@@ -163,8 +141,8 @@ private:
   static constexpr const char *default_save_path{
       "/home/tottaway/projects/graphics/lightmaze/saves/current_level.yaml"};
 
-  /// Current editor mode state
-  EditorMode current_mode_{EditorMode::gameplay};
+  /// Reference to the mode manager child entity
+  model::EntityID mode_manager_id_;
 
   /// Platform creation state
   bool is_creating_platform_{false};

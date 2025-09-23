@@ -6,17 +6,13 @@
 namespace systems {
 
 template <std::size_t x_dim, std::size_t y_dim>
-GridCollisions<x_dim, y_dim>::GridCollisions(model::GameState &game_state)
-    : game_state_(game_state) {}
-
-template <std::size_t x_dim, std::size_t y_dim>
 Result<void, std::string>
-GridCollisions<x_dim, y_dim>::update(const int64_t delta_time_ns) {
+GridCollisions<x_dim, y_dim>::update(model::GameState& game_state, const int64_t delta_time_ns) {
   std::array<std::array<std::vector<model::Entity *>, y_dim * 2 + 1>,
              x_dim * 2 + 1>
       occupancy_grid_;
   const auto entities =
-      game_state_.get_entities_with_component<component::GridCollider>();
+      game_state.get_entities_with_component<component::GridCollider>();
   for (const auto entity : entities) {
     const auto collider =
         entity->get_component<component::GridCollider>().value();

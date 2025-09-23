@@ -3,6 +3,8 @@
 #include "components/collider.hh"
 #include "components/draw_rectangle.hh"
 #include "components/jump_reset.hh"
+#include "geometry/rectangle_utils.hh"
+#include "lightmaze/map/map_mode_manager.hh"
 #include "model/game_state.hh"
 #include "view/screen.hh"
 
@@ -97,8 +99,9 @@ Eigen::Vector2f MapEntity::get_top_center_position() const {
 }
 
 Eigen::Vector2f MapEntity::get_size() const {
-  auto platform_params = std::get<PlatformParams>(entity_params_);
-  return platform_params.size;
+  auto transform = get_transform();
+  auto [bottom_left, top_right] = geometry::get_bottom_left_and_top_right_from_transform(transform);
+  return top_right - bottom_left;
 }
 
 YAML::Node MapEntity::serialize() const {
@@ -156,6 +159,88 @@ MapEntity::init_from_yaml(const YAML::Node &yaml_node) {
   } catch (const std::exception &e) {
     return Err(std::string("Failed to parse YAML: ") + e.what());
   }
+}
+
+Result<bool, std::string>
+MapEntity::on_mouse_down(const view::MouseDownEvent &event) {
+  // Only handle right-click events
+  if (event.button != view::MouseButton::Right) {
+    return Ok(true); // Event not handled, continue processing
+  }
+
+  // Check if we're in editor mode by finding the MapModeManager
+  auto mode_manager_result = game_state_.get_entity_pointer_by_type<MapModeManager>();
+  if (mode_manager_result.isErr() || !mode_manager_result.unwrap()->is_editor_mode()) {
+    return Ok(true); // Not in editor mode, ignore event
+  }
+
+  // Check for double-click deletion
+  auto now = std::chrono::steady_clock::now();
+  auto time_since_last_click_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(
+      now - last_right_click_time_).count();
+
+  if (time_since_last_click_ns <= double_click_threshold_ns_) {
+    // Double-click detected - delete this platform
+    remove_entity(get_entity_id());
+    return Ok(false); // Event handled, stop processing
+  }
+
+  // Single click - start dragging
+  last_right_click_time_ = now;
+  is_being_dragged_ = true;
+  drag_offset_ = event.position; // Store starting mouse position
+
+  return Ok(false); // Event handled, stop processing
+}
+
+Result<bool, std::string>
+MapEntity::on_mouse_up(const view::MouseUpEvent &event) {
+  // Only handle right-click release during dragging
+  if (event.button != view::MouseButton::Right || !is_being_dragged_) {
+    return Ok(true); // Event not handled, continue processing
+  }
+
+  // End dragging
+  is_being_dragged_ = false;
+
+  return Ok(false); // Event handled, stop processing
+}
+
+Result<bool, std::string>
+MapEntity::on_mouse_moved(const view::MouseMovedEvent &event) {
+  // Only handle movement if we're being dragged
+  if (!is_being_dragged_) {
+    return Ok(true); // Event not handled, continue processing
+  }
+
+  // Calculate mouse movement delta
+  Eigen::Vector2f mouse_delta = event.position - drag_offset_;
+
+  // Update platform position by the mouse delta
+  if (!std::holds_alternative<PlatformParams>(entity_params_)) {
+    return Err(std::string("MapEntity not configured as platform for mouse movement"));
+  }
+  auto platform_params = std::get<PlatformParams>(entity_params_);
+  Eigen::Vector2f new_top_center_position = platform_params.top_center_position + mouse_delta;
+  set_position(new_top_center_position);
+
+  // Update drag offset for next movement
+  drag_offset_ = event.position;
+
+  return Ok(false); // Event handled, stop processing
+}
+
+void MapEntity::set_position(const Eigen::Vector2f &new_top_center_position) {
+  // Update the platform parameters
+  if (!std::holds_alternative<PlatformParams>(entity_params_)) {
+    std::cerr << "Error: set_position called on MapEntity not configured as platform" << std::endl;
+    return; // Cannot set position on non-platform entities
+  }
+  auto &platform_params = std::get<PlatformParams>(entity_params_);
+  platform_params.top_center_position = new_top_center_position;
+
+  // Recalculate the center position from the top center position
+  position_ = new_top_center_position - Eigen::Vector2f{0.0f, platform_params.size.y()};
 }
 
 } // namespace lightmaze
