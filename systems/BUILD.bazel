@@ -39,13 +39,15 @@ cc_library(
   name = "lighting_system",
   srcs = ["lighting_system.cc"],
   hdrs = ["lighting_system.hh"],
+  data = ["//systems/assets/shaders:lighting_shader"],
   deps = [
     ":system",
     "//components:light_emitter",
-    "//geometry:rectangle_utils",
     "//model:game_state",
     "//view:screen",
+    "//view:shader",
     "//utility:try",
+    "@eigen",
   ],
   visibility = ["//visibility:public"],
 )

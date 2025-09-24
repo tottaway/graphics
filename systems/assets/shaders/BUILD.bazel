@@ -1,0 +1,16 @@
+filegroup(
+    name = "lighting_shader",
+    srcs = [
+        "lighting.vert",
+        "lighting.frag",
+    ],
+    visibility = ["//systems:__pkg__"],
+)
+
+filegroup(
+    name = "all_shaders",
+    srcs = [
+        ":lighting_shader",
+    ],
+    visibility = ["//lightmaze:__subpackages__"],
+)

@@ -3,7 +3,9 @@
 #include "model/game_state.hh"
 #include "systems/system.hh"
 #include "view/screen.hh"
+#include "view/shader.hh"
 #include <vector>
+#include <memory>
 
 namespace systems {
 
@@ -11,8 +13,9 @@ namespace systems {
  * @brief System that manages all lighting in the game
  *
  * The LightingSystem collects all LightEmitter components during update
- * and renders a lighting overlay during draw. It implements a "black by default"
- * lighting model where only illuminated areas are visible.
+ * and renders a shader-based lighting overlay during draw. It implements a "black by default"
+ * lighting model where only illuminated areas are visible using GLSL shaders for realistic
+ * lighting effects with smooth falloff and multiple light support.
  */
 class LightingSystem : public System {
 public:
@@ -52,15 +55,28 @@ private:
   /// Collected light information for current frame
   std::vector<component::LightEmitter::LightInfo> active_lights_;
 
+  /// Lighting shader for rendering all lights at once
+  std::unique_ptr<view::Shader> lighting_shader_;
+
+  /// Flag to track shader loading attempts
+  bool shader_load_attempted_{false};
+
+  /// Shader file paths
+  static constexpr std::string_view vertex_shader_path_ = "systems/assets/shaders/lighting.vert";
+  static constexpr std::string_view fragment_shader_path_ = "systems/assets/shaders/lighting.frag";
+
   /**
-   * @brief Render a single circular light to the screen
-   * @param screen Screen to render to
-   * @param light_info Information about the light to render
-   * @return Ok() on success, Err(message) if rendering fails
+   * @brief Ensure lighting shader is loaded (lazy loading)
+   * @return Ok() on success, Err(message) if shader loading fails
    */
-  Result<void, std::string> render_circular_light(
-      view::Screen& screen,
-      const component::LightEmitter::LightInfo& light_info) const;
+  Result<void, std::string> ensure_shader_loaded();
+
+  /**
+   * @brief Set shader uniforms based on collected lights and screen viewport
+   * @param screen Screen to get viewport information from
+   * @return Ok() on success, Err(message) if uniform setting fails
+   */
+  Result<void, std::string> set_lighting_uniforms(const view::Screen& screen) const;
 };
 
 } // namespace systems

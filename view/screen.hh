@@ -78,7 +78,29 @@ public:
   // Shader rendering methods
   void draw_fullscreen_shader(const Shader& shader, const float z_level = 0);
 
+  void draw_fullscreen_lighting_shader(const Shader& shader, const float z_level = 0);
+
   void set_viewport_center(const Eigen::Vector2f new_center);
+
+  /**
+   * @brief Get the current viewport center in world coordinates
+   * @return The center point of the viewport in world space
+   */
+  [[nodiscard]] Eigen::Vector2f get_viewport_center() const;
+
+  /**
+   * @brief Get the configured viewport size (desired size before aspect ratio handling)
+   * @return The configured viewport size in world units
+   * @note This is the size set in the constructor, but may not match actual visible area
+   */
+  [[nodiscard]] Eigen::Vector2f get_viewport_size() const;
+
+  /**
+   * @brief Get the actual viewport size visible after aspect ratio handling
+   * @return The actual visible viewport size in world units
+   * @note This accounts for window resizing and aspect ratio preservation
+   */
+  [[nodiscard]] Eigen::Vector2f get_actual_viewport_size() const;
 
   /// returns boolean indicating if the system is still running or an error
   [[nodiscard]] Result<bool, std::string> poll_events_and_check_for_close();

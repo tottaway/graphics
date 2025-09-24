@@ -1,6 +1,6 @@
 #include "systems/lighting_system.hh"
 #include "components/light_emitter.hh"
-#include "geometry/rectangle_utils.hh"
+#include <algorithm>
 #include <iostream>
 
 namespace systems {
@@ -38,69 +38,107 @@ Result<void, std::string> LightingSystem::update(model::GameState &game_state,
 }
 
 Result<void, std::string> LightingSystem::draw(view::Screen &screen) {
-  // Simple approach: draw a dark overlay first, then bright lights on top
-  const float viewport_size = 2.5f;
-  const Eigen::Vector2f viewport_bottom_left{-viewport_size, -viewport_size};
-  const Eigen::Vector2f viewport_top_right{viewport_size, viewport_size};
+  // Lazy-load shader on first draw call
+  TRY_VOID(ensure_shader_loaded());
 
-  // Draw dark overlay using existing draw_rectangle (which we know works)
-  const view::Color dark_overlay{50, 50, 50}; // Dark gray overlay
-  screen.draw_rectangle(viewport_bottom_left, viewport_top_right, dark_overlay, 2.0f);
+  // Skip rendering if shader failed to load
+  if (!lighting_shader_ || !lighting_shader_->is_valid()) {
+    return Ok();
+  }
 
-  // Render all collected lights as bright overlays using existing draw_rectangle
-  for (const auto &light_info : active_lights_) {
-    // Check geometry type and render appropriately
-    if (!light_info.geometry) {
-      return Err(std::string("Light has null geometry"));
-    }
+  // Set up shader uniforms with current lights and screen info
+  TRY_VOID(set_lighting_uniforms(screen));
 
-    const auto geometry_type = light_info.geometry->get_geometry_type();
-    if (geometry_type == component::CircularLightGeometry::geometry_type_name) {
-      TRY_VOID(render_circular_light(screen, light_info));
-    } else {
-      return Err(std::string("Unhandled light geometry type: ") +
-                 std::string(geometry_type));
-    }
+  // Render fullscreen lighting shader on top of game entities with
+  // multiplicative blending
+  screen.draw_fullscreen_lighting_shader(*lighting_shader_, 1.0f);
+
+  return Ok();
+}
+
+Result<void, std::string> LightingSystem::ensure_shader_loaded() {
+  // Only attempt loading once
+  if (shader_load_attempted_) {
+    return Ok();
+  }
+
+  shader_load_attempted_ = true;
+
+  // Load shader from files
+  auto shader_result = view::Shader::from_files(
+      std::string(vertex_shader_path_), std::string(fragment_shader_path_));
+
+  if (shader_result.isOk()) {
+    lighting_shader_ = std::move(shader_result).unwrap();
+  } else {
+    std::cerr << "Failed to load lighting shader: " << shader_result.unwrapErr()
+              << std::endl;
+    // System will be non-functional but won't crash
   }
 
   return Ok();
 }
 
-Result<void, std::string> LightingSystem::render_circular_light(
-    view::Screen &screen,
-    const component::LightEmitter::LightInfo &light_info) const {
-
-  // Get the circular geometry to extract radius
-  const auto *circular_geometry =
-      dynamic_cast<const component::CircularLightGeometry *>(
-          light_info.geometry.get());
-
-  if (!circular_geometry) {
-    return Err(
-        std::string("Expected CircularLightGeometry but got different type"));
+Result<void, std::string>
+LightingSystem::set_lighting_uniforms(const view::Screen &screen) const {
+  if (!lighting_shader_) {
+    return Err(std::string("Lighting shader not loaded"));
   }
 
-  const float radius_meters = circular_geometry->get_radius();
-  const Eigen::Vector2f position = light_info.world_position;
+  // Set viewport uniforms from screen
+  lighting_shader_->set_uniform("viewport_center",
+                                screen.get_viewport_center());
+  lighting_shader_->set_uniform("viewport_size", screen.get_actual_viewport_size());
 
-  // Create a transform for the light circle
-  // Position at light center, scale by radius
-  const auto light_transform =
-      geometry::make_square_from_center_and_size(position, radius_meters);
+  // Set light count
+  const int32_t light_count =
+      std::min(static_cast<int32_t>(active_lights_.size()), 32);
+  lighting_shader_->set_uniform("light_count", light_count);
 
-  // Apply intensity to color
-  const float effective_intensity = light_info.intensity;
-  const view::Color adjusted_color{
-      static_cast<int>(light_info.color.r * effective_intensity),
-      static_cast<int>(light_info.color.g * effective_intensity),
-      static_cast<int>(light_info.color.b * effective_intensity)};
+  // Prepare light data arrays
+  std::vector<Eigen::Vector2f> light_positions;
+  std::vector<Eigen::Vector3f> light_colors;
+  std::vector<float> light_radii;
 
-  // Get bounds for drawing
-  const auto [bottom_left, top_right] =
-      geometry::get_bottom_left_and_top_right_from_transform(light_transform);
+  light_positions.reserve(light_count);
+  light_colors.reserve(light_count);
+  light_radii.reserve(light_count);
 
-  // Draw light using existing draw_rectangle (which we know works)
-  screen.draw_rectangle(bottom_left, top_right, adjusted_color, 3.0f);
+  // Extract data from active lights (only circular lights for now)
+  for (int32_t i = 0; i < light_count; ++i) {
+    const auto &light_info = active_lights_[i];
+
+    // Position
+    light_positions.push_back(light_info.world_position);
+
+    // Color with intensity applied
+    const float effective_intensity = light_info.intensity;
+    light_colors.push_back(
+        Eigen::Vector3f{light_info.color.r * effective_intensity,
+                        light_info.color.g * effective_intensity,
+                        light_info.color.b * effective_intensity});
+
+    // Radius (extract from circular geometry)
+    float radius = 1.0f; // Default fallback
+    if (light_info.geometry) {
+      const auto geometry_type = light_info.geometry->get_geometry_type();
+      if (geometry_type ==
+          component::CircularLightGeometry::geometry_type_name) {
+        const auto *circular_geometry =
+            dynamic_cast<const component::CircularLightGeometry *>(
+                light_info.geometry.get());
+        if (circular_geometry) {
+          radius = circular_geometry->get_radius();
+        }
+      }
+    }
+    light_radii.push_back(radius);
+  }
+
+  // Set uniform arrays
+  lighting_shader_->set_uniform_array("light_positions", light_positions);
+  lighting_shader_->set_uniform_array("light_colors", light_colors);
+  lighting_shader_->set_uniform_array("light_radii", light_radii);
 
   return Ok();
 }

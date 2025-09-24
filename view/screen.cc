@@ -193,7 +193,60 @@ void Screen::draw_fullscreen_shader(const class Shader& shader, const float z_le
   }
 }
 
+void Screen::draw_fullscreen_lighting_shader(const class Shader& shader, const float z_level) {
+  // Save current OpenGL state
+  GLboolean depth_test_was_enabled = glIsEnabled(GL_DEPTH_TEST);
+  GLboolean blend_was_enabled = glIsEnabled(GL_BLEND);
+  GLint src_blend, dst_blend;
+  glGetIntegerv(GL_BLEND_SRC, &src_blend);
+  glGetIntegerv(GL_BLEND_DST, &dst_blend);
+
+  if (!depth_test_was_enabled) {
+    glEnable(GL_DEPTH_TEST);
+  }
+
+  // Enable multiplicative blending for lighting
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_ZERO, GL_SRC_COLOR);  // Multiplicative: result = 0 * dest + src * dest = src * dest
+
+  // Use the provided shader
+  glUseProgram(shader.get_program_id());
+
+  // Render a fullscreen quad using immediate mode OpenGL
+  glBegin(GL_QUADS);
+  glColor4f(1.0f, 1.0f, 1.0f, 1.0f); // White color for shader
+
+  // Bottom-left
+  glVertex3f(-1.0f, -1.0f, z_level);
+
+  // Bottom-right
+  glVertex3f(1.0f, -1.0f, z_level);
+
+  // Top-right
+  glVertex3f(1.0f, 1.0f, z_level);
+
+  // Top-left
+  glVertex3f(-1.0f, 1.0f, z_level);
+
+  glEnd();
+
+  // Reset to no shader
+  glUseProgram(0);
+
+  // Restore OpenGL state
+  if (blend_was_enabled) {
+    glBlendFunc(src_blend, dst_blend);
+  } else {
+    glDisable(GL_BLEND);
+  }
+
+  if (!depth_test_was_enabled) {
+    glDisable(GL_DEPTH_TEST);
+  }
+}
+
 void Screen::set_viewport_center(const Eigen::Vector2f new_center) {
+  game_m_viewport_center_ = new_center;
 
   viewport_m_from_game_m_ = Eigen::Translation2f{-new_center};
 
@@ -202,6 +255,31 @@ void Screen::set_viewport_center(const Eigen::Vector2f new_center) {
                                viewport_m_from_game_m_;
 
   game_m_from_window_pixels_ = window_pixels_from_game_m_.inverse();
+}
+
+Eigen::Vector2f Screen::get_viewport_center() const {
+  return game_m_viewport_center_;
+}
+
+Eigen::Vector2f Screen::get_viewport_size() const {
+  return viewport_size_m_;
+}
+
+Eigen::Vector2f Screen::get_actual_viewport_size() const {
+  // Calculate the actual visible viewport size by transforming screen corners to world space
+  // The fullscreen quad goes from (-1,-1) to (1,1) in normalized device coordinates
+
+  // Transform the corners of the screen to world coordinates
+  const Eigen::Vector2f top_right_world = game_m_from_window_pixels_ *
+    Eigen::Vector2f(window_size_pixels_.x(), 0.0f);
+  const Eigen::Vector2f bottom_left_world = game_m_from_window_pixels_ *
+    Eigen::Vector2f(0.0f, window_size_pixels_.y());
+
+  // Calculate the actual visible size
+  return Eigen::Vector2f(
+    std::abs(top_right_world.x() - bottom_left_world.x()),
+    std::abs(top_right_world.y() - bottom_left_world.y())
+  );
 }
 
 Result<bool, std::string> Screen::poll_events_and_check_for_close() {

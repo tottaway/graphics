@@ -66,10 +66,10 @@ Result<void, std::string> Player::init() {
   // Add light emitter component for lighting gameplay
   add_component<component::LightEmitter>(
       component::LightEmitter::CircularLightParams{
-        .transform_func = [this]() { return get_transform(); },
-        .radius_meters = 0.7f,  // 0.7 meter radius light
-        .color = view::Color{255, 255, 200},  // Warm white light
-        .intensity = 1.0f  // Full intensity
+          .transform_func = [this]() { return get_transform(); },
+          .radius_meters = 0.7f,               // 0.7 meter radius light
+          .color = view::Color{255, 255, 255}, // Pure white light
+          .intensity = 1.0f                    // Full intensity
       });
 
   return Ok();
