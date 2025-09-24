@@ -7,6 +7,7 @@ cc_library(
     visibility = ["//visibility:public"],
     deps = [
       "//view:texture",
+      "//view:shader",
       "//utility:try",
       "@imguilib//:imgui",
       "@eigen"
@@ -24,4 +25,20 @@ cc_library(
       "@eigen"
     ],
     data = ["//fonts:fonts"]
+)
+
+cc_library(
+    name = "shader",
+    srcs = ["shader.cc"],
+    hdrs = ["shader.hh"],
+    visibility = ["//visibility:public"],
+    deps = [
+      "//utility:try",
+      "@eigen",
+      "@imguilib//:imgui"
+    ],
+    linkopts = [
+      "-lGL",
+      "-lGLEW"
+    ],
 )

@@ -1,0 +1,42 @@
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+cc_binary(
+  name = "shader_demo_main",
+  srcs = ["shader_demo_main.cc"],
+  deps = [
+    ":shader_demo",
+    "//controller:controller"
+  ],
+)
+
+cc_library(
+  name = "test_entity",
+  srcs = ["test_entity.cc"],
+  hdrs = ["test_entity.hh"],
+  deps = [
+    "//model:game_state",
+    "//view:screen",
+    "//view:shader",
+    "//components:component",
+    "//components:shader_renderer",
+    "//utility:try",
+    "@eigen",
+  ],
+  visibility = [":__subpackages__"],
+)
+
+cc_library(
+  name = "shader_demo",
+  srcs = ["shader_demo.cc"],
+  hdrs = ["shader_demo.hh"],
+  data = [
+    "//shader_demo/assets/shaders:basic_shader",
+  ],
+  deps = [
+    ":test_entity",
+    "//model:game_state",
+    "//view:screen",
+    "//view:shader",
+  ],
+  visibility = [":__subpackages__"],
+)

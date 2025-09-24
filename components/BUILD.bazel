@@ -180,3 +180,17 @@ cc_library(
   ],
   visibility = ["//visibility:public"],
 )
+
+cc_library(
+  name = "shader_renderer",
+  srcs = ["shader_renderer.cc"],
+  hdrs = ["shader_renderer.hh"],
+  deps = [
+    ":component",
+    "//view:screen",
+    "//view:shader",
+    "//utility:try",
+    "@eigen",
+  ],
+  visibility = ["//visibility:public"],
+)

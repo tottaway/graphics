@@ -2,6 +2,7 @@
 #include "ThirdParty/imgui/imgui.h"
 #include "utility/try.hh"
 #include "view/texture.hh"
+#include "view/shader.hh"
 #include <Eigen/Dense>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/System/Clock.hpp>
@@ -73,6 +74,9 @@ public:
   void draw_light_mask(const Eigen::Vector2f bottom_left,
                        const Eigen::Vector2f top_right, const Color color);
   void end_lighting_pass();
+
+  // Shader rendering methods
+  void draw_fullscreen_shader(const Shader& shader, const float z_level = 0);
 
   void set_viewport_center(const Eigen::Vector2f new_center);
 

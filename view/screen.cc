@@ -2,7 +2,7 @@
 #include "ThirdParty/imgui/imconfig.h"
 #include "ThirdParty/imgui/imgui-SFML.h"
 #include "ThirdParty/imgui/imgui.h"
-#include <GL/gl.h>
+#include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
@@ -43,6 +43,12 @@ Screen::Screen(const Eigen::Vector2f viewport_size_m,
   ImGui::SFML::Init(window_);
   // call it if you only draw ImGui. Otherwise not needed.
   window_.resetGLStates();
+
+  // Initialize GLEW for modern OpenGL functions
+  GLenum glew_result = glewInit();
+  if (glew_result != GLEW_OK) {
+    std::cerr << "GLEW initialization failed: " << glewGetErrorString(glew_result) << std::endl;
+  }
 
   // Enable depth testing for proper z-level support
   glEnable(GL_DEPTH_TEST);
@@ -148,6 +154,43 @@ void Screen::draw_light_mask(const Eigen::Vector2f bottom_left,
 
 void Screen::end_lighting_pass() {
   // This method is no longer used - lighting uses simple draw_rectangle calls instead
+}
+
+void Screen::draw_fullscreen_shader(const class Shader& shader, const float z_level) {
+  // Save current OpenGL state
+  GLboolean depth_test_was_enabled = glIsEnabled(GL_DEPTH_TEST);
+  if (!depth_test_was_enabled) {
+    glEnable(GL_DEPTH_TEST);
+  }
+
+  // Use the provided shader
+  glUseProgram(shader.get_program_id());
+
+  // Render a fullscreen quad using immediate mode OpenGL
+  glBegin(GL_QUADS);
+  glColor4f(1.0f, 1.0f, 1.0f, 1.0f); // White color for shader
+
+  // Bottom-left
+  glVertex3f(-1.0f, -1.0f, z_level);
+
+  // Bottom-right
+  glVertex3f(1.0f, -1.0f, z_level);
+
+  // Top-right
+  glVertex3f(1.0f, 1.0f, z_level);
+
+  // Top-left
+  glVertex3f(-1.0f, 1.0f, z_level);
+
+  glEnd();
+
+  // Reset to no shader
+  glUseProgram(0);
+
+  // Restore OpenGL state
+  if (!depth_test_was_enabled) {
+    glDisable(GL_DEPTH_TEST);
+  }
 }
 
 void Screen::set_viewport_center(const Eigen::Vector2f new_center) {

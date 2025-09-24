@@ -1,0 +1,16 @@
+filegroup(
+    name = "basic_shader",
+    srcs = [
+        "basic.vert",
+        "basic.frag",
+    ],
+    visibility = ["//shader_demo:__subpackages__"],
+)
+
+filegroup(
+    name = "all_shaders",
+    srcs = [
+        ":basic_shader",
+    ],
+    visibility = ["//shader_demo:__subpackages__"],
+)
