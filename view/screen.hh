@@ -40,6 +40,11 @@ struct MouseMovedEvent {
   Eigen::Vector2f position;
 };
 
+struct MouseScrollEvent {
+  float delta;  // Positive for scroll up, negative for scroll down
+  Eigen::Vector2f position;
+};
+
 struct KeyPressedEvent {
   sf::Event::KeyEvent key_event;
 };
@@ -49,7 +54,7 @@ struct KeyReleasedEvent {
 };
 
 using EventType = std::variant<MouseUpEvent, MouseMovedEvent, MouseDownEvent,
-                               KeyPressedEvent, KeyReleasedEvent>;
+                               MouseScrollEvent, KeyPressedEvent, KeyReleasedEvent>;
 
 class Screen {
 public:
@@ -81,6 +86,13 @@ public:
   void draw_fullscreen_lighting_shader(const Shader& shader, const float z_level = 0);
 
   void set_viewport_center(const Eigen::Vector2f new_center);
+
+  /**
+   * @brief Set the viewport size for zooming
+   * @param new_size New viewport size in world units
+   * @post Viewport transforms updated to reflect new size
+   */
+  void set_viewport_size(const Eigen::Vector2f new_size);
 
   /**
    * @brief Get the current viewport center in world coordinates

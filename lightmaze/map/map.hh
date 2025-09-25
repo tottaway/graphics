@@ -114,6 +114,15 @@ public:
   on_mouse_moved(const view::MouseMovedEvent &event);
 
   /**
+   * @brief Handle mouse scroll events for zoom control in editor mode
+   * @param event Mouse scroll event with delta and position
+   * @return true if event was handled and should not propagate, false otherwise
+   * @post Zoom level may be updated if in editor mode
+   */
+  [[nodiscard]] virtual Result<bool, std::string>
+  on_mouse_scroll(const view::MouseScrollEvent &event);
+
+  /**
    * @brief Update map state including auto-save timer
    * @param delta_time_ns Time elapsed since last update in nanoseconds
    * @return Ok() on success, Err(message) if update fails
@@ -173,11 +182,11 @@ private:
   Result<void, std::string> auto_save_if_needed();
 
   /**
-   * @brief Update global illumination based on editor mode changes
+   * @brief Update editor-specific components based on editor mode changes
    * @return Ok() on success, Err(message) if component management fails
-   * @post Global light component added/removed based on editor mode
+   * @post Global light and zoom components added/removed based on editor mode
    */
-  Result<void, std::string> update_global_illumination();
+  Result<void, std::string> update_editor_components();
 };
 
 } // namespace lightmaze

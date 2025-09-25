@@ -108,6 +108,10 @@ Result<void, std::string> GameState::handle_event(const view::EventType &event,
                   -> Result<bool, std::string> {
                 return entity->on_key_release(key_release);
               },
+              [&entity](const view::MouseScrollEvent &mouse_scroll)
+                  -> Result<bool, std::string> {
+                return entity->on_mouse_scroll(mouse_scroll);
+              },
               [](const auto &) -> Result<bool, std::string> {
                 return Ok(true);
               },

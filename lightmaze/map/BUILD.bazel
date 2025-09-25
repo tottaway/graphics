@@ -31,6 +31,8 @@ cc_library(
     "//lightmaze:player",
     "//model:game_state",
     "//view:screen",
+    "//components:light_emitter",
+    "//components:zoom",
     "@eigen",
     "@yaml-cpp",
   ],

@@ -35,3 +35,10 @@ entities:
     size:
       x: 0.358609796
       y: 0.00999999978
+  - type: platform
+    top_center_position:
+      x: 0.412077665
+      y: 1.30105567
+    size:
+      x: 0.767999887
+      y: 0.0480000377

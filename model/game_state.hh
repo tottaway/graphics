@@ -91,6 +91,16 @@ public:
     return Ok(true);
   }
 
+  /// Handler for mouse scroll
+  /// @param[in] mouse_scroll underlying event from the screen
+  /// @return true if we should keep passing this event to other entities,
+  /// false otherwise, propagates any error which occur while handling the
+  /// event
+  [[nodiscard]] virtual Result<bool, std::string>
+  on_mouse_scroll(const view::MouseScrollEvent &mouse_scroll) {
+    return Ok(true);
+  }
+
   /// Handler for key press
   /// @param[in] key_press underlying event from the screen
   /// @return true if we should keep passing this event to other entities,

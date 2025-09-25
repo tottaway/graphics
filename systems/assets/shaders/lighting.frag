@@ -25,8 +25,7 @@ void main() {
         // Calculate light intensity with smooth falloff
         if (distance < light_radii[i]) {
             // Quadratic falloff for realistic lighting
-            float normalized_distance = distance / light_radii[i];
-            float intensity = 1.0 - (normalized_distance * normalized_distance);
+            float intensity = 1.0;
 
             // Convert light color from 0-255 range to 0-1 range and apply intensity
             vec3 light_contribution = (light_colors[i] / 255.0) * intensity;

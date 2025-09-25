@@ -194,3 +194,16 @@ cc_library(
   ],
   visibility = ["//visibility:public"],
 )
+
+cc_library(
+  name = "zoom",
+  srcs = ["zoom.cc"],
+  hdrs = ["zoom.hh"],
+  deps = [
+    ":component",
+    "//view:screen",
+    "//utility:try",
+    "@eigen",
+  ],
+  visibility = ["//visibility:public"],
+)

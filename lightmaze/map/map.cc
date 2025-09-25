@@ -1,5 +1,6 @@
 #include "lightmaze/map/map.hh"
 #include "components/light_emitter.hh"
+#include "components/zoom.hh"
 #include "lightmaze/map/map_entity.hh"
 #include "lightmaze/map/map_mode_manager.hh"
 #include "lightmaze/player.hh"
@@ -178,9 +179,27 @@ Map::on_mouse_moved(const view::MouseMovedEvent &event) {
   return Ok(true); // Event not handled, continue processing
 }
 
+Result<bool, std::string>
+Map::on_mouse_scroll(const view::MouseScrollEvent &event) {
+  // Get the zoom component and apply zoom factor
+  // Note: We apply zoom even if not in editor mode - if we're not in editor mode,
+  // the zoom will be reset to 1.0 by update_editor_components() on the next frame
+  auto maybe_zoom_component = get_component<component::Zoom>();
+  if (maybe_zoom_component.has_value()) {
+    // Convert scroll delta to zoom factor
+    // Positive delta = scroll up = zoom in, negative delta = scroll down = zoom out
+    const float zoom_factor = event.delta > 0.0f ? 1.1f : 0.9f;
+    maybe_zoom_component.value()->apply_zoom_factor(zoom_factor);
+
+    return Ok(false); // Event handled, stop processing other entities
+  }
+
+  return Ok(true); // No zoom component, pass through
+}
+
 Result<void, std::string> Map::update(const int64_t delta_time_ns) {
-  // Update global illumination based on editor mode changes
-  TRY_VOID(update_global_illumination());
+  // Update editor-specific components based on editor mode changes
+  TRY_VOID(update_editor_components());
 
   // Update auto-save timer
   time_since_last_save_ns_ += delta_time_ns;
@@ -224,7 +243,7 @@ Result<void, std::string> Map::auto_save_if_needed() {
   return Ok();
 }
 
-Result<void, std::string> Map::update_global_illumination() {
+Result<void, std::string> Map::update_editor_components() {
   auto* mode_manager = get_mode_manager();
   if (!mode_manager) {
     return Ok(); // No mode manager, nothing to do
@@ -237,15 +256,24 @@ Result<void, std::string> Map::update_global_illumination() {
     was_in_editor_mode_ = is_editor_mode;
 
     if (is_editor_mode) {
-      // Entering editor mode - add global illumination
+      // Entering editor mode - add global illumination and zoom
       component::LightEmitter::GlobalLightParams global_params{
         .color = {255, 255, 255}, // White light
         .intensity = 1.0f         // Full intensity
       };
       add_component<component::LightEmitter>(global_params);
+      add_component<component::Zoom>(1.0f); // Start with default zoom
     } else {
-      // Exiting editor mode - remove global illumination
+      // Exiting editor mode - remove global illumination and zoom
       remove_components<component::LightEmitter>();
+      remove_components<component::Zoom>();
+    }
+  } else if (!is_editor_mode) {
+    // Not in editor mode - ensure zoom is at default level
+    // This handles the case where user scrolled while not in editor mode
+    auto maybe_zoom_component = get_component<component::Zoom>();
+    if (maybe_zoom_component.has_value()) {
+      maybe_zoom_component.value()->reset_zoom();
     }
   }
 

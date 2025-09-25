@@ -257,6 +257,31 @@ void Screen::set_viewport_center(const Eigen::Vector2f new_center) {
   game_m_from_window_pixels_ = window_pixels_from_game_m_.inverse();
 }
 
+void Screen::set_viewport_size(const Eigen::Vector2f new_size) {
+  viewport_size_m_ = new_size;
+
+  // Recalculate viewport transform based on new size (same logic as handle_resize)
+  const float viewport_aspect_ratio =
+      viewport_size_m_.x() / viewport_size_m_.y();
+  const float window_aspect_ratio =
+      window_size_pixels_.x() / window_size_pixels_.y();
+  if (viewport_aspect_ratio > window_aspect_ratio) {
+    viewport_pixels_from_viewport_m_ = Eigen::Scaling(
+        window_size_pixels_.x() / viewport_size_m_.x(),
+        window_size_pixels_.x() / viewport_aspect_ratio / viewport_size_m_.y());
+  } else {
+    viewport_pixels_from_viewport_m_ = Eigen::Scaling(
+        window_size_pixels_.y() * viewport_aspect_ratio / viewport_size_m_.x(),
+        window_size_pixels_.y() / viewport_size_m_.y());
+  }
+
+  // Recalculate derived transforms
+  window_pixels_from_game_m_ = window_pixels_from_viewport_pixels_ *
+                               viewport_pixels_from_viewport_m_ *
+                               viewport_m_from_game_m_;
+  game_m_from_window_pixels_ = window_pixels_from_game_m_.inverse();
+}
+
 Eigen::Vector2f Screen::get_viewport_center() const {
   return game_m_viewport_center_;
 }
@@ -328,11 +353,17 @@ Result<bool, std::string> Screen::poll_events_and_check_for_close() {
       handle_resize({event.size.width, event.size.height});
       break;
     }
+    case sf::Event::EventType::MouseWheelScrolled: {
+      events_.emplace_back(MouseScrollEvent{
+          event.mouseWheelScroll.delta,
+          game_m_from_window_pixels_ *
+              Eigen::Vector2f{event.mouseWheelScroll.x, event.mouseWheelScroll.y}});
+      break;
+    }
     case sf::Event::EventType::LostFocus:
     case sf::Event::EventType::GainedFocus:
     case sf::Event::EventType::TextEntered:
     case sf::Event::EventType::MouseWheelMoved:
-    case sf::Event::EventType::MouseWheelScrolled:
     case sf::Event::EventType::MouseEntered:
     case sf::Event::EventType::MouseLeft:
     case sf::Event::EventType::JoystickButtonPressed:
