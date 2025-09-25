@@ -22,6 +22,9 @@ Result<void, std::string> Map::init() {
   auto mode_manager = TRY(add_child_entity_and_init<MapModeManager>());
   mode_manager_id_ = mode_manager->get_entity_id();
 
+  // Add zoom component
+  add_component<component::Zoom>(1.0f); // Start with default zoom
+
   // Try to load saved state first, fall back to default if not available
   auto load_result = load_saved_state();
   if (load_result.isErr()) {
@@ -44,8 +47,9 @@ Result<void, std::string> Map::init() {
   return Ok();
 }
 
-MapModeManager* Map::get_mode_manager() const {
-  auto result = game_state_.get_entity_pointer_by_id_as<MapModeManager>(mode_manager_id_);
+MapModeManager *Map::get_mode_manager() const {
+  auto result =
+      game_state_.get_entity_pointer_by_id_as<MapModeManager>(mode_manager_id_);
   if (result.isOk()) {
     return result.unwrap();
   }
@@ -64,7 +68,6 @@ Map::add_platform(const Eigen::Vector2f &top_center_position,
 
   return Ok(map_entity->get_entity_id());
 }
-
 
 Result<void, std::string>
 Map::save_current_state(const std::string &file_path) {
@@ -140,11 +143,10 @@ Result<void, std::string> Map::load_saved_state(const std::string &file_path) {
   }
 }
 
-
 Result<bool, std::string>
 Map::on_mouse_down(const view::MouseDownEvent &event) {
   // Only handle left-click in editor mode
-  auto* mode_manager = get_mode_manager();
+  auto *mode_manager = get_mode_manager();
   if (!mode_manager || !mode_manager->is_editor_mode() ||
       event.button != view::MouseButton::Left) {
     return Ok(true); // Event not handled, continue processing
@@ -159,7 +161,7 @@ Map::on_mouse_down(const view::MouseDownEvent &event) {
 
 Result<bool, std::string> Map::on_mouse_up(const view::MouseUpEvent &event) {
   // Only handle left-click release in editor mode during creation
-  auto* mode_manager = get_mode_manager();
+  auto *mode_manager = get_mode_manager();
   if (!mode_manager || !mode_manager->is_editor_mode() ||
       event.button != view::MouseButton::Left || !is_creating_platform_) {
     return Ok(true); // Event not handled, continue processing
@@ -182,12 +184,14 @@ Map::on_mouse_moved(const view::MouseMovedEvent &event) {
 Result<bool, std::string>
 Map::on_mouse_scroll(const view::MouseScrollEvent &event) {
   // Get the zoom component and apply zoom factor
-  // Note: We apply zoom even if not in editor mode - if we're not in editor mode,
-  // the zoom will be reset to 1.0 by update_editor_components() on the next frame
+  // Note: We apply zoom even if not in editor mode - if we're not in editor
+  // mode, the zoom will be reset to 1.0 by update_editor_components() on the
+  // next frame
   auto maybe_zoom_component = get_component<component::Zoom>();
   if (maybe_zoom_component.has_value()) {
     // Convert scroll delta to zoom factor
-    // Positive delta = scroll up = zoom in, negative delta = scroll down = zoom out
+    // Positive delta = scroll up = zoom in, negative delta = scroll down = zoom
+    // out
     const float zoom_factor = event.delta > 0.0f ? 1.1f : 0.9f;
     maybe_zoom_component.value()->apply_zoom_factor(zoom_factor);
 
@@ -244,7 +248,7 @@ Result<void, std::string> Map::auto_save_if_needed() {
 }
 
 Result<void, std::string> Map::update_editor_components() {
-  auto* mode_manager = get_mode_manager();
+  auto *mode_manager = get_mode_manager();
   if (!mode_manager) {
     return Ok(); // No mode manager, nothing to do
   }
@@ -258,15 +262,17 @@ Result<void, std::string> Map::update_editor_components() {
     if (is_editor_mode) {
       // Entering editor mode - add global illumination and zoom
       component::LightEmitter::GlobalLightParams global_params{
-        .color = {255, 255, 255}, // White light
-        .intensity = 1.0f         // Full intensity
+          .color = {255, 255, 255}, // White light
+          .intensity = 1.0f         // Full intensity
       };
       add_component<component::LightEmitter>(global_params);
-      add_component<component::Zoom>(1.0f); // Start with default zoom
     } else {
       // Exiting editor mode - remove global illumination and zoom
       remove_components<component::LightEmitter>();
-      remove_components<component::Zoom>();
+      auto maybe_zoom_component = get_component<component::Zoom>();
+      if (maybe_zoom_component.has_value()) {
+        maybe_zoom_component.value()->reset_zoom();
+      }
     }
   } else if (!is_editor_mode) {
     // Not in editor mode - ensure zoom is at default level
