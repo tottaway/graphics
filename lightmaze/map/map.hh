@@ -152,6 +152,9 @@ private:
   int64_t time_since_last_save_ns_{0};
   static constexpr int64_t auto_save_interval_ns_{5'000'000'000}; // 5 seconds
 
+  /// Global illumination state for editor mode
+  bool was_in_editor_mode_{false};
+
   /**
    * @brief Create a platform from start and end positions
    * @param start Start position of drag (world coordinates)
@@ -168,6 +171,13 @@ private:
    * @post Save may occur if enough time has passed since last save
    */
   Result<void, std::string> auto_save_if_needed();
+
+  /**
+   * @brief Update global illumination based on editor mode changes
+   * @return Ok() on success, Err(message) if component management fails
+   * @post Global light component added/removed based on editor mode
+   */
+  Result<void, std::string> update_global_illumination();
 };
 
 } // namespace lightmaze

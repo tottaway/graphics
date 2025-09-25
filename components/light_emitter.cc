@@ -14,22 +14,6 @@ CircularLightGeometry::CircularLightGeometry(float radius_meters)
   }
 }
 
-float CircularLightGeometry::get_intensity_at_point(
-    const Eigen::Vector2f& world_position,
-    const Eigen::Vector2f& test_point) const {
-
-  // Calculate distance from light center to test point
-  const float distance = (test_point - world_position).norm();
-
-  // No light beyond the radius
-  if (distance >= radius_meters_) {
-    return 0.0f;
-  }
-
-  // TODO: Implement distance-based falloff (linear, quadratic, exponential)
-  // For now, uniform illumination within radius
-  return 1.0f;
-}
 
 void CircularLightGeometry::set_radius(float new_radius_meters) {
   if (new_radius_meters > 0.0f) {
@@ -42,6 +26,13 @@ void CircularLightGeometry::set_radius(float new_radius_meters) {
 LightEmitter::LightEmitter(const CircularLightParams& params)
     : transform_func_(params.transform_func),
       geometry_(std::make_shared<CircularLightGeometry>(params.radius_meters)),
+      color_(params.color),
+      intensity_(std::clamp(params.intensity, 0.0f, 1.0f)) {
+}
+
+LightEmitter::LightEmitter(const GlobalLightParams& params)
+    : transform_func_([]() { return Eigen::Affine2f::Identity(); }), // Global lights don't need position
+      geometry_(std::make_shared<GlobalLightGeometry>()),
       color_(params.color),
       intensity_(std::clamp(params.intensity, 0.0f, 1.0f)) {
 }

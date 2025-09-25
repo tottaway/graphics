@@ -3,6 +3,7 @@
 #include "view/screen.hh"
 #include <Eigen/Geometry>
 #include <functional>
+#include <limits>
 #include <memory>
 
 namespace component {
@@ -20,21 +21,37 @@ public:
    */
   [[nodiscard]] virtual std::string_view get_geometry_type() const = 0;
 
-  /**
-   * @brief Check if a world point is illuminated by this light geometry
-   * @param world_position Position of the light source
-   * @param test_point Point to test for illumination
-   * @return Intensity at test_point (0.0 = no light, 1.0 = full intensity)
-   */
-  [[nodiscard]] virtual float get_intensity_at_point(
-      const Eigen::Vector2f& world_position,
-      const Eigen::Vector2f& test_point) const = 0;
 
   /**
    * @brief Get the bounding radius for optimization
    * @return Maximum distance from center that this light can affect
    */
   [[nodiscard]] virtual float get_bounding_radius() const = 0;
+};
+
+/**
+ * @brief Global light geometry that illuminates everywhere uniformly
+ */
+class GlobalLightGeometry : public LightGeometry {
+public:
+  /// Geometry type identifier for global lights
+  static constexpr std::string_view geometry_type_name = "global";
+
+  /**
+   * @brief Construct global light geometry
+   * @post Light provides uniform illumination everywhere
+   */
+  GlobalLightGeometry() = default;
+
+  [[nodiscard]] std::string_view get_geometry_type() const override {
+    return geometry_type_name;
+  }
+
+
+  [[nodiscard]] float get_bounding_radius() const override {
+    // Global light affects infinite radius
+    return std::numeric_limits<float>::max();
+  }
 };
 
 /**
@@ -56,9 +73,6 @@ public:
     return geometry_type_name;
   }
 
-  [[nodiscard]] float get_intensity_at_point(
-      const Eigen::Vector2f& world_position,
-      const Eigen::Vector2f& test_point) const override;
 
   [[nodiscard]] float get_bounding_radius() const override {
     return radius_meters_;
@@ -116,6 +130,14 @@ public:
   };
 
   /**
+   * @brief Parameters for creating a global light
+   */
+  struct GlobalLightParams {
+    view::Color color;
+    float intensity;
+  };
+
+  /**
    * @brief Parameters for creating a light with custom geometry
    */
   struct CustomGeometryLightParams {
@@ -132,6 +154,13 @@ public:
    * @pre params.intensity >= 0.0f && params.intensity <= 1.0f
    */
   explicit LightEmitter(const CircularLightParams& params);
+
+  /**
+   * @brief Construct a global light emitter
+   * @param params Parameters for global light configuration
+   * @pre params.intensity >= 0.0f && params.intensity <= 1.0f
+   */
+  explicit LightEmitter(const GlobalLightParams& params);
 
   /**
    * @brief Construct a light emitter with custom geometry

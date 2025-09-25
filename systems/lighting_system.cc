@@ -104,12 +104,42 @@ LightingSystem::set_lighting_uniforms(const view::Screen &screen) const {
   light_colors.reserve(light_count);
   light_radii.reserve(light_count);
 
-  // Extract data from active lights (only circular lights for now)
+  // Extract data from active lights
   for (int32_t i = 0; i < light_count; ++i) {
     const auto &light_info = active_lights_[i];
 
-    // Position
-    light_positions.push_back(light_info.world_position);
+    // Position and radius (depends on geometry type)
+    Eigen::Vector2f position;
+    float radius = 1.0f; // Default fallback
+
+    if (light_info.geometry) {
+      const auto geometry_type = light_info.geometry->get_geometry_type();
+
+      if (geometry_type == component::CircularLightGeometry::geometry_type_name) {
+        // Regular circular light - use entity position
+        position = light_info.world_position;
+        const auto *circular_geometry =
+            dynamic_cast<const component::CircularLightGeometry *>(
+                light_info.geometry.get());
+        if (circular_geometry) {
+          radius = circular_geometry->get_radius();
+        }
+      } else if (geometry_type == component::GlobalLightGeometry::geometry_type_name) {
+        // Global light - center at viewport with very large radius
+        position = screen.get_viewport_center();
+        radius = 1000.0f; // Very large radius to cover entire screen
+      } else {
+        // Unknown geometry type - fallback to entity position
+        position = light_info.world_position;
+      }
+    } else {
+      // No geometry - fallback to entity position
+      position = light_info.world_position;
+    }
+
+    // Add processed data to arrays
+    light_positions.push_back(position);
+    light_radii.push_back(radius);
 
     // Color with intensity applied
     const float effective_intensity = light_info.intensity;
@@ -117,22 +147,6 @@ LightingSystem::set_lighting_uniforms(const view::Screen &screen) const {
         Eigen::Vector3f{light_info.color.r * effective_intensity,
                         light_info.color.g * effective_intensity,
                         light_info.color.b * effective_intensity});
-
-    // Radius (extract from circular geometry)
-    float radius = 1.0f; // Default fallback
-    if (light_info.geometry) {
-      const auto geometry_type = light_info.geometry->get_geometry_type();
-      if (geometry_type ==
-          component::CircularLightGeometry::geometry_type_name) {
-        const auto *circular_geometry =
-            dynamic_cast<const component::CircularLightGeometry *>(
-                light_info.geometry.get());
-        if (circular_geometry) {
-          radius = circular_geometry->get_radius();
-        }
-      }
-    }
-    light_radii.push_back(radius);
   }
 
   // Set uniform arrays

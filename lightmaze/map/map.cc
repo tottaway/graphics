@@ -1,4 +1,5 @@
 #include "lightmaze/map/map.hh"
+#include "components/light_emitter.hh"
 #include "lightmaze/map/map_entity.hh"
 #include "lightmaze/map/map_mode_manager.hh"
 #include "lightmaze/player.hh"
@@ -178,6 +179,9 @@ Map::on_mouse_moved(const view::MouseMovedEvent &event) {
 }
 
 Result<void, std::string> Map::update(const int64_t delta_time_ns) {
+  // Update global illumination based on editor mode changes
+  TRY_VOID(update_global_illumination());
+
   // Update auto-save timer
   time_since_last_save_ns_ += delta_time_ns;
 
@@ -217,6 +221,34 @@ Result<void, std::string> Map::auto_save_if_needed() {
   if (time_since_last_save_ns_ >= auto_save_interval_ns_) {
     TRY_VOID(save_current_state());
   }
+  return Ok();
+}
+
+Result<void, std::string> Map::update_global_illumination() {
+  auto* mode_manager = get_mode_manager();
+  if (!mode_manager) {
+    return Ok(); // No mode manager, nothing to do
+  }
+
+  const bool is_editor_mode = mode_manager->is_editor_mode();
+
+  if (is_editor_mode != was_in_editor_mode_) {
+    // Editor mode state changed
+    was_in_editor_mode_ = is_editor_mode;
+
+    if (is_editor_mode) {
+      // Entering editor mode - add global illumination
+      component::LightEmitter::GlobalLightParams global_params{
+        .color = {255, 255, 255}, // White light
+        .intensity = 1.0f         // Full intensity
+      };
+      add_component<component::LightEmitter>(global_params);
+    } else {
+      // Exiting editor mode - remove global illumination
+      remove_components<component::LightEmitter>();
+    }
+  }
+
   return Ok();
 }
 
