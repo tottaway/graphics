@@ -47,7 +47,8 @@ Screen::Screen(const Eigen::Vector2f viewport_size_m,
   // Initialize GLEW for modern OpenGL functions
   GLenum glew_result = glewInit();
   if (glew_result != GLEW_OK) {
-    std::cerr << "GLEW initialization failed: " << glewGetErrorString(glew_result) << std::endl;
+    std::cerr << "GLEW initialization failed: "
+              << glewGetErrorString(glew_result) << std::endl;
   }
 
   // Enable depth testing for proper z-level support
@@ -144,19 +145,24 @@ void Screen::draw_text(const Eigen::Vector2f location, const float font_size,
 }
 
 void Screen::begin_lighting_pass() {
-  // This method is no longer used - lighting uses simple draw_rectangle calls instead
+  // This method is no longer used - lighting uses simple draw_rectangle calls
+  // instead
 }
 
 void Screen::draw_light_mask(const Eigen::Vector2f bottom_left,
-                             const Eigen::Vector2f top_right, const Color color) {
-  // This method is no longer used - lighting uses simple draw_rectangle calls instead
+                             const Eigen::Vector2f top_right,
+                             const Color color) {
+  // This method is no longer used - lighting uses simple draw_rectangle calls
+  // instead
 }
 
 void Screen::end_lighting_pass() {
-  // This method is no longer used - lighting uses simple draw_rectangle calls instead
+  // This method is no longer used - lighting uses simple draw_rectangle calls
+  // instead
 }
 
-void Screen::draw_fullscreen_shader(const class Shader& shader, const float z_level) {
+void Screen::draw_fullscreen_shader(const class Shader &shader,
+                                    const float z_level) {
   // Save current OpenGL state
   GLboolean depth_test_was_enabled = glIsEnabled(GL_DEPTH_TEST);
   if (!depth_test_was_enabled) {
@@ -193,7 +199,8 @@ void Screen::draw_fullscreen_shader(const class Shader& shader, const float z_le
   }
 }
 
-void Screen::draw_fullscreen_lighting_shader(const class Shader& shader, const float z_level) {
+void Screen::draw_fullscreen_lighting_shader(const class Shader &shader,
+                                             const float z_level) {
   // Save current OpenGL state
   GLboolean depth_test_was_enabled = glIsEnabled(GL_DEPTH_TEST);
   GLboolean blend_was_enabled = glIsEnabled(GL_BLEND);
@@ -207,7 +214,8 @@ void Screen::draw_fullscreen_lighting_shader(const class Shader& shader, const f
 
   // Enable multiplicative blending for lighting
   glEnable(GL_BLEND);
-  glBlendFunc(GL_ZERO, GL_SRC_COLOR);  // Multiplicative: result = 0 * dest + src * dest = src * dest
+  glBlendFunc(GL_ZERO, GL_SRC_COLOR); // Multiplicative: result = 0 * dest + src
+                                      // * dest = src * dest
 
   // Use the provided shader
   glUseProgram(shader.get_program_id());
@@ -248,19 +256,20 @@ void Screen::draw_fullscreen_lighting_shader(const class Shader& shader, const f
 void Screen::set_viewport_center(const Eigen::Vector2f new_center) {
   game_m_viewport_center_ = new_center;
 
-  viewport_m_from_game_m_ = Eigen::Translation2f{-new_center};
+  //   viewport_m_from_game_m_ = Eigen::Translation2f{-new_center};
 
-  window_pixels_from_game_m_ = window_pixels_from_viewport_pixels_ *
-                               viewport_pixels_from_viewport_m_ *
-                               viewport_m_from_game_m_;
+  //   window_pixels_from_game_m_ = window_pixels_from_viewport_pixels_ *
+  //                                viewport_pixels_from_viewport_m_ *
+  //                                viewport_m_from_game_m_;
 
-  game_m_from_window_pixels_ = window_pixels_from_game_m_.inverse();
+  //   game_m_from_window_pixels_ = window_pixels_from_game_m_.inverse();
 }
 
 void Screen::set_viewport_size(const Eigen::Vector2f new_size) {
   viewport_size_m_ = new_size;
 
-  // Recalculate viewport transform based on new size (same logic as handle_resize)
+  // Recalculate viewport transform based on new size (same logic as
+  // handle_resize)
   const float viewport_aspect_ratio =
       viewport_size_m_.x() / viewport_size_m_.y();
   const float window_aspect_ratio =
@@ -286,25 +295,24 @@ Eigen::Vector2f Screen::get_viewport_center() const {
   return game_m_viewport_center_;
 }
 
-Eigen::Vector2f Screen::get_viewport_size() const {
-  return viewport_size_m_;
-}
+Eigen::Vector2f Screen::get_viewport_size() const { return viewport_size_m_; }
 
 Eigen::Vector2f Screen::get_actual_viewport_size() const {
-  // Calculate the actual visible viewport size by transforming screen corners to world space
-  // The fullscreen quad goes from (-1,-1) to (1,1) in normalized device coordinates
+  // Calculate the actual visible viewport size by transforming screen corners
+  // to world space The fullscreen quad goes from (-1,-1) to (1,1) in normalized
+  // device coordinates
 
   // Transform the corners of the screen to world coordinates
-  const Eigen::Vector2f top_right_world = game_m_from_window_pixels_ *
-    Eigen::Vector2f(window_size_pixels_.x(), 0.0f);
-  const Eigen::Vector2f bottom_left_world = game_m_from_window_pixels_ *
-    Eigen::Vector2f(0.0f, window_size_pixels_.y());
+  const Eigen::Vector2f top_right_world =
+      game_m_from_window_pixels_ *
+      Eigen::Vector2f(window_size_pixels_.x(), 0.0f);
+  const Eigen::Vector2f bottom_left_world =
+      game_m_from_window_pixels_ *
+      Eigen::Vector2f(0.0f, window_size_pixels_.y());
 
   // Calculate the actual visible size
-  return Eigen::Vector2f(
-    std::abs(top_right_world.x() - bottom_left_world.x()),
-    std::abs(top_right_world.y() - bottom_left_world.y())
-  );
+  return Eigen::Vector2f(std::abs(top_right_world.x() - bottom_left_world.x()),
+                         std::abs(top_right_world.y() - bottom_left_world.y()));
 }
 
 Result<bool, std::string> Screen::poll_events_and_check_for_close() {
@@ -354,10 +362,11 @@ Result<bool, std::string> Screen::poll_events_and_check_for_close() {
       break;
     }
     case sf::Event::EventType::MouseWheelScrolled: {
-      events_.emplace_back(MouseScrollEvent{
-          event.mouseWheelScroll.delta,
-          game_m_from_window_pixels_ *
-              Eigen::Vector2f{event.mouseWheelScroll.x, event.mouseWheelScroll.y}});
+      events_.emplace_back(
+          MouseScrollEvent{event.mouseWheelScroll.delta,
+                           game_m_from_window_pixels_ *
+                               Eigen::Vector2f{event.mouseWheelScroll.x,
+                                               event.mouseWheelScroll.y}});
       break;
     }
     case sf::Event::EventType::LostFocus:
@@ -392,9 +401,9 @@ const std::vector<EventType> &Screen::get_events() const { return events_; }
 void Screen::clear_events() { events_.clear(); }
 
 void Screen::handle_resize(const Eigen::Vector2i new_size_pixels) {
-  if (window_size_pixels_.cast<int>() == new_size_pixels) {
-    return;
-  }
+  // if (window_size_pixels_.cast<int>() == new_size_pixels) {
+  //   return;
+  // }
 
   // save window size
   window_size_pixels_ = new_size_pixels.cast<float>();

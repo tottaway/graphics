@@ -115,14 +115,11 @@ void MapEntity::add_light_detector_component() {
 Result<void, std::string> MapEntity::update(const int64_t delta_time_ns) {
   // Update all components
   if (is_illuminated_ != was_illuminated_last_frame_) {
-    std::cout << "illumination changed" << std::endl;
     if (is_illuminated_) {
-      std::cout << "removing" << std::endl;
       remove_components<component::Collider>();
       // the light detector is also a collider so we need to add it back
       add_light_detector_component();
     } else {
-      std::cout << "adding" << std::endl;
       add_collider_components();
     }
     was_illuminated_last_frame_ = is_illuminated_;
@@ -229,6 +226,10 @@ MapEntity::on_mouse_down(const view::MouseDownEvent &event) {
   // Only handle right-click events
   if (event.button != view::MouseButton::Right) {
     return Ok(true); // Event not handled, continue processing
+  }
+
+  if (!geometry::rectangle_contains_point(get_transform(), event.position)) {
+    return Ok(true);
   }
 
   // Check if we're in editor mode by finding the MapModeManager

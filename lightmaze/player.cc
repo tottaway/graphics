@@ -68,7 +68,7 @@ Result<void, std::string> Player::init() {
   light_emitter_component_ = add_component<component::LightEmitter>(
       component::LightEmitter::CircularLightParams{
           .transform_func = [this]() { return get_transform(); },
-          .radius_meters = 0.7f,        // 0.7 meter radius light
+          .radius_meters = .8,
           .color = player_light_color_, // Pure white light
           .intensity = 1.0f             // Full intensity
       });
@@ -150,19 +150,19 @@ Player::on_key_press(const view::KeyPressedEvent &key_press) {
   // Color selection keys
   case sf::Keyboard::Num1:
     set_light_color({255, 255, 255}); // White
-    return Ok(false); // Event handled, stop processing
+    return Ok(false);                 // Event handled, stop processing
 
   case sf::Keyboard::Num2:
     set_light_color({255, 0, 0}); // Red
-    return Ok(false); // Event handled, stop processing
+    return Ok(false);             // Event handled, stop processing
 
   case sf::Keyboard::Num3:
     set_light_color({0, 0, 255}); // Blue
-    return Ok(false); // Event handled, stop processing
+    return Ok(false);             // Event handled, stop processing
 
   case sf::Keyboard::Num4:
     set_light_color({0, 255, 0}); // Green
-    return Ok(false); // Event handled, stop processing
+    return Ok(false);             // Event handled, stop processing
 
   default:
     return Ok(true); // Event not handled, continue processing
@@ -200,7 +200,7 @@ Eigen::Affine2f Player::get_transform() const {
   return transform;
 }
 
-void Player::set_light_color(const view::Color& new_color) {
+void Player::set_light_color(const view::Color &new_color) {
   player_light_color_ = new_color;
 
   // Update the light emitter component color if it exists

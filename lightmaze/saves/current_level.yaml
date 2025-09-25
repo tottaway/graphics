@@ -6,19 +6,8 @@ entities:
       b: 0
     type: platform
     top_center_position:
-      x: 0.374638796
-      y: -0.110857964
-    size:
-      x: 3.47908139
-      y: 0.0403690338
-  - color:
-      r: 0
-      g: 0
-      b: 0
-    type: platform
-    top_center_position:
-      x: -3.49370623
-      y: 3.28014565
+      x: -0.799781322
+      y: 3.16195011
     size:
       x: 0.403690815
       y: 1.73587084
@@ -28,8 +17,8 @@ entities:
       b: 0
     type: platform
     top_center_position:
-      x: 0.0201365948
-      y: -0.184722424
+      x: 0.03404212
+      y: -0.115866184
     size:
       x: 3.92666125
       y: 0.790366411
@@ -50,8 +39,8 @@ entities:
       b: 0
     type: platform
     top_center_position:
-      x: 0.778312683
-      y: 0.499531269
+      x: 0.776130915
+      y: 0.492985845
     size:
       x: 0.14883399
       y: 0.304754972
@@ -61,41 +50,63 @@ entities:
       b: 0
     type: platform
     top_center_position:
-      x: -1.01428509
-      y: 0.542292833
+      x: -0.78484726
+      y: 0.535340548
     size:
       x: 2.07754016
       y: 0.155237436
   - color:
       r: 0
       g: 0
+      b: 0
+    type: platform
+    top_center_position:
+      x: 3.34256244
+      y: 1.04730368
+    size:
+      x: 3.18181825
+      y: 0.0660585165
+  - color:
+      r: 0
+      g: 0
+      b: 0
+    type: platform
+    top_center_position:
+      x: 3.34256244
+      y: 1.04730368
+    size:
+      x: 3.18181825
+      y: 0.0660585165
+  - color:
+      r: 0
+      g: 0
+      b: 0
+    type: platform
+    top_center_position:
+      x: 3.34256244
+      y: 1.04730368
+    size:
+      x: 3.18181825
+      y: 0.0660585165
+  - color:
+      r: 0
+      g: 0
       b: 255
     type: platform
     top_center_position:
-      x: 0.330307245
-      y: 0.989184022
+      x: 1.67584085
+      y: 0.916456461
     size:
-      x: 3.42513371
-      y: 0.0792702436
+      x: 2.07189322
+      y: 0.0278105736
   - color:
       r: 0
       g: 0
-      b: 0
+      b: 255
     type: platform
     top_center_position:
-      x: 0.56149745
-      y: 1.12378287
+      x: 1.67584085
+      y: 0.916456461
     size:
-      x: 3.18181825
-      y: 0.0660585165
-  - color:
-      r: 0
-      g: 0
-      b: 0
-    type: platform
-    top_center_position:
-      x: 0.56149745
-      y: 1.12378287
-    size:
-      x: 3.18181825
-      y: 0.0660585165
+      x: 2.07189322
+      y: 0.0278105736

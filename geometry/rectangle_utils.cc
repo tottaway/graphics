@@ -12,7 +12,7 @@ bool rectangle_contains_point(const Eigen::Affine2f &transform,
                               const Eigen::Vector2f &point) {
   const auto transformed_point = transform.inverse() * point;
   return transformed_point.x() < 1.0f && transformed_point.x() > -1.0f &&
-         transformed_point.y() < 1.0f && transformed_point.x() > -1.0f;
+         transformed_point.y() < 1.0f && transformed_point.y() > -1.0f;
 }
 
 Eigen::Affine2f make_square_from_center_and_size(const Eigen::Vector2f &center,

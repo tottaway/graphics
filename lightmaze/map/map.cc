@@ -154,6 +154,7 @@ Result<void, std::string> Map::load_saved_state(const std::string &file_path) {
 
 Result<bool, std::string>
 Map::on_mouse_down(const view::MouseDownEvent &event) {
+  std::cout << "updating " << event.position.transpose() << "pos " << std::endl;
   // Only handle left-click in editor mode
   auto *mode_manager = get_mode_manager();
   if (!mode_manager || !mode_manager->is_editor_mode() ||
