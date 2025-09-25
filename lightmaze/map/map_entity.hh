@@ -1,9 +1,10 @@
 #pragma once
 #include "model/game_state.hh"
-#include <yaml-cpp/yaml.h>
+#include "view/screen.hh"
 #include <Eigen/Geometry>
-#include <variant>
 #include <chrono>
+#include <variant>
+#include <yaml-cpp/yaml.h>
 
 namespace lightmaze {
 
@@ -30,6 +31,7 @@ public:
   struct PlatformParams {
     Eigen::Vector2f top_center_position{0.0f, 0.0f};
     Eigen::Vector2f size{2.0f, 0.2f};
+    view::Color platform_color{0, 0, 0};
   };
 
   /**
@@ -59,7 +61,8 @@ public:
 
   /**
    * @brief Initialize the MapEntity with the specified parameters
-   * @param params Configuration parameters determining entity type and properties
+   * @param params Configuration parameters determining entity type and
+   * properties
    * @return Ok() on success, Err(message) if initialization fails
    * @post Entity configured with components appropriate for the specified type
    */
@@ -99,10 +102,10 @@ public:
    */
   [[nodiscard]] Eigen::Vector2f get_top_center_position() const;
 
-
   /**
    * @brief Get the entity size based on its transform
-   * @return Size vector (width, height) in meters calculated from transform bounds
+   * @return Size vector (width, height) in meters calculated from transform
+   * bounds
    */
   [[nodiscard]] Eigen::Vector2f get_size() const;
 
@@ -116,7 +119,8 @@ public:
    * @brief Handle mouse down events for platform manipulation
    * @param event Mouse down event with button and position
    * @return true if event was handled and should not propagate, false otherwise
-   * @post Platform dragging may begin if right-click on this platform in editor mode
+   * @post Platform dragging may begin if right-click on this platform in editor
+   * mode
    */
   [[nodiscard]] virtual Result<bool, std::string>
   on_mouse_down(const view::MouseDownEvent &event);
@@ -125,7 +129,8 @@ public:
    * @brief Handle mouse up events for platform manipulation
    * @param event Mouse up event with button and position
    * @return true if event was handled and should not propagate, false otherwise
-   * @post Platform dragging may end or deletion may occur with double right-click
+   * @post Platform dragging may end or deletion may occur with double
+   * right-click
    */
   [[nodiscard]] virtual Result<bool, std::string>
   on_mouse_up(const view::MouseUpEvent &event);
@@ -140,12 +145,34 @@ public:
   on_mouse_moved(const view::MouseMovedEvent &event);
 
   /**
+   * @brief Handle key press events for platform color selection during drag
+   * @param event Key press event containing which key was pressed
+   * @return true if event was handled and should not propagate, false otherwise
+   * @post Platform color may be updated if number keys 1-4 pressed during drag
+   */
+  [[nodiscard]] virtual Result<bool, std::string>
+  on_key_press(const view::KeyPressedEvent &key_press);
+
+  /**
    * @brief Set the platform's position (updates the top center position)
    * @param new_top_center_position New position for the platform's top center
    * @post Platform position updated and internal state synchronized
    */
   void set_position(const Eigen::Vector2f &new_top_center_position);
 
+  /**
+   * @brief Adds the jump reset and solid aabb collider components
+   * @pre assumes the components are not already present
+   * @post the jump reset and solid aabb collider components are added
+   */
+  void add_collider_components();
+
+  /**
+   * @brief Adds the light volume collider component
+   * @pre assumes the components are not already present
+   * @post the light volumne collider component is added
+   */
+  void add_light_detector_component();
 
 private:
   /// Current entity parameters
@@ -153,6 +180,8 @@ private:
 
   /// Entity position in world coordinates (calculated from params)
   Eigen::Vector2f position_{0.0f, 0.0f};
+
+  view::Color color_{255, 255, 255};
 
   /// Platform manipulation state
   bool is_being_dragged_{false};
@@ -167,14 +196,19 @@ private:
    * @param platform_params Platform-specific parameters
    * @return Ok() on success, Err(message) if initialization fails
    */
-  Result<void, std::string> init_as_platform(const PlatformParams& platform_params);
+  Result<void, std::string>
+  init_as_platform(const PlatformParams &platform_params);
 
   /**
    * @brief Initialize from YAML node data
    * @param yaml_node YAML node containing entity data
    * @return Ok() on success, Err(message) if initialization fails
    */
-  Result<void, std::string> init_from_yaml(const YAML::Node& yaml_node);
+  Result<void, std::string> init_from_yaml(const YAML::Node &yaml_node);
+
+
+  bool was_illuminated_last_frame_{false};
+  bool is_illuminated_{false};
 };
 
 } // namespace lightmaze

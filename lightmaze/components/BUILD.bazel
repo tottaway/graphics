@@ -1,0 +1,25 @@
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+cc_library(
+  name = "lightmaze_light_volume",
+  srcs = ["lightmaze_light_volume.cc"],
+  hdrs = ["lightmaze_light_volume.hh"],
+  deps = [
+    "//components:collider",
+    "//view:screen",
+    "@eigen",
+  ],
+  visibility = [":__subpackages__", "//lightmaze:__subpackages__"],
+)
+
+cc_library(
+  name = "lightmaze_collider",
+  srcs = ["lightmaze_collider.cc"],
+  hdrs = ["lightmaze_collider.hh"],
+  deps = [
+    "//components:collider",
+    "//view:screen",
+    "@eigen",
+  ],
+  visibility = [":__subpackages__", "//lightmaze:__subpackages__"],
+)

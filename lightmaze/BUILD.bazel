@@ -26,6 +26,7 @@ cc_library(
     "//components:gravity",
     "//components:jumper",
     "//components:light_emitter",
+    "//lightmaze/components:lightmaze_light_volume",
     "@eigen",
   ],
   visibility = [":__subpackages__"],

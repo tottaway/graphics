@@ -35,7 +35,9 @@ enum class InteractionType : uint16_t {
   solid_collider = 1U << 9,
   jump_reset_collider = 1U << 10,
   jumper_collider = 1U << 11,
-  max_value = 1U << 12,
+  lightmaze_light_volume = 1U << 12,
+  lightmaze_platform_collider = 1U << 13,
+  max_value = 1U << 14,
 };
 
 static constexpr uint16_t unspecified_collider_interaction_mask{
@@ -85,6 +87,12 @@ static constexpr uint16_t jump_reset_collider_interaction_mask{
 
 static constexpr uint16_t jumper_collider_interaction_mask{
     static_cast<uint16_t>(InteractionType::jump_reset_collider)};
+
+static constexpr uint16_t lightmaze_light_volume_interaction_mask{
+    static_cast<uint16_t>(InteractionType::lightmaze_platform_collider)};
+
+static constexpr uint16_t lightmaze_platform_collider_interaction_mask{
+    static_cast<uint16_t>(InteractionType::lightmaze_light_volume)};
 
 class Collider : public Component {
 public:

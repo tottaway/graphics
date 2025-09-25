@@ -50,6 +50,12 @@ uint16_t get_iteraction_mask_for_interaction_type(
   case InteractionType::jumper_collider: {
     return jumper_collider_interaction_mask;
   }
+  case InteractionType::lightmaze_light_volume: {
+    return lightmaze_light_volume_interaction_mask;
+  }
+  case InteractionType::lightmaze_platform_collider: {
+    return lightmaze_platform_collider_interaction_mask;
+  }
   case InteractionType::max_value: {
     std::cout
         << "UNREACHABLE CODE HIT IN COLLIDER: max value interaction type found"

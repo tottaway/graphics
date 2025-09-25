@@ -7,6 +7,7 @@
 #include "components/jumper.hh"
 #include "components/light_emitter.hh"
 #include "components/sprite.hh"
+#include "lightmaze/components/lightmaze_light_volume.hh"
 #include "model/game_state.hh"
 #include "view/tileset/texture_set.hh"
 #include <SFML/Window/Keyboard.hpp>
@@ -64,13 +65,24 @@ Result<void, std::string> Player::init() {
   );
 
   // Add light emitter component for lighting gameplay
-  add_component<component::LightEmitter>(
+  light_emitter_component_ = add_component<component::LightEmitter>(
       component::LightEmitter::CircularLightParams{
           .transform_func = [this]() { return get_transform(); },
-          .radius_meters = 0.7f,               // 0.7 meter radius light
-          .color = view::Color{255, 255, 255}, // Pure white light
-          .intensity = 1.0f                    // Full intensity
+          .radius_meters = 0.7f,        // 0.7 meter radius light
+          .color = player_light_color_, // Pure white light
+          .intensity = 1.0f             // Full intensity
       });
+
+  // Add LightMazeLightVolume for color-based collision mechanics (50% larger
+  // than player)
+  light_volume_component_ = add_component<component::LightMazeLightVolume>(
+      [this]() {
+        Eigen::Affine2f transform = get_transform();
+        transform.scale(1.5f); // Expand by 50%
+        return transform;
+      },
+      player_light_color_ // same color as light emitter
+  );
 
   return Ok();
 }
@@ -135,6 +147,23 @@ Player::on_key_press(const view::KeyPressedEvent &key_press) {
     jump_pressed_ = true;
     return Ok(false); // Event handled, stop processing
 
+  // Color selection keys
+  case sf::Keyboard::Num1:
+    set_light_color({255, 255, 255}); // White
+    return Ok(false); // Event handled, stop processing
+
+  case sf::Keyboard::Num2:
+    set_light_color({255, 0, 0}); // Red
+    return Ok(false); // Event handled, stop processing
+
+  case sf::Keyboard::Num3:
+    set_light_color({0, 0, 255}); // Blue
+    return Ok(false); // Event handled, stop processing
+
+  case sf::Keyboard::Num4:
+    set_light_color({0, 255, 0}); // Green
+    return Ok(false); // Event handled, stop processing
+
   default:
     return Ok(true); // Event not handled, continue processing
   }
@@ -169,6 +198,20 @@ Eigen::Affine2f Player::get_transform() const {
   transform.translate(position_);
   transform.scale(size_);
   return transform;
+}
+
+void Player::set_light_color(const view::Color& new_color) {
+  player_light_color_ = new_color;
+
+  // Update the light emitter component color if it exists
+  if (light_emitter_component_) {
+    light_emitter_component_->set_color(player_light_color_);
+  }
+
+  // Update the light volume component color if it exists
+  if (light_volume_component_) {
+    light_volume_component_->set_color(player_light_color_);
+  }
 }
 
 } // namespace lightmaze

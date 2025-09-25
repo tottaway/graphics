@@ -1,4 +1,5 @@
 #include "lightmaze/map/map.hh"
+#include "components/draw_rectangle.hh"
 #include "components/light_emitter.hh"
 #include "components/zoom.hh"
 #include "lightmaze/map/map_entity.hh"
@@ -24,6 +25,14 @@ Result<void, std::string> Map::init() {
 
   // Add zoom component
   add_component<component::Zoom>(1.0f); // Start with default zoom
+
+  // Add background
+  add_component<component::DrawRectangle>([this]() {
+    return component::DrawRectangle::RectangleInfo{
+        .transform = get_transform(),
+        .color = view::Color(255, 255, 255),
+    };
+  });
 
   // Try to load saved state first, fall back to default if not available
   auto load_result = load_saved_state();

@@ -21,7 +21,7 @@ public:
                     const model::EntityID entity_id);
 
 private:
-  static constexpr Bounds max_bounds{7.0f, -3.0f, 7.0f, -3.0f};
+  static constexpr Bounds max_bounds{10.0f, -10.0f, 10.0f, -10.0f};
   static constexpr float cell_size_x{(max_bounds.x_max - max_bounds.x_min) /
                                      static_cast<float>(x_dim)};
   static constexpr float cell_size_y{(max_bounds.y_max - max_bounds.y_min) /
@@ -92,8 +92,8 @@ void QuadTree<x_dim, y_dim>::add_collider(component::Collider *collider,
   }
 }
 
-
-Result<void, std::string> Collisions::update(model::GameState& game_state, const int64_t delta_time_ns) {
+Result<void, std::string> Collisions::update(model::GameState &game_state,
+                                             const int64_t delta_time_ns) {
   QuadTree<10, 10> quad_tree;
 
   const auto entities =

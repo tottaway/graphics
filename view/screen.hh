@@ -1,8 +1,8 @@
 #pragma once
 #include "ThirdParty/imgui/imgui.h"
 #include "utility/try.hh"
-#include "view/texture.hh"
 #include "view/shader.hh"
+#include "view/texture.hh"
 #include <Eigen/Dense>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/System/Clock.hpp>
@@ -15,6 +15,9 @@ struct Color {
   int r;
   int g;
   int b;
+  bool operator==(const Color &other) const {
+    return this->r == other.r && this->g == other.g && this->b == other.b;
+  }
 };
 
 /// All support event types, doesn't not include:
@@ -41,7 +44,7 @@ struct MouseMovedEvent {
 };
 
 struct MouseScrollEvent {
-  float delta;  // Positive for scroll up, negative for scroll down
+  float delta; // Positive for scroll up, negative for scroll down
   Eigen::Vector2f position;
 };
 
@@ -53,8 +56,9 @@ struct KeyReleasedEvent {
   sf::Event::KeyEvent key_event;
 };
 
-using EventType = std::variant<MouseUpEvent, MouseMovedEvent, MouseDownEvent,
-                               MouseScrollEvent, KeyPressedEvent, KeyReleasedEvent>;
+using EventType =
+    std::variant<MouseUpEvent, MouseMovedEvent, MouseDownEvent,
+                 MouseScrollEvent, KeyPressedEvent, KeyReleasedEvent>;
 
 class Screen {
 public:
@@ -81,9 +85,10 @@ public:
   void end_lighting_pass();
 
   // Shader rendering methods
-  void draw_fullscreen_shader(const Shader& shader, const float z_level = 0);
+  void draw_fullscreen_shader(const Shader &shader, const float z_level = 0);
 
-  void draw_fullscreen_lighting_shader(const Shader& shader, const float z_level = 0);
+  void draw_fullscreen_lighting_shader(const Shader &shader,
+                                       const float z_level = 0);
 
   void set_viewport_center(const Eigen::Vector2f new_center);
 
@@ -101,9 +106,11 @@ public:
   [[nodiscard]] Eigen::Vector2f get_viewport_center() const;
 
   /**
-   * @brief Get the configured viewport size (desired size before aspect ratio handling)
+   * @brief Get the configured viewport size (desired size before aspect ratio
+   * handling)
    * @return The configured viewport size in world units
-   * @note This is the size set in the constructor, but may not match actual visible area
+   * @note This is the size set in the constructor, but may not match actual
+   * visible area
    */
   [[nodiscard]] Eigen::Vector2f get_viewport_size() const;
 
