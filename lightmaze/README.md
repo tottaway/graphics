@@ -6,10 +6,26 @@ LightMaze is a 2D side-scrolling platformer puzzle game featuring innovative lig
 
 ## Core Mechanics
 
-### Lighting System
-- **Dynamic Light Source**: Player emits a circular light that can change colors
-- **Color-Based Collision**: Objects only collide with the player when they appear visually distinct from the background under current lighting
-- **Example**: Red wall on white background becomes invisible (non-solid) under pure red light, allowing passage
+### Lighting System ✅ IMPLEMENTED
+- **Dynamic Light Source**: Player emits a circular light that can change colors in real-time
+- **Color-Based Collision**: Platforms become non-solid when illuminated by light matching their color
+- **Real-time Switching**: Press keys 1-4 to change light color (White, Red, Blue, Green)
+- **Visual Feedback**: Lighting system provides immediate visual feedback showing which platforms are affected
+- **Physics Integration**: Dynamic collision components are added/removed based on lighting state each frame
+
+### Controls
+- **Movement**: Arrow keys or WASD for horizontal movement
+- **Jump**: Space bar or Up arrow (supports double jump)
+- **Light Colors**: Number keys 1-4 to switch light colors
+  - 1: White light (illuminates all platforms)
+  - 2: Red light (makes red platforms non-solid)
+  - 3: Blue light (makes blue platforms non-solid)
+  - 4: Green light (makes green platforms non-solid)
+- **Editor Mode**: E key to toggle between gameplay and map editor
+- **Platform Creation**: Left-click drag in editor mode
+- **Platform Movement**: Right-click drag platforms in editor mode
+- **Platform Deletion**: Double right-click platforms in editor mode
+- **Platform Colors**: Number keys 1-4 while dragging to set platform colors
 
 ### Metroidvania Progression
 - **Color Collection**: Discover new light colors throughout the world
@@ -55,23 +71,21 @@ The following components from the main engine will be reused:
 - `component::Velocity` - Generic velocity tracking and momentum component
 - `component::PlatformerMovement` - Jump mechanics and horizontal movement patterns
 
-**Lighting Components:**
+**Lighting Components:** ✅ IMPLEMENTED
 - `component::LightEmitter` - Generic light source with configurable color, radius, and intensity
-- `component::LightReceiver` - Generic component for objects that react to lighting
+- `component::LightGeometry` - Extensible geometry system (circular, global light shapes)
 - `systems::LightingSystem` - Generic lighting calculation and rendering system
 
 ### LightMaze-Specific Components
 
-**Game Logic:**
-- `lightmaze::ColorCollision` - Game-specific collision behavior based on color visibility
-- `lightmaze::ColorInventory` - Player's collected light colors
-- `lightmaze::ColorPickup` - Collectible color items
-- `lightmaze::ColorGate` - Areas unlocked by specific colors
+**Game Logic:** ✅ IMPLEMENTED
+- `lightmaze::LightMazeCollider` - Platform collision detection that responds to matching light colors
+- `lightmaze::LightMazeLightVolume` - Player light collision detection for color-based mechanics
 
-**Map System:**
-- `lightmaze::PlatformTile` - Platform objects with color properties
-- `lightmaze::MapEditor` - In-game level editing interface
-- `lightmaze::MapSerializer` - Save/load map data to disk
+**Map System:** ✅ IMPLEMENTED
+- `lightmaze::MapEntity` - Platform objects with color properties and editor manipulation
+- `lightmaze::MapModeManager` - In-game level editing interface with mode switching
+- YAML serialization system for save/load map data
 
 ## Implementation Plan
 
@@ -398,17 +412,17 @@ lightmaze/
 5. **Test Coverage**: Catch2 framework for reliable testing
 6. **Maintainable**: Simple, focused responsibilities for each entity
 
-### Phase 4: Generic Lighting System (Add to components/ and systems/ folders)
-- [ ] Implement `component::LightEmitter` as generic light source
-- [ ] Create `component::LightReceiver` for objects affected by light
-- [ ] Develop `systems::LightingSystem` for light calculation and rendering
-- [ ] Add basic circular light emission and color management
+### Phase 4: Generic Lighting System ✅ COMPLETED
+- [x] Implemented `component::LightEmitter` as generic light source with multiple geometries (circular, global)
+- [x] Created extensible light geometry system supporting different light shapes and falloffs
+- [x] Developed `systems::LightingSystem` for light calculation and rendering
+- [x] Added comprehensive light configuration with color, intensity, and position management
 
-### Phase 5: Game-Specific Lighting Mechanics (LightMaze folder)
-- [ ] Implement `lightmaze::ColorCollision` using generic lighting data
-- [ ] Create color-based visibility and collision logic
-- [ ] Add player color switching mechanics
-- [ ] Test lighting-based collision interactions
+### Phase 5: Game-Specific Lighting Mechanics ✅ COMPLETED
+- [x] Implemented `lightmaze::LightMazeCollider` and `lightmaze::LightMazeLightVolume` components
+- [x] Created dynamic color-based collision system where platforms become non-solid when illuminated by matching colors
+- [x] Added player color switching mechanics (keys 1-4: White, Red, Blue, Green)
+- [x] Integrated lighting collision detection with existing physics system
 
 ### Phase 6: Map System and Content (LightMaze folder)
 - [ ] Design platform-based tile system using existing collision framework

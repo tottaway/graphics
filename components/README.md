@@ -144,6 +144,7 @@ Base class for all collision detection components with a sophisticated interacti
 - `solid_collider` - Physical blocking
 - `jump_reset_collider` / `jumper_collider` - Jump mechanics and ground detection
 - `wiz_grass_tile_collider` - Environment interactions
+- `lightmaze_light_volume` / `lightmaze_platform_collider` - Color-based collision detection ✅ NEW
 
 ### SolidAABBCollider
 
@@ -188,6 +189,96 @@ Provides automatic centering functionality for entities.
 ### GridCollider (`grid_collider.hh`)
 
 Specialized collider for grid-based collision detection.
+
+### Zoom (`zoom.hh`) ✅ NEW
+
+Component that manages viewport zoom level by dynamically updating screen viewport size.
+
+**Key features:**
+- Zoom levels: 1.0 = normal, >1.0 = zoomed in, <1.0 = zoomed out
+- Automatic base viewport size detection
+- Zoom factor application for scroll wheel handling
+- Clamped zoom bounds (0.1x to 10x)
+
+**Usage:**
+```cpp
+// Add zoom component to any entity
+auto zoom = entity->add_component<component::Zoom>(2.0f); // 2x zoom in
+
+// Update zoom programmatically
+zoom->set_zoom_level(0.5f);  // 2x zoom out
+zoom->apply_zoom_factor(1.2f);  // Zoom in by 20%
+zoom->reset_zoom();  // Back to normal
+```
+
+### ShaderRenderer (`shader_renderer.hh`) ✅ NEW
+
+Component for rendering fullscreen shader effects without OpenGL knowledge.
+
+**Key features:**
+- Custom GLSL shader loading and compilation
+- Dynamic uniform parameter management
+- Z-level support for effect layering
+- Fullscreen quad rendering
+
+**Usage:**
+```cpp
+auto shader_fx = entity->add_component<component::ShaderRenderer>(
+    component::ShaderRenderer::ShaderParams{
+        .vertex_shader_path = "shaders/effect.vert",
+        .fragment_shader_path = "shaders/effect.frag",
+        .uniform_provider = [this](view::Shader& shader) {
+            shader.set_uniform("u_time", current_time);
+            shader.set_uniform("u_intensity", effect_intensity);
+        },
+        .z_level = -0.5f  // Render over game objects
+    });
+```
+
+## Lighting Components ✅ NEW
+
+### LightEmitter (`light_emitter.hh`)
+
+Generic light source component supporting multiple light geometries with shader-based rendering.
+
+**Key features:**
+- **Multiple Geometries**: Circular, global, and extensible custom shapes
+- **Dynamic Properties**: Configurable color, intensity, and position
+- **Shader Integration**: Works with LightingSystem for realistic lighting effects
+- **Parameter Structs**: Clean API with CircularLightParams, GlobalLightParams, etc.
+
+**Light Geometries:**
+- `CircularLightGeometry` - Radius-based falloff with configurable size
+- `GlobalLightGeometry` - Uniform illumination everywhere
+- `LightGeometry` - Base class for custom light shapes
+
+**Usage:**
+```cpp
+// Circular light (most common)
+auto light = entity->add_component<component::LightEmitter>(
+    component::LightEmitter::CircularLightParams{
+        .transform_func = [this]() { return get_transform(); },
+        .radius_meters = 1.2f,
+        .color = {255, 200, 100},  // Warm yellow
+        .intensity = 0.8f
+    });
+
+// Global ambient light
+auto ambient = entity->add_component<component::LightEmitter>(
+    component::LightEmitter::GlobalLightParams{
+        .color = {50, 50, 80},  // Dark blue ambient
+        .intensity = 0.2f
+    });
+
+// Dynamic color changes
+light->set_color({255, 0, 0});  // Change to red
+light->set_intensity(0.5f);     // Dim to half brightness
+```
+
+**Integration:**
+- Requires `systems::LightingSystem` in GameState for rendering
+- Automatically collected by lighting system during update
+- Uses z-levels -1.0 (black overlay) to -0.5 (lights) for proper layering
 
 ## Usage Patterns
 
@@ -280,3 +371,6 @@ Without this pattern:
 - Collision system uses bitmasks for efficient filtering
 - Drawing components use z-levels for layering
 - **Entities must call component->update() for proper component functionality**
+- Lighting components work with systems for shader-based effects
+- Extensible geometry system allows custom light shapes and behaviors
+- Parameter structs provide clean APIs for complex component configuration
