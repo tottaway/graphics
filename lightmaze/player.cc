@@ -166,13 +166,11 @@ Player::on_key_press(const view::KeyPressedEvent &key_press) {
     return Ok(false);             // Event handled, stop processing
 
   case sf::Keyboard::F:
-    // Add FPS counter positioned 0.5m to the right of the player
     add_component<component::FpsCounter>(
         component::FpsCounter::FpsCounterParams{
             .transform_func =
                 [this]() {
                   Eigen::Affine2f transform = get_transform();
-                  // Move 0.5m to the right and set size for FPS display
                   transform.translate(Eigen::Vector2f{1.3f, 0.0f});
                   transform.scale(Eigen::Vector2f{
                       0.25f, 0.08f}); // Size for text background
