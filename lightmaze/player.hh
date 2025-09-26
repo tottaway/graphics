@@ -7,7 +7,7 @@ namespace component {
 class Jumper;
 class LightEmitter;
 class LightMazeLightVolume;
-}
+} // namespace component
 
 namespace lightmaze {
 
@@ -93,7 +93,7 @@ private:
    * @param new_color New RGB color for player light
    * @post Light emitter and light volume components updated with new color
    */
-  void set_light_color(const view::Color& new_color);
+  void set_light_color(const view::Color &new_color);
   /// Current position in world coordinates (meters)
   Eigen::Vector2f position_{0.0f, 0.0f};
 
@@ -122,8 +122,8 @@ private:
   component::Jumper *jumper_component_{nullptr};
 
   /// Cached pointers to light components for color updates
-  component::LightEmitter* light_emitter_component_{nullptr};
-  component::LightMazeLightVolume* light_volume_component_{nullptr};
+  component::LightEmitter *light_emitter_component_{nullptr};
+  component::LightMazeLightVolume *light_volume_component_{nullptr};
 
   /// Color of the player's light emission for LightMaze mechanics
   view::Color player_light_color_{255, 255, 255}; // Start with white

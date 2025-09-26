@@ -207,3 +207,17 @@ cc_library(
   ],
   visibility = ["//visibility:public"],
 )
+
+cc_library(
+  name = "fps_counter",
+  srcs = ["fps_counter.cc"],
+  hdrs = ["fps_counter.hh"],
+  deps = [
+    ":component",
+    "//geometry:rectangle_utils",
+    "//utility:try",
+    "//view:screen",
+    "@eigen",
+  ],
+  visibility = ["//visibility:public"],
+)

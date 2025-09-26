@@ -3,6 +3,7 @@
 #include "components/center.hh"
 #include "components/collider.hh"
 #include "components/draw_rectangle.hh"
+#include "components/fps_counter.hh"
 #include "components/gravity.hh"
 #include "components/jumper.hh"
 #include "components/light_emitter.hh"
@@ -163,6 +164,26 @@ Player::on_key_press(const view::KeyPressedEvent &key_press) {
   case sf::Keyboard::Num4:
     set_light_color({0, 255, 0}); // Green
     return Ok(false);             // Event handled, stop processing
+
+  case sf::Keyboard::F:
+    // Add FPS counter positioned 0.5m to the right of the player
+    add_component<component::FpsCounter>(
+        component::FpsCounter::FpsCounterParams{
+            .transform_func =
+                [this]() {
+                  Eigen::Affine2f transform = get_transform();
+                  // Move 0.5m to the right and set size for FPS display
+                  transform.translate(Eigen::Vector2f{1.3f, 0.0f});
+                  transform.scale(Eigen::Vector2f{
+                      0.25f, 0.08f}); // Size for text background
+                  return transform;
+                },
+            .font_size = 16.0f,
+            .text_color = {120, 120, 120}, // White text
+            .bg_color = {0, 0, 0}          // Black background
+        });
+
+    return Ok(false); // Event handled, stop processing
 
   default:
     return Ok(true); // Event not handled, continue processing
