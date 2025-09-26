@@ -28,8 +28,8 @@ entities:
       b: 0
     type: platform
     top_center_position:
-      x: 4.23060322
-      y: 3.44995618
+      x: 2.17375946
+      y: 3.32679176
     size:
       x: 0.488315582
       y: 2.53219271
@@ -39,8 +39,8 @@ entities:
       b: 0
     type: platform
     top_center_position:
-      x: 0.776130915
-      y: 0.492985845
+      x: 0.773949146
+      y: 0.495167732
     size:
       x: 0.14883399
       y: 0.304754972
@@ -94,19 +94,8 @@ entities:
       b: 255
     type: platform
     top_center_position:
-      x: 1.67584085
-      y: 0.916456461
+      x: 0.643785477
+      y: 0.91599077
     size:
-      x: 2.07189322
-      y: 0.0278105736
-  - color:
-      r: 0
-      g: 0
-      b: 255
-    type: platform
-    top_center_position:
-      x: 1.67584085
-      y: 0.916456461
-    size:
-      x: 2.07189322
-      y: 0.0278105736
+      x: 1.04032087
+      y: 0.00999999978
